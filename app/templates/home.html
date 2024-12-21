@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='homepage.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <h1 class="website-name">UrbanThreads</h1>
+        </div>
+        <div class="navbar-center">
+            <div class="search-container">
+                <input type="text" class="search-bar" placeholder="Search...">
+                <button class="search-btn">Search</button>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <button class="btn cart-btn">Cart</button>
+            <a href="{{ url_for('auth.register') }}" class="btn register-btn">Register</a>
+            <a href="{{ url_for('auth.login') }}" class="btn login-btn">Login</a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 UrbanThreads. All rights reserved.</p>
+    </footer>
+</body>
+</html>
