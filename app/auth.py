@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, session
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session, abort
 from flask_login import login_user, logout_user, login_required
 from .forms import RegistrationForm, LoginForm
 from flask_mail import Message
@@ -45,6 +45,7 @@ def login():
             login_user(user)
             flash('Login successful!', 'success')
             session['role'] = user.role  # Store the user's role in the session
+            session['user_id'] = user.id  # Add user_id to the session
             session['username'] = user.username  # Store the user's username in the session
             # Redirect based on user role
             
@@ -59,6 +60,23 @@ def login():
             flash('Invalid email or password!', 'danger')
     return render_template('login.html', form=form)
 
+@auth.route('/profile/<int:id>')
+@login_required
+def profile(id):
+    # Fetch the user with the given ID from the database
+    user = User.query.get(id)
+
+    # If the user doesn't exist, return a 404 page
+    if not user:
+        abort(404)
+
+    # Access control: Allow only the owner or admin
+    from flask_login import current_user
+    if current_user.id != id and current_user.role != 'admin':
+        abort(403)
+
+    # Render the profile.html template with the user's data
+    return render_template('profile.html', user=user)
 
 @auth.route('/logout')
 @login_required
