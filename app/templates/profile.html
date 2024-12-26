@@ -297,7 +297,9 @@ footer button:active {
                 </div>
                 <div>
                     <span>Delete Account</span>
-                    <button class="delete-account-btn">Delete Account</button>
+                    <a href="{{ url_for('auth.confirm_delete', id=user.id) }}">
+                        <button class="delete-account-btn">Delete Account</button>
+                    </a>
                 </div>
             </section>
 

@@ -151,6 +151,50 @@ def update_details(id):
 
 
 
+@auth.route('/confirm_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def confirm_delete(id):
+    # Fetch the user to delete
+    user = User.query.get(id)
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for('auth.profile', id=current_user.id))  # Redirect to profile
+    
+    # Access control: Only the user themselves can delete their account
+    if current_user.id != id:
+        abort(403)
+    
+    if request.method == 'POST':
+        password = request.form.get('password')
+        
+        # Verify the password
+        if not bcrypt.check_password_hash(user.password, password):
+            flash("Incorrect password. Account deletion canceled.", "error")
+            return redirect(url_for('auth.confirm_delete', id=id))
+        
+        try:
+            # Delete the user from the database
+            db.session.delete(user)
+            db.session.commit()
+            
+            # Log out the user
+            logout_user()
+            session.clear()
+            
+            flash("Your account has been deleted successfully.", "success")
+            return render_template('home.html')
+        except Exception as e:
+            logger.error(f"Error deleting user {id}: {e}")
+            db.session.rollback()
+            flash("An error occurred while deleting your account. Please try again.", "error")
+            return redirect(url_for('auth.confirm_delete', id=id))
+    
+    # Render the confirmation page
+    return render_template('confirm_delete.html', user=user)
+
+
+
+
 @auth.route('/logout')
 @login_required
 def logout():
