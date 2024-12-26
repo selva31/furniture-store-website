@@ -18,11 +18,20 @@
                 <button class="search-btn">Search</button>
             </div>
         </div>
+
+        {% if current_user.is_authenticated %}
+        <div class="navbar-right">
+            <button class="btn cart-btn">Cart</button>
+            <a href="{{ url_for('auth.logout') }}" class="btn logout-btn">Logout</a>
+            <a href="{{ url_for('auth.profile', id=current_user.id) }}" class="btn profile-btn">Profile</a>
+        </div>
+        {% else %}
         <div class="navbar-right">
             <button class="btn cart-btn">Cart</button>
             <a href="{{ url_for('auth.register') }}" class="btn register-btn">Register</a>
             <a href="{{ url_for('auth.login') }}" class="btn login-btn">Login</a>
         </div>
+        {% endif %}
     </nav>
 
     <!-- Footer -->

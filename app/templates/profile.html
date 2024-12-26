@@ -17,7 +17,7 @@
 
             .container {
         width: 90%;
-        max-width: 1000px;
+        max-width: 850px;
         background: #d0e2f1;
         border: 1px solid #5eacf1;
         border-radius: 10px;
@@ -158,7 +158,7 @@
         text-align: center; /* Center text inside button */
         background-color: #007bff; /* Button color */
         color: #fff; /* Text color */
-        border: none; /* Remove default border */
+        border: black 1px solid;
         border-radius: 8px; /* Add rounded corners */
         cursor: pointer; /* Pointer on hover */
         font-size: 1.1em; /* Slightly larger font size for better visibility */
@@ -233,17 +233,25 @@ footer button:active {
             </header>
 
             <div class="center-buttons">
+                <button>Cart</button>
+                <button>Orders</button>
+                <button>Wishlist</button>
+            </div>
+            {% if user.role == 'delivery' %}
+            <div class="center-buttons">
                 <button>Delivery Dashboard</button>
                 <button>Delivery Requests</button>
                 <button>Active Delivery</button>
                 <button>Completed Delivery</button>
+              
             </div>
+            {% endif %}
             <section id="personal-details">
                 <h2>Personal Details</h2>
             <ul class="info">
                 
                 <li>
-                    <span class="label">Username:</span>
+                    <span class="label">Name:</span>
                     <span class="value">{{ user.username }}</span>
                 </li>
                 <li>
@@ -277,11 +285,15 @@ footer button:active {
                 <h2>Account Settings</h2>
                 <div>
                     <span>Change Password</span>
-                    <button class="change-password-btn">Change Password</button>
+                    
+                        <button class="change-password-btn">Change Password</button>
+                    </a>
                 </div>
                 <div>
                     <span>Update Personal Details</span>
-                    <button class="update-details-btn">Update Details</button>
+                    <form action="{{ url_for('auth.update_details', id=user.id) }}" method="get" style="display: inline;">
+                        <button type="submit" class="btn btn-primary">Update Details</button>
+                    </form>
                 </div>
                 <div>
                     <span>Delete Account</span>
@@ -289,17 +301,21 @@ footer button:active {
                 </div>
             </section>
 
-            <section id="performance">
-                <h2>Performance</h2>
-                <div>
-                    <span>Performance Matrix</span>
-                    <button class="performance-btn">Performance Matrix</button>
-                </div>
-                <div>
-                    <span>Earnings Summary</span>
-                    <button class="earnings-btn">Earnings </button>
-                </div>
-            </section>
+            {% if user.role == 'delivery' %}
+<section id="performance">
+    <h2>Performance</h2>
+    <div>
+        <span>Performance Matrix</span>
+        <button class="performance-btn">Performance Matrix</button>
+    </div>
+    <div>
+        <span>Earnings Summary</span>
+        <button class="earnings-btn">Earnings</button>
+    </div>
+</section>
+{% endif %}
+
+            
 
             <section id="support">
                 <h2>Customer Support</h2>
@@ -310,7 +326,11 @@ footer button:active {
             </section>
 
             <footer>
-                <button class="logout-btn">Logout</button>
+
+                <form action="{{ url_for('auth.logout') }}" class="btn logout-btn" method="get" style="display: inline;">
+                    <button class="logout-btn">Logout</button>
+                </form>
+               
             </footer>
         </div>
     </body>
