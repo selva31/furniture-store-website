@@ -24,6 +24,10 @@
             <button class="btn cart-btn">Cart</button>
             <a href="{{ url_for('auth.logout') }}" class="btn logout-btn">Logout</a>
             <a href="{{ url_for('auth.profile', id=current_user.id) }}" class="btn profile-btn">Profile</a>
+        {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('main.default_dashboard') }}" class="btn admin-btn">Admin Dashboard</a>
+
+    {% endif %}
         </div>
         {% else %}
         <div class="navbar-right">

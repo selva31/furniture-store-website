@@ -285,8 +285,9 @@ footer button:active {
                 <h2>Account Settings</h2>
                 <div>
                     <span>Change Password</span>
-                    
+                    <form action="{{ url_for('auth.change_password', id=user.id) }}" method="get" style="display: inline;">
                         <button class="change-password-btn">Change Password</button>
+                    </form>
                     </a>
                 </div>
                 <div>
