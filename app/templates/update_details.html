@@ -108,6 +108,16 @@ button[type="submit"]:hover {
 </head>
 <body>
     <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+            <li class="alert alert-{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+
         <h2 class="title">Update Your Details</h2>
         <form method="POST" action="">
             <!-- Username Field -->
@@ -187,13 +197,14 @@ button[type="submit"]:hover {
             <div class="form-group">
                 <label for="dob">Date of Birth:</label>
                 <input type="date" name="dob" id="dob" class="form-control" value="{{ user.dob }}">
+       
             </div>
 
             <!-- Gender Field -->
             <div class="form-group">
                 <label for="gender">Gender:</label>
                 <select name="gender" id="gender" class="form-control">
-                    <option value="" disabled selected>Select your gender</option>
+                    <option value="" disabled {% if not user.gender %}selected{% endif %}>Select your gender</option>
                     <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
                     <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
                     <option value="Other" {% if user.gender == 'Other' %}selected{% endif %}>Other</option>

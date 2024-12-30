@@ -1,84 +1,11 @@
-# from flask import url_for
-# from flask_testing import TestCase
-# import pytest
-# from app import create_app, db
-# from app.models import User
-# from datetime import date
-
-# @pytest.fixture
-# def app():
-#     """Create a Flask application instance for testing."""
-#     app = create_app()
-#     app.config.update({
-#         "TESTING": True,
-#         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",  # Use in-memory SQLite for testing
-#         "WTF_CSRF_ENABLED": False,  # Disable CSRF for easier form testing
-#     })
-
-#     # Set up the database
-#     with app.app_context():
-#         db.create_all()
-#         yield app
-#         db.session.remove()
-#         db.drop_all()
-
-# @pytest.fixture
-# def client(app):
-#     """Provide a test client for the app."""
-#     return app.test_client()
-
-# @pytest.fixture
-# def runner(app):
-#     """Provide a test CLI runner for the app."""
-#     return app.test_cli_runner()
-
-# @pytest.fixture
-# def create_user(app):
-#     """Create a user in the database for testing."""
-#     with app.app_context():
-#         user = User(
-#             username='testuser',
-#             email='testuser@example.com',
-#             password='hashedpassword',  # Use bcrypt to hash in actual application
-#             role='customer',
-#             contact='1234567890',
-#             location='Test City',
-#             dob=date(2000, 1, 1),
-#             gender='male'
-#         )
-#         user.set_password('password123')  # Assuming you have a set_password method
-#         db.session.add(user)
-#         db.session.commit()
-#         return user
-
-
-# def test_login_invalid_email(client):
-#     """Test login with an invalid email."""
-#     response = client.post(
-#         url_for('auth.login'),
-#         data={
-#             'email': 'invalid@example.com',  # Email does not exist
-#             'password': 'password123'
-#         },
-#         follow_redirects=True
-#     )
-#     assert response.status_code == 200
-#     assert b'Invalid email or password!' in response.data
-
-
-
-
-
-
-
 import sys
 import os
-# Add app path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from flask import url_for
+from flask import url_for, session
 from flask_testing import TestCase
 import pytest
-from app import create_app, db
+from app import create_app, db, bcrypt
+from datetime import datetime
 from app.models import User
 from werkzeug.security import generate_password_hash
 from flask_bcrypt import Bcrypt
@@ -89,13 +16,27 @@ def app():
     app = create_app()
     app.config.update({
         "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",  # Use in-memory SQLite for testing
-        "WTF_CSRF_ENABLED": False,  # Disable CSRF for easier form testing
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "WTF_CSRF_ENABLED": False, 
+        "SECRET_KEY": 'mysecretkey',
     })
 
-    # Set up the database
     with app.app_context():
         db.create_all()
+        # Create a test user
+        hashed_password = bcrypt.generate_password_hash('testpassword').decode('utf-8')
+        test_user = User(
+            username='testuser',
+            email='testuser@example.com',
+            password=hashed_password,
+            role='user',
+            contact='1234567890',
+            location='Test Location',
+            dob=datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
+            gender='Other'
+        )
+        db.session.add(test_user)
+        db.session.commit()
         yield app
         db.session.remove()
         db.drop_all()
@@ -105,64 +46,72 @@ def client(app):
     """Provide a test client for the app."""
     return app.test_client()
 
-@pytest.fixture
-def runner(app):
-    """Provide a test CLI runner for the app."""
-    return app.test_cli_runner()
-from datetime import datetime
-@pytest.fixture
-def setup_user(app):
-    """Create a test user in the database."""
-    with app.app_context():
-        user = User(
-            username='testuser',
-            email='testuser@example.com',
-            password=generate_password_hash('password123'),
-            role='customer',
-            contact='1234567890',
-            location='Test City',
-            dob=datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
-            gender='male'
+class TestLogin:
+    # def test_login_success(self, client):
+    #     """Test successful login."""
+    #     response = client.post(
+    #         url_for('auth.login'),
+    #         data={
+    #             'email': 'testuser@example.com',
+    #             'password': 'testpassword'
+    #         },
+    #         follow_redirects=True        
+    #     )
+
+    #     # Check if the login was successful (by redirecting to home page)
+    #     assert response.status_code == 200
+    #     assert response.request.path == url_for('main.home')
+
+    #     # Check if the flash message is in the response data
+    #     assert b'Login successful!' in response.data, "Flash message not found in response!"
+        
+    #     # Check if session values are set correctly (debug step)
+    #     with client.session_transaction() as sess:
+    #         assert 'role' in sess
+    #         assert sess['role'] == 'user'
+    #         assert 'user_id' in sess
+    #         assert 'username' in sess
+
+    def test_login_empty_form(self, client):
+        """Test login with an empty form."""
+        response = client.post(
+            url_for('auth.login'),
+            data={},  # Empty form data
+            follow_redirects=True
         )
-        db.session.add(user)
-        db.session.commit()
-        return user
+        assert b'This field is required.' in response.data
+        assert response.status_code == 200
 
-def test_login_success(client, setup_user):
-    """Test successful login."""
-    response = client.post(
-        url_for('auth.login'),
-        data={
-            'email': 'testuser@example.com',
-            'password': 'password123'
-        },
-        follow_redirects=True
-    )
-    assert response.status_code == 200
-    assert b'Login successful!' in response.data
 
-def test_login_invalid_email(client):
-    """Test login with an invalid email."""
-    response = client.post(
-        url_for('auth.login'),
-        data={
-            'email': 'invalid@example.com',
-            'password': 'password123'
-        },
-        follow_redirects=True
-    )
-    assert response.status_code == 200
-    assert b'Invalid email or password!' in response.data
+    def test_login_invalid_email(self, client):
+        """Test login with an invalid email."""
+        response = client.post(
+            url_for('auth.login'),
+            data={
+                'email': 'wrongemail@example.com',
+                'password': 'testpassword'
+            },
+            follow_redirects=True
+        )
+        assert b'Invalid email or password!' in response.data
+        assert response.status_code == 200
 
-def test_login_incorrect_password(client, setup_user):
-    """Test login with an incorrect password."""
-    response = client.post(
-        url_for('auth.login'),
-        data={
-            'email': 'testuser@example.com',
-            'password': 'wrongpassword'
-        },
-        follow_redirects=True
-    )
-    assert response.status_code == 200
-    assert b'Invalid email or password!' in response.data
+    def test_login_invalid_password(self, client):
+        """Test login with an invalid password."""
+        response = client.post(
+            url_for('auth.login'),
+            data={
+                'email': 'testuser@example.com',
+                'password': 'wrongpassword'
+            },
+            follow_redirects=True
+        )
+        assert b'Invalid email or password!' in response.data
+        assert response.status_code == 200
+
+
+    def test_login_get_request(self, client):
+        """Test accessing the login page with a GET request."""
+        response = client.get(url_for('auth.login'))
+        assert b'Login' in response.data
+        assert response.status_code == 200

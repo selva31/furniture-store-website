@@ -54,7 +54,8 @@ def create_app():
     from .models import User  # Import after db.init_app(app) to avoid circular imports
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))  # Fetch the user by ID
+        # return User.query.get(int(user_id))  # Fetch the user by ID
+        return db.session.get(User, int(user_id))
 
     # Register blueprints
     from .views import main

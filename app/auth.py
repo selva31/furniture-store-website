@@ -76,47 +76,66 @@ def register():
     return render_template('register.html', form=form)
 
 
+
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user)
-            flash('Login successful!', 'success')
-            session['role'] = user.role  # Store the user's role in the session
-            session['user_id'] = user.id  # Add user_id to the session
-            session['username'] = user.username  # Store the user's username in the session
-            # Redirect based on user role
-            return render_template('home.html')
+            # Flash success message
+            flash('Login successful!', 'success')  # Ensure the message is flashed here
+            login_user(user)  # Log the user in
             
+            # Set session variables
+            session['role'] = user.role
+            session['user_id'] = user.id
+            session['username'] = user.username
+            
+            
+            
+            # Redirect to the home page
+            return redirect(url_for('main.home'))
         else:
+            # Flash error message for invalid credentials
             flash('Invalid email or password!', 'danger')
+    else:
+        # Flash error messages for form validation
+        if form.errors:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f'{field.capitalize()}: {error}', 'danger')
+    
+    # Render the login page with the form
     return render_template('login.html', form=form)
+
 
 @auth.route('/profile/<int:id>')
 @login_required
 def profile(id):
-    # Fetch the user with the given ID from the database
-    user = User.query.get(id)
-
-    # If the user doesn't exist, return a 404 page
+    """
+    View function for displaying a user's profile.
+    Accessible by the user themselves or an admin.
+    """
+    # Fetch the user with the given ID or return a 404 if not found
+    #user = User.query.get(id)
+    user = db.session.get(User, id)
     if not user:
         abort(404)
 
-    # Access control: Allow only the owner or admin
-    from flask_login import current_user
+    # Access control: Only allow the profile owner or an admin
     if current_user.id != id and current_user.role != 'admin':
         abort(403)
 
-    # Render the profile.html template with the user's data
+    # Render the profile page with the user's data
     return render_template('profile.html', user=user)
 
 @auth.route('/update_details/<int:id>', methods=['GET', 'POST'])
 @login_required
 def update_details(id):
     # Fetch the user to update
-    user = User.query.get(id)
+    user = db.session.get(User, id)
     if not user:
         flash("User not found.", "error")
         return redirect(url_for('main.profile'))  # Redirect to an appropriate route
@@ -154,6 +173,7 @@ def update_details(id):
             flash("Invalid gender selection.", "error")
             return redirect(url_for('auth.update_details', id=id))
 
+        # Try to update the user details
         try:
             # Update user details
             user.username = username
@@ -166,27 +186,31 @@ def update_details(id):
 
             # Commit changes to the database
             db.session.commit()
+            
+            # Flash success message and redirect to profile page
             flash("User details updated successfully.", "success")
-            return redirect(url_for('main.profile'))  # Redirect to an appropriate route
+            return redirect(url_for('main.profile'))  # Ensure it redirects here, after success
+
         except Exception as e:
             logger.error(f"Error updating user details for user {id}: {e}")
-            db.session.rollback()
-            flash("An error occurred while updating the details. Please try again.", "error")
+            db.session.rollback()  # Rollback in case of error
+            
+            # Flash error message and redirect to the same page to try again
+            # flash("An error occurred while updating the details. Please try again.", "error")
             return redirect(url_for('auth.update_details', id=id))
 
     # Render the update details form
     return render_template('update_details.html', user=user)
 
-
-
 @auth.route('/confirm_delete/<int:id>', methods=['GET', 'POST'])
 @login_required
 def confirm_delete(id):
     # Fetch the user to delete
-    user = User.query.get(id)
+    #user = User.query.get(id)
+    user = db.session.get(User, id)
     if not user:
         flash("User not found.", "error")
-        return redirect(url_for('auth.profile', id=current_user.id))  # Redirect to profile
+        return redirect(url_for('auth.login'))  # Redirect to login page if user not found  
     
     # Access control: Only the user themselves can delete their account
     if current_user.id != id:
@@ -269,7 +293,8 @@ def change_password():
         new_password = request.form['new-password']
         confirm_password = request.form['confirm-password']
 
-        user = User.query.get(current_user.id)  # Retrieve the logged-in user by session ID
+        user = db.session.get(User, current_user.id)  # New method using session.get()
+
 
         # Verify the current password
         if not bcrypt.check_password_hash(user.password, current_password):

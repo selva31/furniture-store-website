@@ -109,6 +109,15 @@
 </head>
 <body>
     <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                    {% for category, message in messages %}
+                        <li class="flash-message flash-{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
         <h1 class="title">Confirm Account Deletion</h1>
         <p>Are you sure you want to delete your account, <strong>{{ user.username }}</strong>? This action cannot be undone.</p>
         
