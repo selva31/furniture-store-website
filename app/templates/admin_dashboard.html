@@ -7,9 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Welcome to the Admin Dashboard</h1>
-    </header>
+    
+    <button onclick="location.href='{{ url_for('admin.role_approval_requests') }}'">Role Approval Requests</button>
 
 </body>
 </html>

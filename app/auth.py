@@ -1,15 +1,18 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, abort
 from flask_login import login_user, logout_user, login_required,current_user
 from .forms import RegistrationForm, LoginForm
-from flask_mail import Message
+
 from .models import User
 from . import db, bcrypt, mail
 import logging
+
 from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
+from sqlalchemy.exc import IntegrityError
+from app.models import RoleApprovalRequest
 
 
 # Setup logger (If not already set in your __init__.py)
@@ -33,12 +36,12 @@ def register():
             # Hash the password using bcrypt before saving it to the database
             hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
 
-            # Create a new User instance with data from the form
+            # Always register the user as a 'customer'
             new_user = User(
                 username=form.username.data,
                 email=form.email.data,
                 password=hashed_password,
-                role=form.role.data,
+                role='customer',
                 contact=form.contact.data,
                 location=form.location.data,
                 dob=form.dob.data,
@@ -47,24 +50,31 @@ def register():
 
             # Add the new user to the database
             db.session.add(new_user)
-            db.session.commit()
+            db.session.commit()  # Commit here to ensure `new_user.id` is available
 
-            flash('Registration successful! You can now log in.', 'success')
+            # If the user selected 'delivery', create a role approval request
+            if form.role.data == 'delivery':
+                if not new_user.id:  # Sanity check for new_user.id
+                    flash('Error creating user ID. Please try again.', 'danger')
+                    return render_template('register.html', form=form)
 
-            # Optionally log the user in right after registration
-            login_user(new_user)  # Automatically log in the new user (optional)
+                role_request = RoleApprovalRequest(user_id=new_user.id, requested_role='delivery')
+                db.session.add(role_request)
+                db.session.commit()  # Commit the role approval request
 
-            return redirect(url_for('auth.login'))  # Redirect to the login page after successful registration
+                flash('Your request to become a delivery person has been sent for admin approval.', 'info')
 
-        except IntegrityError:
-            # Handle any database integrity errors (e.g., duplicates, constraints)
+            flash('Registration successful! You can now log in as a customer.', 'success')
+            return redirect(url_for('auth.login'))
+
+        except IntegrityError as e:
             db.session.rollback()
+            logger.error(f"IntegrityError during registration: {e}")
             flash('A database error occurred. Please try again.', 'danger')
 
         except Exception as e:
-            # Log unexpected errors
-            logger.error(f"Error during user registration: {e}")
             db.session.rollback()
+            logger.error(f"Unexpected error during registration: {e}")
             flash('An unexpected error occurred during registration. Please try again.', 'danger')
 
     else:
@@ -74,6 +84,8 @@ def register():
                 flash(f"{field.capitalize()}: {error}", 'danger')
 
     return render_template('register.html', form=form)
+
+
 
 
 
@@ -315,8 +327,3 @@ def change_password():
         return redirect(url_for('auth.profile', id=current_user.id))  # Redirect to the profile page
 
     return render_template('change_password.html')
-
-
-
-
-
