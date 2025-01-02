@@ -111,3 +111,29 @@ def role_approval_requests():
 
     return render_template('role_approval_requests.html', requests=requests)
 
+
+@admin.route('/admin/user_details', methods=['GET', 'POST'])
+def user_details():
+    if session.get('role') != 'admin':
+        flash('Unauthorized access!', 'danger')
+        return redirect(url_for('auth.login'))
+
+    # Filters
+    role_filter = request.args.get('role')
+    location_filter = request.args.get('location')
+    gender_filter = request.args.get('gender')
+
+    # Query to fetch user details with filters
+    query = User.query
+    if role_filter:
+        query = query.filter_by(role=role_filter)
+    if location_filter:
+        query = query.filter(User.location.ilike(f"%{location_filter}%"))
+    if gender_filter:
+        query = query.filter_by(gender=gender_filter)
+
+    users = query.all()
+
+    return render_template('user_details.html', users=users, role_filter=role_filter, location_filter=location_filter, gender_filter=gender_filter)
+
+

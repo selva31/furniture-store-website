@@ -4,11 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_dashboard.css') }}">
+
 </head>
 <body>
-    
-    <button onclick="location.href='{{ url_for('admin.role_approval_requests') }}'">Role Approval Requests</button>
+    <div class="dashboard">
+        <button onclick="location.href='{{ url_for('admin.role_approval_requests') }}'">Role Approval Requests</button>
+        <button onclick="location.href='{{ url_for('admin.user_details') }}'">
+            View User Details </button>
 
+        <button>Add New Product</button>
+        <button>Update Product</button>
+        <button>System Settings</button>
+        <button>Analytics Dashboard</button>
+    </div>
 </body>
 </html>
