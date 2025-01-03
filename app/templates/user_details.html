@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
 </head>
 <body>
+    {% extends "home.html" %}
+
+    {% block title %}Admin Dashboard{% endblock %}
+    
+    {% block content %}
+    <div class="container">
     <h1>User Details</h1>
     <form method="GET" action="{{ url_for('admin.user_details') }}">
         <label for="role">Role:</label>
@@ -109,5 +115,7 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+    {% endblock %}
 </body>
 </html>

@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
 </head>
 <body>
+    {% extends "home.html" %}
+
+    {% block title %}Admin Dashboard{% endblock %}
+    
+    {% block content %}
     
     <div class="form-container">
         <!-- Flash messages -->
@@ -165,5 +170,6 @@
             <p>If you are already registered, <a href="{{ url_for('auth.login') }}">Login</a></p>
         </form>
     </div>
+    {% endblock %}
 </body>
 </html>

@@ -4,9 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
+    <style>
+        .form-container {
+  width: 600px; /* Increased width for a larger form */
+  height: 400px;
+  background: linear-gradient(145deg, #ffffff, #e6e6e6); /* Soft gradient background */
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Elevated shadow for a polished look */
+  border: 1px solid #ddd;
+}
+    </style>
 </head>
 <body>
+    {% extends "home.html" %}
+
+    {% block title %}Admin Dashboard{% endblock %}
+    
+    {% block content %}
     <div class="form-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
@@ -45,5 +61,6 @@
             <p>If you are not registered, <a href="{{ url_for('auth.register') }}">Register</a></p>
         </form>
     </div>
+    {% endblock %}
 </body>
 </html>

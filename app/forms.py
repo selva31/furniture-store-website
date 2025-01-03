@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp, ValidationError
+from wtforms import StringField, DecimalField, IntegerField,PasswordField, SubmitField, SelectField, TextAreaField, DateField
+from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp, ValidationError, Optional, NumberRange
 from datetime import date
 import re
 
@@ -55,6 +55,27 @@ class RegistrationForm(FlaskForm):
     def validate_email(self, email):
         if not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', email.data):
             raise ValidationError("Enter a valid email address.")
+
+
+
+
+
+class ProductForm(FlaskForm):
+    name = StringField('Product Name', validators=[DataRequired()])
+    price = DecimalField('Price', validators=[DataRequired(), NumberRange(min=0)], places=2)
+    description = TextAreaField('Description', validators=[Optional()])
+    category = StringField('Category', validators=[Optional()])
+    image_url = StringField('Image URL', validators=[Optional()])
+    size = StringField('Size', validators=[Optional()])
+    colour = StringField('Colour', validators=[Optional()])
+    quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
+    manufacturer = StringField('Manufacturer', validators=[Optional()])
+    country_of_origin = StringField('Country of Origin', validators=[Optional()])
+    rating = DecimalField('Rating', validators=[Optional(), NumberRange(min=0, max=5)], places=1)
+    discount = DecimalField('Discount', default=0.0, validators=[Optional()], places=2)
+    submit = SubmitField('Add Product')
+
+
 
 
 

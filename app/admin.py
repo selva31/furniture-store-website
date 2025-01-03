@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, abort
 from flask_login import login_user, logout_user, login_required,current_user
-from .models import User
+from .models import User,Product
 from . import db, bcrypt, mail
+from .forms import ProductForm
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
@@ -33,6 +34,47 @@ def admin_dashboard():
         flash('Unauthorized access!', 'danger')
         return redirect(url_for('auth.login'))
     return render_template('admin_dashboard.html', username=session.get('username'))
+
+
+
+@admin.route('/admin/add_product', methods=['GET', 'POST'])
+@login_required
+def add_product():
+    if current_user.role != 'admin':
+        flash('Unauthorized access!', 'danger')
+        return redirect(url_for('auth.login'))
+
+    form = ProductForm()  # Create an instance of the form
+
+    if form.validate_on_submit():  # Check if form is valid on POST
+        # Get form data
+        new_product = Product(
+            name=form.name.data,
+            price=form.price.data,
+            description=form.description.data,
+            category=form.category.data,
+            image_url=form.image_url.data,
+            size=form.size.data,
+            colour=form.colour.data,
+            quantity=form.quantity.data,
+            manufacturer=form.manufacturer.data,
+            country_of_origin=form.country_of_origin.data,
+            rating=form.rating.data,
+            discount=form.discount.data
+        )
+
+        try:
+            db.session.add(new_product)
+            db.session.commit()  # Commit changes to the database
+            flash(f'Product "{new_product.name}" has been added successfully!', 'success')
+            return redirect(url_for('admin.admin_dashboard'))  # Redirect after successful add
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of any error
+            flash(f'An error occurred: {str(e)}', 'danger')
+            return redirect(url_for('admin.admin_dashboard'))  # Redirect in case of error
+
+    return render_template('add_product.html', form=form)  # Pass the form to the template
+
 
 
 

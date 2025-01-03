@@ -5,16 +5,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Profile Page</title>
         <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                background-color: #f0f8ff;
-            }
-
+            .parent {
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Centers vertically */
+    height: 100vh; /* Ensures full viewport height */
+}
             .container {
         width: 90%;
         max-width: 850px;
@@ -37,6 +33,7 @@
 
     header h1 {
         margin: 0;
+        background-color: #d0e2f1;
         font-size: 3em; /* Increased font size for a bigger look */
         color: #333;
         font-weight: bold; /* Make the font bold for a stronger presence */
@@ -196,9 +193,10 @@
                 font-size: 0.95em;
             }
 
-            footer {
+            footer.container_footer {
     text-align: center;
-    margin-top: 30px; /* Increase space from the content above */
+    background-color: #d0e2f1;
+    margin-top: 30px; /* Increase space from the content above */#d0e2f1
 }
 
 footer button {
@@ -227,6 +225,13 @@ footer button:active {
         </style>
     </head>
     <body>
+       
+        {% extends "home.html" %}
+
+        {% block title %}Admin Dashboard{% endblock %}
+        
+        {% block content %}
+        
         <div class="container">
             <header>
                 <h1>{{ user.username }}'s Profile</h1>
@@ -328,13 +333,15 @@ footer button:active {
                 </div>
             </section>
 
-            <footer>
+            <footer class="container_footer">
 
                 <form action="{{ url_for('auth.logout') }}" class="btn logout-btn" method="get" style="display: inline;">
                     <button class="logout-btn">Logout</button>
                 </form>
                
             </footer>
+   
         </div>
+        {% endblock %}
     </body>
     </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,4 +10,191 @@
     "hello {{ session['username'] }}, this is your  {{ session['role'] | capitalize }}  dashboard"
 
 </body>
-</html>
+</html> -->
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_bcrypt import Bcrypt
+from flask_migrate import Migrate
+from flask_mail import Mail
+from dotenv import load_dotenv
+import os
+import logging
+
+# Initialize extensions
+db = SQLAlchemy()
+login_manager = LoginManager()
+bcrypt = Bcrypt()
+migrate = Migrate()  # Will be initialized after app creation
+mail=Mail()
+
+load_dotenv()
+print(f"MAIL_USERNAME: {os.getenv('MAIL_USERNAME')}")
+# Set up logging
+logging.basicConfig(level=logging.INFO)  # Set the logging level to INFO
+logger = logging.getLogger(__name__)  # Get a logger instance for this module
+def create_app():
+    app = Flask(__name__, template_folder='templates', static_folder='static')
+    
+    # Application configuration
+    secret_key = 'mysecretkey'
+    app.config['SECRET_KEY'] = secret_key
+    app.config['WTF_CSRF_ENABLED'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+    app.config['SQLALCHEMY_BINDS'] = {
+        'products': 'sqlite:///products.db'
+    }
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USE_SSL'] = False
+    app.config['MAIL_USERNAME'] = 'chamanyadav38113114@gmail.com'
+    app.config['MAIL_PASSWORD'] = 'houatbnyyafmqknx'
+    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+    
+    # Initialize extensions with the app
+    db.init_app(app)
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
+    migrate.init_app(app, db)
+    mail.init_app(app)
+    
+    # Login settings
+    login_manager.login_view = 'auth.login'
+    login_manager.login_message = "Please log in to access this page."
+
+    # Define the user_loader function
+    from .models import User, Product  # Import Product here
+    @login_manager.user_loader
+    def load_user(user_id):
+        return db.session.get(User, int(user_id))
+
+    # Register blueprints
+    from .views import main
+    from .auth import auth
+    from .password import password
+    from .admin import admin
+
+    app.register_blueprint(main)
+    app.register_blueprint(auth, url_prefix="/auth")
+    app.register_blueprint(admin)
+    app.register_blueprint(password, url_prefix="/password")
+
+    # Database creation and admin user setup
+    with app.app_context():
+    # Create tables for the default database (users.db)
+        db.create_all()
+    
+    # Create tables for the products database
+        engine = db.get_engine(app, bind='products')  # Get the engine bound to 'products'
+        with engine.connect() as connection:
+            db.metadata.create_all(connection)
+    
+        from .admin import create_admin_user
+        create_admin_user()
+
+    return app
+
+
+
+
+
+
+from flask_login import UserMixin
+from datetime import date, datetime
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, Date
+from sqlalchemy.orm import relationship
+from flask_sqlalchemy import SQLAlchemy
+
+from . import db
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), nullable=False)
+    contact = db.Column(db.String(20), nullable=False)
+    location = db.Column(db.String(100), nullable=False)
+    dob = db.Column(db.Date, nullable=False)
+    gender = db.Column(db.String(10), nullable=False)
+    reset_token = db.Column(db.String(128), nullable=True)
+ 
+    
+    def __repr__(self):
+        return f'<User {self.username}>'
+    
+class RoleApprovalRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    requested_role = db.Column(db.String(20), nullable=False)
+    status = db.Column(db.String(20), default='pending')  # 'pending', 'approved', 'rejected'
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('User', backref='role_requests')
+
+    def __repr__(self):
+        return f'<RoleApprovalRequest {self.id} - {self.requested_role}>'
+
+
+
+class Product(db.Model):
+    __tablename__ = 'product'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)  # Max length for string fields
+    price = db.Column(db.Float, nullable=False)
+    description = db.Column(db.String(255))  # Optional length
+    category = db.Column(db.String(50))
+    image_url = db.Column(db.String(255))
+    size = db.Column(db.String(20))
+    colour = db.Column(db.String(20))
+    quantity = db.Column(db.Integer, nullable=False)
+    manufacturer = db.Column(db.String(100))
+    country_of_origin = db.Column(db.String(100))
+    rating = db.Column(db.Float, nullable=True)
+    discount = db.Column(db.Float, default=0.0)
+
+    def __repr__(self):
+        return f'<Product {self.name}>'
+
+
+@admin.route('/admin/add_product', methods=['GET', 'POST'])
+@login_required
+def add_product():
+    if current_user.role != 'admin':
+        flash('Unauthorized access!', 'danger')
+        return redirect(url_for('auth.login'))
+
+    form = ProductForm()  # Create an instance of the form
+
+    if form.validate_on_submit():  # Check if form is valid on POST
+        # Get form data
+        new_product = Product(
+            name=form.name.data,
+            price=form.price.data,
+            description=form.description.data,
+            category=form.category.data,
+            image_url=form.image_url.data,
+            size=form.size.data,
+            colour=form.colour.data,
+            quantity=form.quantity.data,
+            manufacturer=form.manufacturer.data,
+            country_of_origin=form.country_of_origin.data,
+            rating=form.rating.data,
+            discount=form.discount.data
+        )
+
+        try:
+            db.session.add(new_product)
+            db.session.commit()  # Commit changes to the database
+            flash(f'Product "{new_product.name}" has been added successfully!', 'success')
+            return redirect(url_for('admin.admin_dashboard'))  # Redirect after successful add
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of any error
+            flash(f'An error occurred: {str(e)}', 'danger')
+            return redirect(url_for('admin.admin_dashboard'))  # Redirect in case of error
+
+    return render_template('add_product.html', form=form)  # Pass the form to the template
+
+when i am adding a product a product table is created in users.db and saved there i want it to saved in products.db product table
