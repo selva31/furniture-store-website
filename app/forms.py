@@ -3,6 +3,8 @@ from wtforms import StringField, DecimalField, IntegerField,PasswordField, Submi
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp, ValidationError, Optional, NumberRange
 from datetime import date
 import re
+from flask_wtf.file import MultipleFileField, FileField, FileAllowed
+
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[
@@ -59,45 +61,23 @@ class RegistrationForm(FlaskForm):
 
 
 
-
 class ProductForm(FlaskForm):
     name = StringField('Product Name', validators=[DataRequired()])
     price = DecimalField('Price', validators=[DataRequired(), NumberRange(min=0)], places=2)
     description = TextAreaField('Description', validators=[Optional()])
     category = StringField('Category', validators=[Optional()])
-    image_url = StringField('Image URL', validators=[Optional()])
     size = StringField('Size', validators=[Optional()])
     colour = StringField('Colour', validators=[Optional()])
     quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
     manufacturer = StringField('Manufacturer', validators=[Optional()])
     country_of_origin = StringField('Country of Origin', validators=[Optional()])
+    
     rating = DecimalField('Rating', validators=[Optional(), NumberRange(min=0, max=5)], places=1)
-    discount = DecimalField('Discount', default=0.0, validators=[Optional()], places=2)
+    discount = DecimalField('Discount', default=0.0, validators=[Optional(), NumberRange(min=0)], places=2)
+    images = MultipleFileField('Product Images', validators=[
+        FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')
+    ])
     submit = SubmitField('Add Product')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])

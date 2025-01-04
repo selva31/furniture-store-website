@@ -24,16 +24,7 @@
     
     {% block content %}
     <div class="form-container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <ul class="flashes">
-      {% for category, message in messages %}
-        <li class="flash {{ category }}">{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-
+ 
         <h2>Login</h2>
         
         <form id="loginForm" action="{{ url_for('auth.login') }}" method="POST"> <!-- Corrected action -->

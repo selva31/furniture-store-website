@@ -5,38 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <style>
-        h1 {
-    text-align: center;
-    margin-bottom: 20px; /* Add some space below the heading */
-}
-         /* Dashboard container */
-         .dashboard {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-            margin: 0 auto;
-            max-width: 800px;
+        /* Global styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color: #333;
         }
 
-        /* Buttons */
+        /* Centered header */
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 36px;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        /* Dashboard container */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Button styles */
         .dashboard button {
-            background-color: #007bff;
+            background: linear-gradient(145deg, #6a11cb, #2575fc);
             color: white;
             border: none;
-            padding: 15px 20px;
-            font-size: 16px;
-            border-radius: 5px;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            text-align: center;
         }
 
-        /* Hover effect for buttons */
+        /* Hover effect */
         .dashboard button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
+            background: linear-gradient(145deg, #2575fc, #6a11cb);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
         }
 
         /* Button focus */
@@ -44,42 +64,58 @@
             outline: none;
         }
 
+        /* Button active state */
+        .dashboard button:active {
+            transform: translateY(1px);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
             .dashboard button {
                 width: 100%;
-                max-width: 300px;
+                font-size: 16px;
+                padding: 15px;
             }
         }
-        
 
-       
+        /* Container for Form */
+        .form-container {
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
     </style>
-   
-
 </head>
 <body>
     {% extends "home.html" %}
 
-{% block title %}Admin Dashboard{% endblock %}
+    {% block title %}Admin Dashboard{% endblock %}
 
-{% block content %}
-    <div class="form-container" style="">
+    {% block content %}
+    <div class="form-container">
         <h1>Admin Dashboard</h1>
-    <div class="dashboard">
-        
-        <button onclick="location.href='{{ url_for('admin.role_approval_requests') }}'">Role Approval Requests</button>
-        <button onclick="location.href='{{ url_for('admin.user_details') }}'">
-            View User Details </button>
-
-        <!-- templates/admin_dashboard.html -->
-        <button onclick="location.href='{{ url_for('admin.add_product') }}'">Add New Product</button> 
-
-        <button>Update Product</button>
-        <button>System Settings</button>
-        <button>Analytics Dashboard</button>
+        <div class="dashboard">
+            <button onclick="location.href='{{ url_for('admin.role_approval_requests') }}'">
+                Role Approval Requests
+            </button>
+            <button onclick="location.href='{{ url_for('admin.user_details') }}'">
+                View User Details
+            </button>
+            <button onclick="location.href='{{ url_for('admin.add_product') }}'">
+                Add New Product
+            </button>
+            <button onclick="location.href='{{ url_for('admin.view_products') }}'">
+                Update Product
+            </button>
+        </div>
     </div>
-</div>
     {% endblock %}
 </body>
 </html>

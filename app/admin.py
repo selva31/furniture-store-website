@@ -8,6 +8,10 @@ from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 from datetime import datetime
 from .models import RoleApprovalRequest
+from werkzeug.utils import secure_filename
+from app.models import ProductImage
+import os  # Make sure to import this module
+
 
 admin = Blueprint('admin', __name__)
 
@@ -33,9 +37,18 @@ def admin_dashboard():
     if session.get('role') != 'admin':
         flash('Unauthorized access!', 'danger')
         return redirect(url_for('auth.login'))
+
     return render_template('admin_dashboard.html', username=session.get('username'))
 
+@admin.route('/admin/view_products')
+def view_products():
+    if current_user.role != 'admin':
+        flash('Unauthorized access!', 'danger')
+        return redirect(url_for('auth.login'))
 
+    # Query all products from the database
+    products = Product.query.all()
+    return render_template('view_products.html', products=products)
 
 @admin.route('/admin/add_product', methods=['GET', 'POST'])
 @login_required
@@ -47,15 +60,12 @@ def add_product():
     form = ProductForm()  # Create an instance of the form
 
     if form.validate_on_submit():  # Check if form is valid on POST
-        # Get form data
+        # Create a new product instance
         new_product = Product(
             name=form.name.data,
             price=form.price.data,
             description=form.description.data,
             category=form.category.data,
-            image_url=form.image_url.data,
-            size=form.size.data,
-            colour=form.colour.data,
             quantity=form.quantity.data,
             manufacturer=form.manufacturer.data,
             country_of_origin=form.country_of_origin.data,
@@ -64,19 +74,110 @@ def add_product():
         )
 
         try:
+            # Add the product to the session
             db.session.add(new_product)
-            db.session.commit()  # Commit changes to the database
+            db.session.flush()  # Flush to get the product ID
+
+            # Ensure the upload folder exists
+            upload_folder = current_app.config.get('UPLOAD_FOLDER', 'uploads')
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+
+            # Handle image uploads
+            if form.images.data:
+                images = form.images.data
+                for image in images:
+                    if hasattr(image, 'filename') and image.filename:  # Ensure the file is valid
+                        # Save the image with a relative URL
+                        filename = secure_filename(image.filename)
+                        relative_path = f'uploads/{filename}'  # Only save the relative path
+                        image_path = os.path.join(upload_folder, filename)  # This is the absolute path
+                        image.save(image_path)
+
+                        # Save the relative path in the database
+                        new_product_image = ProductImage(
+                            image_url=relative_path,  # Save relative path
+                            product_id=new_product.id
+                        )
+                        db.session.add(new_product_image)
+
+                    else:
+                        flash("One or more files were invalid.", "warning")
+
+            # Commit all changes to the database
+            db.session.commit()
             flash(f'Product "{new_product.name}" has been added successfully!', 'success')
-            return redirect(url_for('admin.admin_dashboard'))  # Redirect after successful add
+            return redirect(url_for('admin.admin_dashboard'))
+
         except Exception as e:
-            db.session.rollback()  # Rollback in case of any error
-            flash(f'An error occurred: {str(e)}', 'danger')
-            return redirect(url_for('admin.admin_dashboard'))  # Redirect in case of error
+            db.session.rollback()  # Rollback the transaction in case of an error
+            flash(f'An error occurred while adding the product: {str(e)}', 'danger')
+            return redirect(url_for('admin.add_product'))  # Redirect back to the form on error
 
     return render_template('add_product.html', form=form)  # Pass the form to the template
 
 
 
+@admin.route('/admin/update_product/<int:id>', methods=['GET', 'POST'])
+def update_product(id):
+    if current_user.role != 'admin':
+        flash('Unauthorized access!', 'danger')
+        return redirect(url_for('auth.login'))
+
+    # Fetch the product by its ID
+    product = Product.query.get_or_404(id)
+    
+    form = ProductForm()
+
+    if form.validate_on_submit():  # Check if form is valid on POST
+        # Update the product details
+        product.name = form.name.data
+        product.price = form.price.data
+        product.description = form.description.data
+        product.category = form.category.data
+        product.quantity = form.quantity.data
+        product.manufacturer = form.manufacturer.data
+        product.country_of_origin = form.country_of_origin.data
+        product.rating = form.rating.data
+        product.discount = form.discount.data
+
+        try:
+            # Handle image uploads (if any)
+            if form.images.data:
+                images = form.images.data
+                # Delete previous images and upload new ones
+                for image in product.images:
+                    db.session.delete(image)
+                for image in images:
+                    if hasattr(image, 'filename') and image.filename:
+                        filename = secure_filename(image.filename)
+                        image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                        image.save(image_path)
+                        new_product_image = ProductImage(image_url=image_path, product_id=product.id)
+                        db.session.add(new_product_image)
+
+            # Commit the changes to the database
+            db.session.commit()
+            flash(f'Product "{product.name}" has been updated successfully!', 'success')
+            return redirect(url_for('admin.view_products'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f'An error occurred while updating the product: {str(e)}', 'danger')
+            return redirect(url_for('admin.update_product', id=id))  # Redirect to update page on error
+
+    # Pre-populate the form with the current product data
+    form.name.data = product.name
+    form.price.data = product.price
+    form.description.data = product.description
+    form.category.data = product.category
+    form.quantity.data = product.quantity
+    form.manufacturer.data = product.manufacturer
+    form.country_of_origin.data = product.country_of_origin
+    form.rating.data = product.rating
+    form.discount.data = product.discount
+
+    return render_template('update_product.html', form=form, product=product)
 
 def send_role_approval_email(user, action, requested_role=None):
     """Send an email notification based on the role approval/rejection."""
@@ -177,5 +278,3 @@ def user_details():
     users = query.all()
 
     return render_template('user_details.html', users=users, role_filter=role_filter, location_filter=location_filter, gender_filter=gender_filter)
-
-

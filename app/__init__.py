@@ -37,6 +37,9 @@ def create_app():
     app.config['MAIL_USERNAME'] = 'chamanyadav38113114@gmail.com'  # Add your email
     app.config['MAIL_PASSWORD'] = 'houatbnyyafmqknx'  # Add your email password or app-specific password
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')  # Directory to store images
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Max file size (16 MB)
+
     
     
     # Initialize extensions with the app

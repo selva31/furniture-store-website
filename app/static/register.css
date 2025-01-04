@@ -8,8 +8,7 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Elevated shadow for a polished look */
   border: 1px solid #ddd;
 }
-
-h2 {
+.form-container h2 {
   text-align: center;
   font-size: 2rem; /* Larger heading */
   color: #333;
@@ -17,34 +16,38 @@ h2 {
   text-transform: uppercase; /* Optional for emphasis */
 }
 
-form {
+.form-container form {
   display: flex;
   flex-direction: column;
 }
 
-.form-group {
+.form-container .form-group {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px; /* Increased spacing between fields */
 }
 
-label {
+.form-container label {
   font-size: 1.1rem; /* Larger font for labels */
   color: #555;
   font-weight: bold;
   width: 40%;
 }
 
+
+/* Ensure uniform size and appearance for all form inputs */
 input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="date"],
 input[type="tel"],
 textarea,
-select {
+select,
+input[type="number"],    /* For numeric fields like Price and Quantity */
+input[type="range"] {    /* For the Rating field (slider) */
   width: 55%;
-  padding: 12px; /* Bigger input boxes */
+  padding: 12px; /* Same padding for consistency */
   border-radius: 6px;
   border: 1px solid #ccc;
   font-size: 1rem;
@@ -52,13 +55,65 @@ select {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Focus Effect */
 input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="date"]:focus,
-input[type="tel"]:focus {
+input[type="tel"]:focus,
+input[type="number"]:focus,
+input[type="range"]:focus {
   border-color: #4CAF50;
   outline: none;
+  box-shadow: 0 0 5px #4CAF50;
+}
+
+/* Slider (Rating) Styling */
+#rating {
+  padding: 12px 15px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+
+
+#rating:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px #4CAF50;
+}
+
+/* Discount Field */
+#discount  {
+  padding: 12px 15px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+#discount :focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px #4CAF50;
+}
+
+
+
+
+/* Quantity and Price Fields - Make them look the same */
+#quantity,
+#price {
+  padding: 12px 15px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 55%;
+  background-color: #f9f9f9;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#quantity:focus,
+#price:focus {
+  border-color: #4CAF50;
   box-shadow: 0 0 5px #4CAF50;
 }
 

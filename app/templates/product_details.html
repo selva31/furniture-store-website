@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='product_details.css') }}">
+</head>
+<body>
+  {% extends "home.html" %}
+
+  {% block title %}View Products{% endblock %}
+  
+  {% block content %}
+  <div class="product-card">
+    <!-- Image Slider -->
+    <div class="image-slider">
+        {% for image in product.images %}
+            <img src="{{ url_for('static', filename=image.image_url) }}" alt="{{ product.name }}" class="{% if loop.first %}active{% endif %}">
+        {% endfor %}
+        <div class="controls">
+            <button id="prev-btn">&lt;</button>
+            <button id="next-btn">&gt;</button>
+        </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="product-info">
+        <h1>{{ product.name }}</h1>
+        <p><strong>Price:</strong> ₹{{ product.price }}</p>
+        <p><strong>Discount:</strong> {{ product.discount }}%</p>
+        <p><strong>Description:</strong> {{ product.description }}</p>
+        <p><strong>Category:</strong> {{ product.category }}</p>
+        <p><strong>Manufacturer:</strong> {{ product.manufacturer }}</p>
+        <p><strong>Country of Origin:</strong> {{ product.country_of_origin }}</p>
+        <p><strong>Rating:</strong> ⭐ {{ product.rating if product.rating else 'N/A' }}</p>
+        <p><strong>Quantity Available:</strong> {{ product.quantity }}</p>
+        
+        <div class="buttons">
+            <form action="/add_to_cart" method="POST" style="display: inline;">
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <button type="submit" class="add-to-cart">Add to Cart</button>
+            </form>
+            <form action="/wishlist" method="POST" style="display: inline;">
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <button type="submit" class="add-to-wishlist">Add to Wishlist</button>
+            </form>
+            <a href="/"><button class="back-btn">Back to Home</button></a>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Image Slider -->
+<script>
+    const images = document.querySelectorAll('.image-slider img');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    let currentIndex = 0;
+
+    function updateSlider() {
+        images.forEach((img, index) => {
+            img.classList.toggle('active', index === currentIndex);
+        });
+    }
+
+    prevBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        updateSlider();
+    });
+
+    nextBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % images.length;
+        updateSlider();
+    });
+</script>
+{% endblock %}
+</body>
+</html>

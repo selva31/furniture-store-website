@@ -1,11 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, abort
 from flask_login import login_user, logout_user, login_required,current_user
 from .forms import RegistrationForm, LoginForm
-
 from .models import User
 from . import db, bcrypt, mail
 import logging
-
 from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_mail import Message
@@ -84,11 +82,6 @@ def register():
                 flash(f"{field.capitalize()}: {error}", 'danger')
 
     return render_template('register.html', form=form)
-
-
-
-
-
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
