@@ -1,0 +1,54 @@
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='homepage.css') }}">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Bootstrap JS and dependencies (jQuery and Popper.js) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% extends 'home.html' %}
+
+
+{% block content %}
+<h2>Search Results for "{{ query }}"</h2>
+<div class="products">
+    {% if products %}
+        {% for product in products %}
+        <div class="product">
+            <form action="{% if product.id in wishlist %}/remove_from_wishlist{% else %}/wishlist{% endif %}" method="POST" style="display: inline;">
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <button type="submit" class="heart-icon" name="wishlist-btn">
+                    {% if product.id in wishlist %}
+                        ❤️
+                    {% else %}
+                        🤍
+                    {% endif %}
+                </button>
+            </form>
+
+            <img src="{{ url_for('static', filename=product.images[0].image_url if product.images else 'default_image.jpg') }}" alt="{{ product.name }}">
+            <h2>{{ product.name }}</h2>
+            <p><strong>Discount:</strong> {{ product.discount }}%</p>
+            <div class="pricet">
+                <p><strong>Price:</strong> ₹{{ product.price }}</p>
+            </div>
+            <p><strong>Rating:</strong> ⭐ {{ product.rating if product.rating else 'N/A' }}</p>
+            <div class="bb">
+                <form action="/add_to_cart" method="POST" style="display: inline;">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <button type="submit" class="add-to-cart">Add to Cart</button>
+                </form>
+
+                <a href="{{ url_for('main.product_details', product_id=product.id) }}">
+                    <button class="view-btn">View</button>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No products found matching your query.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

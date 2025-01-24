@@ -1,0 +1,142 @@
+/* General Styles */
+
+.body {
+  font-family: Arial, sans-serif;
+  background-color: #ffffff;
+  margin: 0;
+  padding: 0;
+}
+
+.boxed header {
+  background-color: #f4f4f9;
+  color: rgb(0, 0, 0);
+
+  text-align: center;
+}
+
+.boxed h1 {
+  margin: 0;
+  font-size: 2em;
+}
+
+.boxed {
+  padding: 20px;
+}
+
+/* Wishlist Container */
+.boxed .wishlist-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Wishlist Card */
+.boxed .wishlist-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  text-align: center;
+  border-radius: 10px;
+  background-color: rgb(230, 226, 237);
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.boxed .wishlist-card:hover {
+  transform: scale(1.05);
+}
+
+/* Product Image */
+.boxed .product-image img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+/* Product Info */
+.boxed .product-name {
+  font-size: 1.5em;
+  margin: 0.5em 0;
+}
+
+.boxed .product-price,
+.product-discount {
+  margin: 0.5em 0;
+}
+
+.boxed .product-discount {
+  color: #ff5722;
+  font-weight: bold;
+}
+
+/* Remove Button */
+.boxed .remove-btn {
+  padding: 8px 20px;
+  background-color: #ffc107;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.boxed .remove-btn:hover {
+  background-color: #fdd300;
+  transform: scale(1.05); /* Slight zoom on hover */
+}
+
+/* View Button */
+.boxed .view-btn {
+  padding: 8px 20px;
+  background-color: #007bff; /* Blue background */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.boxed .view-btn:hover {
+  background-color: #0056b3; /* Darker blue */
+  transform: scale(1.05); /* Slight zoom on hover */
+}
+
+/* Button Wrapper */
+.boxed .bb {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Empty Wishlist Message */
+.boxed p {
+  text-align: center;
+  font-size: 1.2em;
+  color: #555;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .wishlist-container {
+      grid-template-columns: 1fr;
+      padding: 10px;
+  }
+
+  .wishlist-card {
+      max-width: 100%;
+  }
+
+  header {
+      padding: 10px;
+  }
+
+  h1 {
+      font-size: 1.8em;
+  }
+}

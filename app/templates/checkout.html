@@ -1,0 +1,92 @@
+<style>
+/* Add any necessary styles for the checkout page */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.product-form label {
+    font-weight: bold;
+}
+
+.product-form input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.product-form button {
+    padding: 10px;
+    background-color: #4285F4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.product-form button:hover {
+    background-color: #2962FF;
+}
+
+</style>
+
+{% extends "home.html" %}
+
+{% block content %}
+<main>
+    <div class="container">
+        <form action="{{ url_for('main.place_order') }}" method="POST" class="product-form">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="{{ current_user.username }}" readonly>
+
+            <label for="mobile">Mobile</label>
+            <input type="text" id="mobile" placeholder="{{ current_user.contact }}" readonly>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="{{ current_user.email }}" readonly>
+
+            <label for="address">Address</label>
+            <input type="text" id="address" placeholder="{{ current_user.location }}" readonly>
+
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="border: 1px solid #ccc; padding: 10px;">Item Name</th>
+                        <th style="border: 1px solid #ccc; padding: 10px;">Item Price</th>
+                        <th style="border: 1px solid #ccc; padding: 10px;">Item Quantity</th>
+                        <th style="border: 1px solid #ccc; padding: 10px;">Item Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td style="border: 1px solid #ccc; padding: 10px;">{{ item.product.name }}</td>
+                        <td style="border: 1px solid #ccc; padding: 10px;">₹{{ item.product.price }}</td>
+                        <td style="border: 1px solid #ccc; padding: 10px;">{{ item.quantity }}</td>
+                        <td style="border: 1px solid #ccc; padding: 10px;">₹{{ item.total_price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <label for="price">Sub Total</label>
+            <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ total_price }}</label>
+
+            <label for="price">Delivery Charges</label>
+            <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ tax }}</label>
+
+            <label for="price">Grand Total Amount</label>
+            <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ grand_total }}</label>
+
+            <button type="submit">Place Your Order</button>
+        </form>
+    </div>
+</main>
+{% endblock %}

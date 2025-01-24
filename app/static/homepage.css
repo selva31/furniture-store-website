@@ -1,35 +1,48 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif; /* or a similar sans-serif font */
+  background-color: white; /* matches example */
+  color: #333; /* matches example */
+}
+
 main {
   padding: 20px;
 }
+/* Main container for products */
+.products-container {
+  text-align: center;
 
-.carousel-inner img {
-  width: 100%;
-  height: auto;
-  object-fit: cover; /* Ensures the image covers the entire area */
+}
+
+/* Center the heading */
+.welcome-heading {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333; /* Adjust color as needed */
+
 }
 
 .products {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
   gap: 20px;
   padding: 20px;
-  /* display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap:20px 30px;
-  margin-top: 20px;
-  padding:0px 80px; */
 }
 
 .product {
   border: 1px solid #ddd;
   padding: 15px;
   text-align: center;
-  border-radius: 10px;
-  background-color:rgb(255, 255, 255);
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px; /* more rounded corners */
+  background-color: rgb(230, 226, 237); /* matches example */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* subtle shadow */
   position: relative;
-  transition: transform 0.3s ease; 
-
+  transition: transform 0.3s ease;
 }
 
 .product:hover {
@@ -46,13 +59,10 @@ main {
 .product h2 {
   font-size: 1.5em;
   margin: 0.5em 0;
-  /* font-size: 1.2em;
-  margin: 10px 0; */
 }
 
 .product p {
   margin: 0.5em 0;
-  /* margin: 5px 0; */
 }
 
 .product .pricet {
@@ -60,6 +70,7 @@ main {
   display: flex;
   gap: 10px;
 }
+
 .product .price {
   color: green;
   font-weight: bold;
@@ -71,104 +82,62 @@ main {
   position: absolute;
   top: 10px;
   right: 10px;
-  /* font-size: 1.5em; */
   font-size: 40px;
+  border: none;
   cursor: pointer;
-  color: white;
+  color: white; /* Start white */
   transition: color 0.3s ease;
-  border-style:hidden;
-  border-radius: 50%;
-  
+  border-radius: 50%; /* Circle */
+  background-color: rgba(255, 255, 255, 0.5); /* Add a semi-transparent background to the heart */
+  padding: 5px; /* Add padding for better appearance */
+
 }
 
 .heart-icon.active {
   color: red;
 }
-.bb{
+
+.bb {
   justify-content: center;
-display: flex;
-gap: 20px;
+  display: flex;
+  gap: 20px;
 }
-.buy-now-btn {
-padding: 12px 20px;
+
+.add-to-cart, .view-btn, .buy-now-btn { /* Style all button types similarly */
+  padding: 8px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.add-to-cart {
+  background-color: #28a745; /* Green */
+  color: white;
+}
+
+.add-to-cart:hover {
+  background-color: #218838; /* Darker green */
+  transform: scale(1.05);
+}
+
+.view-btn {
+  background-color: #007bff; /* Blue */
+  color: white;
+}
+
+.view-btn:hover {
+  background-color: #0069d9; /* Darker blue */
+  transform: scale(1.05);
+}
+
+.buy-now-btn { /*This button type isn't in your second example, but I kept it from the first*/
 background-color: #28a745;
 color: white;
-border: none;
-border-radius: 5px;
-font-size: 1rem;
-cursor: pointer;
-margin-top: 0px;
-align-self: flex-start;
-transition: background-color 0.3s, transform 0.2s;
 }
 
 .buy-now-btn:hover {
 background-color: #218838;
-transform: scale(1.05); /* Slight zoom on hover */
+transform: scale(1.05);
 }
-
-.add-to-cart{
-padding: 8px 20px;
-/* background-color: #ffc107; Yellow background */
-background-color: #28A745;
-color: white;
-border: none;
-border-radius: 5px;
-font-size: 1rem;
-cursor: pointer;
-margin-top: 20px;
-align-self: flex-start;
-transition: background-color 0.3s, transform 0.2s;
-}
-
-.add-to-cart:hover {
-background-color: #ee821d;
-transform: scale(1.05); /* Slight zoom on hover */
-}
-.view-btn {
-padding: 8px 20px;
-background-color: #007BFF; /* Yellow background */
-color: white;
-border: none;
-border-radius: 5px;
-font-size: 1rem;
-cursor: pointer;
-margin-top: 20px;
-align-self: flex-start;
-transition: background-color 0.3s, transform 0.2s;
-}
-
-.view-btn:hover {
-background-color: #ee821d; /* Darker yellow */
-transform: scale(1.05); /* Slight zoom on hover */
-}
-
-.view-btn:active {
-background-color: #d39e00; /* Even darker yellow */
-transform: scale(0.95); /* Shrink slightly on click */
-}
-
-/* Ensure the button aligns well in the layout */
-.bb .view-btn {
-flex: 1;
-text-align: center;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

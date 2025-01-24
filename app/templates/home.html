@@ -23,6 +23,9 @@
         }
         main {
     min-height: 90vh;
+
+ 
+ 
     padding: 20px;
     display: flex; /* Enables flexbox */
     justify-content: center; /* Centers horizontally */
@@ -34,7 +37,7 @@
             align-items: center;
             background-color: #0d2357; 
             color: white;
-            padding: 10px 20px;
+            padding: 2px 20px;
             flex-wrap: wrap;
             /* width: 100%; Span the entire width */
         }
@@ -50,15 +53,16 @@
             font-family: Arial, Helvetica, sans-serif;
         }
         .search-bar input {
-            padding: 5px;
+            padding: 2px;
             border: none;
             border-radius: 3px;
             width: 300px;
+          
  
 
         }
         .search-bar button {
-            padding: 5px 8px;
+            padding: 2px 8px;
             border: none;
             background-color: #fff;
             cursor: pointer;
@@ -128,7 +132,7 @@
         }
         main {
             min-height: 90vh;
-            padding: 20px;
+            padding: 10px;
         }
         .categories-nav {
             background-color: #2a4686;
@@ -137,14 +141,16 @@
             flex-wrap: wrap;
             /* background-color: #13327b; /* Blue bar */
             display: flex;
+            padding: 2px 20px;
             justify-content: center;
-            /* padding: 10px 0; */
+         
             flex-wrap: wrap; 
         }
         .categories-nav ul {
             list-style: none;
             display: flex;
             padding: 0.5rem;
+            margin-bottom: 0px;
             /* gap: 20px; */
             flex-wrap: wrap;
         }
@@ -175,10 +181,15 @@
     <nav class="navbar">
         <div class="logo"><a href="/">FusionFits</a></div>
         <div class="search-bar">
-            <form action="/search" method="get">
+            <form action="{{ url_for('main.search') }}" method="get">
+                <input type="text" name="q" placeholder="Search" value="{{ request.args.get('q', '') }}">
+                <button><i class="fa fa-search"></i></button>
+            </form>
+            
+            <!-- <form action="/search" method="get">
             <input type="text" name="q" placeholder="Search" />
             <button><i class="fa fa-search"></i></button>
-        </form>
+        </form> -->
         </div>
         <ul class="nav-links">
             <li>
@@ -189,7 +200,7 @@
                     {% else %}
                     {% endif %}
             </li>
-            <li><a href="/wishpage">Wishlist <i class="fa fa-heart"></i></a></li>
+            <li><a href="{{ url_for('main.wishlist') }}" >Wishlist <i class="fa fa-heart"></i></a></li>
             <li>
               <div class="dropdown navbar-right">
                 <button class="dropbtn">Account <i class="fa fa-caret-down"></i></button>
@@ -225,15 +236,17 @@
             </ul>
         </nav>
     </header>
-    <p>{% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}</p>
+    <div id="flash-messages">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
     
 
     <main>
@@ -245,5 +258,14 @@
     <footer>
         <p>FusionFits &copy; All Rights Reserved.</p>
     </footer>
+    <script>
+        const flashMessages = document.getElementById('flash-messages');
+        if (flashMessages) {
+          setTimeout(() => {
+            flashMessages.remove();
+          }, 1200); // 1200 milliseconds = 1.2 seconds
+        }
+      </script>
 </body>
+
 </html>

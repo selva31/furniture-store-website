@@ -258,7 +258,7 @@ def logout():
     logout_user()
     session.clear()
     flash('You have been logged out.', 'info')
-    return render_template('home.html')
+    return redirect(url_for('main.home'))  # Redirect to home
 
 
 

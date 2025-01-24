@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='wishlist.css') }}">
+</head>
+<body>
+    {% extends "home.html" %}
+
+    {% block title %}Admin Dashboard{% endblock %}
+    
+    {% block content %}
+
+
+    <div class="boxed">
+        <header class="wishlist-header">
+            <h1>My Wishlist</h1>
+        </header>
+        {% if wishlist_items %}
+            <div class="wishlist-container">
+                {% for item in wishlist_items %}
+                    <div class="wishlist-card">
+                        <div class="product-image">
+                            <img src="{{ url_for('static', filename=item.product.images[0].image_url) }}" alt="{{ item.product.name }}">
+                        </div>
+                        <div class="product-info">
+                            <h2 class="product-name">{{ item.product.name }}</h2>
+                            <p class="product-price">Price: ${{ item.product.price }}</p>
+                            {% if item.product.discount > 0 %}
+                                <p class="product-discount">Discount: {{ item.product.discount }}%</p>
+                            {% endif %}
+                            
+                            <!-- Remove Button -->
+                            <form action="/remove_from_wishlist" method="POST" style="display: inline;">
+                                <input type="hidden" name="product_id" value="{{ item.product_id }}">
+                                <button type="submit" class="remove-btn">Remove from Wishlist❤️</button>
+                            </form>
+                            
+
+                            <!-- View Product Button -->
+                            <a href="{{ url_for('main.product_details', product_id=item.product.id) }}">
+                                <button class="view-btn">View</button>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Your wishlist is empty! <a href="/" >
+                <button style="display: inline-block; padding: 10px 20px; background-color: #4285F4; color: white; text-decoration: none; border: none; border-radius: 5px; cursor: pointer; font-family: sans-serif; transition: background-color 0.3s ease, margin 0.3s ease; margin-left: 20px; :hover {background-color: #2962FF; margin-top: 15px; margin-bottom: 25px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);}"  >Back to Home</button>
+              </a></p>
+            
+        {% endif %}
+    </div>
+    {% endblock %}
+</body>
+</html>

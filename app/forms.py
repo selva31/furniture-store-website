@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, DecimalField, IntegerField,PasswordField, SubmitField, SelectField, TextAreaField, DateField
+from wtforms import StringField, DecimalField, IntegerField,PasswordField, SubmitField, SelectField, TextAreaField, DateField, FloatField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp, ValidationError, Optional, NumberRange
 from datetime import date
 import re
@@ -61,19 +61,33 @@ class RegistrationForm(FlaskForm):
 
 
 
+# class ProductForm(FlaskForm):
+#     name = StringField('Product Name', validators=[DataRequired()])
+#     price = DecimalField('Price', validators=[DataRequired(), NumberRange(min=0)], places=2)
+#     description = TextAreaField('Description', validators=[Optional()])
+#     category = StringField('Category', validators=[Optional()])
+#     size = StringField('Size', validators=[Optional()])
+#     colour = StringField('Colour', validators=[Optional()])
+#     quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
+#     manufacturer = StringField('Manufacturer', validators=[Optional()])
+#     country_of_origin = StringField('Country of Origin', validators=[Optional()])
+    
+#     rating = DecimalField('Rating', validators=[Optional(), NumberRange(min=0, max=5)], places=1)
+#     discount = DecimalField('Discount', default=0.0, validators=[Optional(), NumberRange(min=0)], places=2)
+
 class ProductForm(FlaskForm):
-    name = StringField('Product Name', validators=[DataRequired()])
-    price = DecimalField('Price', validators=[DataRequired(), NumberRange(min=0)], places=2)
-    description = TextAreaField('Description', validators=[Optional()])
-    category = StringField('Category', validators=[Optional()])
-    size = StringField('Size', validators=[Optional()])
-    colour = StringField('Colour', validators=[Optional()])
-    quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
+    name = StringField('Name', validators=[DataRequired()])
+    price = FloatField('Price', validators=[DataRequired()])
+    description = StringField('Description', validators=[Optional()])
+    category = StringField('Category', validators=[DataRequired()])
+    size = StringField('Size', validators=[Optional()])  # New size field
+    colour = StringField('Colour', validators=[Optional()])  # New colour field
+    gender = StringField('Gender', validators=[Optional()])  # New gender field
+    quantity = IntegerField('Quantity', validators=[DataRequired()])
     manufacturer = StringField('Manufacturer', validators=[Optional()])
     country_of_origin = StringField('Country of Origin', validators=[Optional()])
-    
-    rating = DecimalField('Rating', validators=[Optional(), NumberRange(min=0, max=5)], places=1)
-    discount = DecimalField('Discount', default=0.0, validators=[Optional(), NumberRange(min=0)], places=2)
+    rating = FloatField('Rating', validators=[Optional()])
+    discount = FloatField('Discount', validators=[Optional()])
     images = MultipleFileField('Product Images', validators=[
         FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')
     ])

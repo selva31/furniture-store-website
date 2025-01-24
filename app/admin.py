@@ -1,13 +1,13 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, session, abort
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session, abort, current_app
 from flask_login import login_user, logout_user, login_required,current_user
-from .models import User,Product
+from .models import User,Product, Wishlist
 from . import db, bcrypt, mail
 from .forms import ProductForm
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 from datetime import datetime
-from .models import RoleApprovalRequest
+from .models import RoleApprovalRequest, Cart
 from werkzeug.utils import secure_filename
 from app.models import ProductImage
 import os  # Make sure to import this module
@@ -50,6 +50,39 @@ def view_products():
     products = Product.query.all()
     return render_template('view_products.html', products=products)
 
+
+@admin.route('/admin/delete_product/<int:product_id>', methods=['POST'])
+@login_required
+def delete_product(product_id):
+    if current_user.role != 'admin':
+        flash('Unauthorized access!', 'danger')
+        return redirect(url_for('auth.login'))
+
+    product = Product.query.get_or_404(product_id)
+
+    try:
+        # Handle related cart items and wishlist items before deleting the product
+            # Handle related cart items and wishlist items before deleting the product
+        Cart.query.filter_by(product_id=product.id).delete()
+    
+    # Delete the wishlist items associated with the product
+        Wishlist.query.filter_by(product_id=product.id).delete()
+        # Delete related product images
+        ProductImage.query.filter_by(product_id=product.id).delete()
+        # Delete the product
+        db.session.delete(product)
+        db.session.commit()
+
+        flash(f'Product "{product.name}" has been deleted successfully!', 'success')
+        return redirect(url_for('admin.admin_dashboard'))
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'An error occurred while deleting the product: {str(e)}', 'danger')
+        return redirect(url_for('admin.admin_dashboard'))
+
+
+
 @admin.route('/admin/add_product', methods=['GET', 'POST'])
 @login_required
 def add_product():
@@ -57,15 +90,17 @@ def add_product():
         flash('Unauthorized access!', 'danger')
         return redirect(url_for('auth.login'))
 
-    form = ProductForm()  # Create an instance of the form
+    form = ProductForm()
 
-    if form.validate_on_submit():  # Check if form is valid on POST
-        # Create a new product instance
+    if form.validate_on_submit():
         new_product = Product(
             name=form.name.data,
             price=form.price.data,
             description=form.description.data,
             category=form.category.data,
+            size=form.size.data,  # New size field
+            colour=form.colour.data,  # New colour field
+            gender=form.gender.data,  # New gender field
             quantity=form.quantity.data,
             manufacturer=form.manufacturer.data,
             country_of_origin=form.country_of_origin.data,
@@ -74,47 +109,88 @@ def add_product():
         )
 
         try:
-            # Add the product to the session
             db.session.add(new_product)
-            db.session.flush()  # Flush to get the product ID
+            db.session.flush()
 
-            # Ensure the upload folder exists
             upload_folder = current_app.config.get('UPLOAD_FOLDER', 'uploads')
             if not os.path.exists(upload_folder):
                 os.makedirs(upload_folder)
 
-            # Handle image uploads
             if form.images.data:
-                images = form.images.data
-                for image in images:
-                    if hasattr(image, 'filename') and image.filename:  # Ensure the file is valid
-                        # Save the image with a relative URL
+                for image in form.images.data:
+                    if hasattr(image, 'filename') and image.filename:
                         filename = secure_filename(image.filename)
-                        relative_path = f'uploads/{filename}'  # Only save the relative path
-                        image_path = os.path.join(upload_folder, filename)  # This is the absolute path
+                        relative_path = f'uploads/{filename}'
+                        image_path = os.path.join(upload_folder, filename)
                         image.save(image_path)
 
-                        # Save the relative path in the database
                         new_product_image = ProductImage(
-                            image_url=relative_path,  # Save relative path
+                            image_url=relative_path,
                             product_id=new_product.id
                         )
                         db.session.add(new_product_image)
 
-                    else:
-                        flash("One or more files were invalid.", "warning")
-
-            # Commit all changes to the database
             db.session.commit()
             flash(f'Product "{new_product.name}" has been added successfully!', 'success')
             return redirect(url_for('admin.admin_dashboard'))
 
         except Exception as e:
-            db.session.rollback()  # Rollback the transaction in case of an error
+            db.session.rollback()
             flash(f'An error occurred while adding the product: {str(e)}', 'danger')
-            return redirect(url_for('admin.add_product'))  # Redirect back to the form on error
+            return redirect(url_for('admin.add_product'))
 
-    return render_template('add_product.html', form=form)  # Pass the form to the template
+    return render_template('add_product.html', form=form)
+
+# @admin.route('/admin/update_product/<int:id>', methods=['GET', 'POST'])
+# @login_required
+# def update_product(id):
+#     if current_user.role != 'admin':
+#         flash('Unauthorized access!', 'danger')
+#         return redirect(url_for('auth.login'))
+
+#     product = Product.query.get_or_404(id)
+#     form = ProductForm(obj=product)
+
+#     if form.validate_on_submit():
+#         product.name = form.name.data
+#         product.price = form.price.data
+#         product.description = form.description.data
+#         product.category = form.category.data
+#         product.size = form.size.data  # Update size field
+#         product.colour = form.colour.data  # Update colour field
+#         product.gender = form.gender.data  # Update gender field
+#         product.quantity = form.quantity.data
+#         product.manufacturer = form.manufacturer.data
+#         product.country_of_origin = form.country_of_origin.data
+#         product.rating = form.rating.data
+#         product.discount = form.discount.data
+
+        # try:
+        #     if form.images.data:
+        #         for image in product.images:
+        #             db.session.delete(image)
+        #         for image in form.images.data:
+        #             if hasattr(image, 'filename') and image.filename:
+        #                 filename = secure_filename(image.filename)
+        #                 relative_path = f'uploads/{filename}'
+        #                 image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        #                 image.save(image_path)
+
+        #                 new_product_image = ProductImage(
+        #                     image_url=relative_path,
+        #                     product_id=product.id
+        #                 )
+        #                 db.session.add(new_product_image)
+
+#             db.session.commit()
+#             flash(f'Product "{product.name}" has been updated successfully!', 'success')
+#             return redirect(url_for('admin.view_products'))
+
+#         except Exception as e:
+#             db.session.rollback()
+#             flash(f'An error occurred while updating the product: {str(e)}', 'danger')
+
+#     return render_template('update_product.html', form=form, product=product)
 
 
 
@@ -134,6 +210,9 @@ def update_product(id):
         product.name = form.name.data
         product.price = form.price.data
         product.description = form.description.data
+        product.size = form.size.data  # Update size field
+        product.colour = form.colour.data  # Update colour field
+        product.gender = form.gender.data  # Update gender field
         product.category = form.category.data
         product.quantity = form.quantity.data
         product.manufacturer = form.manufacturer.data
@@ -142,18 +221,20 @@ def update_product(id):
         product.discount = form.discount.data
 
         try:
-            # Handle image uploads (if any)
             if form.images.data:
-                images = form.images.data
-                # Delete previous images and upload new ones
                 for image in product.images:
                     db.session.delete(image)
-                for image in images:
+                for image in form.images.data:
                     if hasattr(image, 'filename') and image.filename:
                         filename = secure_filename(image.filename)
+                        relative_path = f'uploads/{filename}'
                         image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
                         image.save(image_path)
-                        new_product_image = ProductImage(image_url=image_path, product_id=product.id)
+
+                        new_product_image = ProductImage(
+                            image_url=relative_path,
+                            product_id=product.id
+                        )
                         db.session.add(new_product_image)
 
             # Commit the changes to the database
@@ -172,12 +253,83 @@ def update_product(id):
     form.description.data = product.description
     form.category.data = product.category
     form.quantity.data = product.quantity
+    form.size.data = product.size
+    form.colour.data = product.colour
+    form.gender.data = product.gender
     form.manufacturer.data = product.manufacturer
     form.country_of_origin.data = product.country_of_origin
     form.rating.data = product.rating
     form.discount.data = product.discount
 
     return render_template('update_product.html', form=form, product=product)
+# @admin.route('/admin/add_product', methods=['GET', 'POST'])
+# @login_required
+# def add_product():
+#     if current_user.role != 'admin':
+#         flash('Unauthorized access!', 'danger')
+#         return redirect(url_for('auth.login'))
+
+#     form = ProductForm()  # Create an instance of the form
+
+#     if form.validate_on_submit():  # Check if form is valid on POST
+#         # Create a new product instance
+#         new_product = Product(
+#             name=form.name.data,
+#             price=form.price.data,
+#             description=form.description.data,
+#             category=form.category.data,
+#             quantity=form.quantity.data,
+#             manufacturer=form.manufacturer.data,
+#             country_of_origin=form.country_of_origin.data,
+#             rating=form.rating.data,
+#             discount=form.discount.data
+#         )
+
+#         try:
+#             # Add the product to the session
+#             db.session.add(new_product)
+#             db.session.flush()  # Flush to get the product ID
+
+#             # Ensure the upload folder exists
+#             upload_folder = current_app.config.get('UPLOAD_FOLDER', 'uploads')
+#             if not os.path.exists(upload_folder):
+#                 os.makedirs(upload_folder)
+
+#             # Handle image uploads
+#             if form.images.data:
+#                 images = form.images.data
+#                 for image in images:
+#                     if hasattr(image, 'filename') and image.filename:  # Ensure the file is valid
+#                         # Save the image with a relative URL
+#                         filename = secure_filename(image.filename)
+#                         relative_path = f'uploads/{filename}'  # Only save the relative path
+#                         image_path = os.path.join(upload_folder, filename)  # This is the absolute path
+#                         image.save(image_path)
+
+#                         # Save the relative path in the database
+#                         new_product_image = ProductImage(
+#                             image_url=relative_path,  # Save relative path
+#                             product_id=new_product.id
+#                         )
+#                         db.session.add(new_product_image)
+
+#                     else:
+#                         flash("One or more files were invalid.", "warning")
+
+#             # Commit all changes to the database
+#             db.session.commit()
+#             flash(f'Product "{new_product.name}" has been added successfully!', 'success')
+#             return redirect(url_for('admin.admin_dashboard'))
+
+#         except Exception as e:
+#             db.session.rollback()  # Rollback the transaction in case of an error
+#             flash(f'An error occurred while adding the product: {str(e)}', 'danger')
+#             return redirect(url_for('admin.add_product'))  # Redirect back to the form on error
+
+#     return render_template('add_product.html', form=form)  # Pass the form to the template
+
+
+
 
 def send_role_approval_email(user, action, requested_role=None):
     """Send an email notification based on the role approval/rejection."""
