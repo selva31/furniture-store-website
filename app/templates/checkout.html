@@ -52,8 +52,20 @@
             <label for="email">Email</label>
             <input type="email" id="email" placeholder="{{ current_user.email }}" readonly>
 
-            <label for="address">Address</label>
-            <input type="text" id="address" placeholder="{{ current_user.location }}" readonly>
+
+
+
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" value="{{ current_user.address }}" required>
+
+            <label for="city">City:</label>
+            <select name="city" id="city" class="form-control" required>
+                <option value="" disabled>Select your city</option>
+                {% for city_option in ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Surat', 'Pune', 'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Vadodara', 'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan', 'Vasai-Virar', 'Varanasi', 'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai', 'Allahabad', 'Howrah', 'Ranchi', 'Coimbatore', 'Jabalpur', 'Gwalior', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli-Dharwad'] %}
+                    <option value="{{ city_option }}" {% if city_option == address %}selected{% endif %}>{{ city_option }}</option>
+                {% endfor %}
+            </select>
+
 
             <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                 <thead>

@@ -1,6 +1,6 @@
 from flask_login import login_required, current_user
 import random
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request,jsonify
 from .models import Product, Cart, db,Wishlist,Order
 from sqlalchemy.orm import joinedload
 import sqlalchemy
@@ -14,9 +14,9 @@ def home():
     random_products = products[:126]  # Display a subset of products
 
     wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
-    cat = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
+    cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
 
-    return render_template('homepage.html', products=random_products, wishlist=wishlist, cat=cat)
+    return render_template('homepage.html', products=random_products, wishlist=wishlist, cart=cart)
 
 
 @main.route('/product/<int:product_id>')
@@ -52,10 +52,6 @@ def get_related_products(product, limit=5):
 
     if subquery > 0 and product.gender:  #Only add gender filter if same category products exist
         query_criteria.append(Product.gender == product.gender)
-        
-    
-
-
     # 3. If no match yet, filter by name similarity (least priority)
     name_parts = product.name.lower().split()  # Use the whole name for similarity
     if not any(isinstance(crit, sqlalchemy.sql.expression.BinaryExpression) for crit in query_criteria): #Check if criteria exist before adding name query
@@ -71,19 +67,7 @@ def get_related_products(product, limit=5):
 
     return related_products
 
-@main.route('/checkout', methods=['GET'])
-@login_required
-def checkout():
-    cart_items = Cart.query.filter_by(user_id=current_user.id).all()
-    if not cart_items:
-        flash("Your cart is empty!", "danger")
-        return redirect(url_for('main.cart'))
 
-    total_price = sum(item.total_price for item in cart_items)
-    tax = calculate_tax(total_price)
-    grand_total = total_price + tax
-
-    return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total)
 
 def calculate_tax(total_price):
     if total_price > 3000:
@@ -96,8 +80,38 @@ def calculate_tax(total_price):
         return 100
     else:
         return 50
+@main.route('/checkout', methods=['GET', 'POST'])
+@login_required
+def checkout():
+    cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+    if not cart_items:
+        flash("Your cart is empty!", "danger")
+        return redirect(url_for('main.cart'))
 
-@main.route('/place_order', methods=['POST'])
+    total_price = sum(item.total_price for item in cart_items)
+    tax = calculate_tax(total_price)
+    grand_total = total_price + tax
+
+    if request.method == 'POST':
+        city = request.form.get('city')
+        address = request.form.get('address')
+
+        if not city or not address:
+            flash("Please fill in city and address.", "danger")
+            return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address)
+
+
+        current_user.city = city
+        current_user.address = address
+        db.session.commit()  # Update user's city and address in the database
+        return redirect(url_for('main.place_order')) # Redirect to place order after update
+
+    return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address)
+
+
+
+
+@main.route('/place_order', methods=['GET', 'POST'])
 @login_required
 def place_order():
     cart_items = Cart.query.filter_by(user_id=current_user.id).all()
@@ -108,50 +122,48 @@ def place_order():
     total_price = sum(item.total_price for item in cart_items)
     tax = calculate_tax(total_price)
     grand_total = total_price + tax
+    
+    
+    city = None  # Initialize city and address to None
+    address = None
 
-    # Create a new order for each product in the cart
-    for item in cart_items:
-        product = Product.query.get(item.product_id)
-        if product.quantity < item.quantity:
-            flash(f"Insufficient stock for {product.name}!", "danger")
-            return redirect(url_for('main.cart'))
-
-        # Reduce the product quantity
-        product.quantity -= item.quantity
-
-        # Create a new order
-        new_order = Order(
-            order_amount=item.total_price,
-            order_date=datetime.utcnow().date(),
-            user_id=current_user.id,
-            product_id=item.product_id,
-            status='Pending'
-        )
-        db.session.add(new_order)
-
-    # Clear the cart
-    Cart.query.filter_by(user_id=current_user.id).delete()
-
-    # Commit all changes to the database
-    db.session.commit()
-
-    flash("Your order has been placed successfully!", "success")
-    return redirect(url_for('main.home'))
+    if request.method == 'POST':  #Only get city and address if it's a POST request
+        city = request.form.get('city')
+        address = request.form.get('address')
+        if not city or not address:
+            flash("Please fill in city and address.", "danger")
+            return redirect(url_for('main.checkout')) # Redirect back to checkout if missing data
 
 
+    try:
+        for item in cart_items:
+            product = Product.query.get(item.product_id)
+            if product.quantity < item.quantity:
+                flash(f"Insufficient stock for {product.name}!", "danger")
+                return redirect(url_for('main.cart'))
+            product.quantity -= item.quantity
 
+            new_order = Order(
+                order_amount=item.total_price,
+                order_date=datetime.utcnow().date(),
+                user_id=current_user.id,
+                product_id=item.product_id,
+                status='Pending',
+                quantity=item.quantity,
+                city=city, # Use updated user city and address
+                address=address
+            )
+            db.session.add(new_order)
 
+        Cart.query.filter_by(user_id=current_user.id).delete()
+        db.session.commit()
+        flash("Your order has been placed successfully!", "success")
+        return redirect(url_for('main.home'))
 
-
-
-
-
-
-
-
-
-
-
+    except Exception as e:
+        db.session.rollback()
+        flash(f"An error occurred: {e}", "danger")
+        return redirect(url_for('main.checkout')) # Redirect back to checkout on error
 
 
 
@@ -165,14 +177,17 @@ def add_to_cart():
 
     if not product:
         flash("Product not found!", "danger")
-        return redirect(url_for('main.home'))
+        return redirect(request.referrer or url_for('main.home'))
 
     # Check if the product is already in the user's cart
     existing_cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product.id).first()
     if existing_cart_item:
-        existing_cart_item.quantity += 1
-        existing_cart_item.total_price = existing_cart_item.quantity * product.price
+        # Remove the product from the cart
+        db.session.delete(existing_cart_item)
+        db.session.commit()
+        flash("Product removed from cart!", "success")
     else:
+        # Add the product to the cart
         cart_item = Cart(
             user_id=current_user.id,
             product_id=product.id,
@@ -180,13 +195,42 @@ def add_to_cart():
             total_price=product.price
         )
         db.session.add(cart_item)
+        db.session.commit()
+        flash("Product added to cart!", "success")
 
-    db.session.commit()
-    flash("Product added to cart!", "success")
     return redirect(request.referrer or url_for('main.home'))
-    # return redirect(url_for('main.home'))
 
+@main.route('/update_cart_item/<int:cart_item_id>', methods=['POST'])
+@login_required
+def update_cart_item(cart_item_id):
+    try:
+        cart_item = Cart.query.get(cart_item_id)
+        if not cart_item or cart_item.user_id != current_user.id:
+            return jsonify({'success': False, 'error': 'Item not found or unauthorized'}), 400
 
+        data = request.get_json()
+        if not data or 'quantity' not in data:
+            return jsonify({'success': False, 'error': 'Invalid request data'}), 400
+
+        new_quantity = int(data['quantity'])
+        if new_quantity < 1:  #Quantity must be at least 1
+            return jsonify({'success': False, 'error': 'Quantity must be at least 1'}), 400
+
+        cart_item.quantity = new_quantity
+        cart_item.total_price = cart_item.quantity * cart_item.product.price
+        db.session.commit()
+        return jsonify({'success': True})
+
+    except ValueError as e: #Catch specific errors for more informative messages
+        db.session.rollback()
+        return jsonify({'success': False, 'error': f'Invalid quantity: {e}'}), 400
+    except sqlalchemy.exc.IntegrityError as e: #Handle database errors
+        db.session.rollback()
+        return jsonify({'success': False, 'error': f'Database error: {e}'}), 500
+    except Exception as e:  # Catch any other exception
+        db.session.rollback()
+        return jsonify({'success': False, 'error': f'An unexpected error occurred: {e}'}), 500
+    
 @main.route('/cart')
 @login_required
 def cart():

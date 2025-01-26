@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 from datetime import date, datetime
-
+from sqlalchemy import ForeignKeyConstraint
 from . import db
 
 class User(UserMixin, db.Model):
@@ -10,12 +10,11 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), nullable=False)
     contact = db.Column(db.String(20), nullable=False)
-    location = db.Column(db.String(100), nullable=False)
+    address= db.Column(db.String(200), nullable=False)
+    city = db.Column(db.String(100), nullable=False)
     dob = db.Column(db.Date, nullable=False)
-    gender = db.Column(db.String(10), nullable=False)
     reset_token = db.Column(db.String(128), nullable=True)
  
-    
     def __repr__(self):
         return f'<User {self.username}>'
     
@@ -72,6 +71,7 @@ class Cart(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey("product.id", ondelete='CASCADE'), nullable=False)  # Cascade delete
     total_price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    
 
     product = db.relationship("Product", backref=db.backref("cart_items", passive_deletes=True))
 
@@ -89,8 +89,6 @@ class Wishlist(db.Model):
     def __repr__(self):
         return f'<Wishlist {self.id}>'
 # Order Table
-
-
 class Order(db.Model):
     __tablename__ = "order"
     id = db.Column(db.Integer, primary_key=True)
@@ -98,9 +96,17 @@ class Order(db.Model):
     order_date = db.Column(db.Date, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
-    status = db.Column(db.String(20), default='Pending')  # New field for order status
+    city = db.Column(db.String(100), nullable=False)
+    address = db.Column(db.String(200), nullable=False)
+    status = db.Column(db.String(20), default='Pending')
+    quantity = db.Column(db.Integer, nullable=False) # Added quantity column
 
+
+    
     product = db.relationship("Product", backref="order_items")
 
     def __repr__(self):
         return f'<Order {self.id}>'
+
+
+    

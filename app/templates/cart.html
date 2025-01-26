@@ -14,23 +14,15 @@
 {% block content %}
 <main>
     {% if not cart_items %}
-    
-    
-        <h2 style="text-align: center; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;margin-bottom: 20px">
+        <h2 style="text-align: center; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;margin-bottom: 20px;">
             Your Cart is Empty......Add items from our New Collections
         </h2>
-
-      
-        <a href="/" >
+        <a href="/">
             <button style="display: inline-block; padding: 10px 20px; background-color: #4285F4; color: white; text-decoration: none; border: none; border-radius: 5px; cursor: pointer; font-family: sans-serif; transition: background-color 0.3s ease, margin 0.3s ease; margin-left: 20px; :hover {background-color: #2962FF; margin-top: 15px; margin-bottom: 25px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);}"  >Back to Home</button>
-          </a>
-        
-       
+        </a>
     {% else %}
     <div class="cart-page">
-        <h1 style="text-align: center; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; margin-bottom: 20px;">
-            Your Cart products are..
-        </h1>
+        <h1 style="text-align: center; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; margin-bottom: 20px;">Your Cart products are..</h1>
 
         <div class="product-header">
             <div>Image</div>
@@ -52,8 +44,8 @@
                 <p>⭐ {{ item.product.rating }}</p>
                 <div>
                     <label for="quantity-{{ item.id }}">Quantity:</label>
-                    <select id="quantity-{{ item.id }}" class="quantity-dropdown" data-price="{{ item.product.price }}">
-                        {% for i in range(0, 11) %}
+                    <select id="quantity-{{ item.id }}" class="quantity-dropdown" data-price="{{ item.product.price }}" data-cart-item-id="{{ item.id }}">
+                        {% for i in range(1, 11) %}  <!-- Start from 1, not 0 -->
                         <option value="{{ i }}" {% if i == item.quantity %}selected{% endif %}>{{ i }}</option>
                         {% endfor %}
                     </select>
@@ -68,7 +60,6 @@
                         <input type="hidden" name="product_id" value="{{ item.product.id }}">
                         <button type="submit" class="view-btn">View</button>
                     </form>
-                    
                 </div>
             </div>
             {% endfor %}
@@ -109,7 +100,6 @@
 </main>
 
 <script>
-// JavaScript for updating quantities and totals
 const quantityDropdowns = document.querySelectorAll('.quantity-dropdown');
 const invoiceSubtotal = document.getElementById('invoice-subtotal');
 const invoiceTax = document.getElementById('invoice-tax');
@@ -118,21 +108,41 @@ const applyCouponButton = document.getElementById('apply-coupon');
 const couponCodeInput = document.getElementById('coupon-code');
 const couponMessage = document.getElementById('coupon-message');
 const dm = document.getElementById('d-message');
-let discount = 0; // Initialize the discount
+let discount = 0;
 
 quantityDropdowns.forEach(dropdown => {
     dropdown.addEventListener('change', event => {
         const quantity = parseInt(event.target.value);
         const price = parseFloat(event.target.getAttribute('data-price'));
+        const cartItemId = event.target.getAttribute('data-cart-item-id'); // Get cart item ID from data attribute
         const productElement = event.target.closest('.product');
         const subtotalElement = productElement.querySelector('.subtotal');
 
-        // Calculate the new subtotal for the product
         const newSubtotal = quantity * price;
         subtotalElement.textContent = newSubtotal.toFixed(2);
 
-        // Update the invoice totals
-        updateCartTotal();
+
+        fetch(`/update_cart_item/${cartItemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ quantity: quantity }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateCartTotal();
+            } else {
+                console.error("Failed to update cart item:", data.error);
+                // Optionally revert quantity to previous value.  Could store this value before the fetch call.
+                alert("Error updating cart. Please try again.");
+            }
+        })
+        .catch(error => {
+            console.error("Error updating cart item:", error);
+            alert("Network error. Please try again.");
+        });
     });
 });
 
@@ -140,41 +150,34 @@ applyCouponButton.addEventListener('click', () => {
     const couponCode = couponCodeInput.value.trim();
 
     if (couponCode === 'DISCOUNT10') {
-        discount = 0.1; // Apply a 10% discount
+        discount = 0.1; 
         couponMessage.style.display = 'block';
         couponMessage.textContent = 'Coupon applied successfully!';
         couponMessage.style.color = 'green';
-    } 
-    else if (couponCode === 'DISCOUNT50') {
-        discount = 0.5; // Apply a 10% discount
+    } else if (couponCode === 'DISCOUNT50') {
+        discount = 0.5; 
         couponMessage.style.display = 'block';
         couponMessage.textContent = 'Coupon applied successfully!';
         couponMessage.style.color = 'green';
-    }
-    else {
-        discount = 0; // No discount
+    } else {
+        discount = 0; 
         couponMessage.style.display = 'block';
         couponMessage.style.color = 'red';
         couponMessage.textContent = 'Invalid coupon code.';
     }
-
-    // Update the totals after applying the coupon
     updateCartTotal();
 });
 
 function updateCartTotal() {
     let total = 0;
-
-    // Sum up all the subtotals
     document.querySelectorAll('.subtotal').forEach(subtotalElement => {
         total += parseFloat(subtotalElement.textContent);
     });
 
-    // Calculate tax and discount
     let tax;
     dm.textContent = (total * discount).toFixed(2);
 
-    if (total > 3000 || total <=0) {
+    if (total > 3000 || total <= 0) {
         tax = 0;
     } else if (total > 2000 && total <= 3000) {
         tax = 400;
@@ -186,21 +189,15 @@ function updateCartTotal() {
         tax = 50;
     }
 
-    // Calculate the grand total
     const grandTotal = total - total * discount + tax;
 
-    // Update the invoice details
     invoiceSubtotal.textContent = total.toFixed(2);
     invoiceTax.textContent = tax.toFixed(2);
     invoiceGrandTotal.textContent = grandTotal.toFixed(2);
 }
 
-// Initialize totals on page load
 updateCartTotal();
-
 </script>
 {% endblock %}
 </body>
-
-
 </html>
