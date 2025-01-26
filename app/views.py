@@ -256,8 +256,14 @@ def remove_from_cart():
 @main.route('/wishlist', methods=['GET'])
 @login_required
 def wishlist():
-    # Fetch the wishlist items for the logged-in user
     wishlist_items = Wishlist.query.filter_by(user_id=current_user.id).all()
+    for item in wishlist_items:
+        try:
+            item.product.discount = int(item.product.discount)
+        except (ValueError, TypeError):
+            item.product.discount = 0  # Handle cases where conversion fails
+            print(f"WARNING: Invalid discount value for product {item.product.id}. Setting to 0.")
+
     return render_template('wishlist.html', wishlist_items=wishlist_items)
 
 
