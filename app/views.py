@@ -1,7 +1,7 @@
 from flask_login import login_required, current_user
 import random
 from flask import Blueprint, render_template, redirect, url_for, flash, request,jsonify
-from .models import Product, Cart, db,Wishlist,Order,OrderDetails
+from .models import Product, Cart, db,Wishlist,OrderedProduct,OrderDetails
 from sqlalchemy.orm import joinedload
 import sqlalchemy
 from datetime import datetime
@@ -164,7 +164,7 @@ def place_order():
             subtotal=total_price,
             delivery_charges=tax,
             grand_total=grand_total,
-            order_date=datetime.utcnow(),
+            order_date=datetime.now(),
             user_id=current_user.id
         )
         db.session.add(order_details)
@@ -179,14 +179,14 @@ def place_order():
                 return redirect(url_for('main.cart'))
             product.quantity -= item.quantity
 
-            new_order = Order(
+            new_ordered_product = OrderedProduct(
                 order_details_id=order_details_id, # Use the OrderDetails ID
                 product_id=item.product_id,
                 quantity=item.quantity,
                 order_amount=item.total_price,
                 user_id=current_user.id
             )
-            db.session.add(new_order)
+            db.session.add(new_ordered_product)
 
         Cart.query.filter_by(user_id=current_user.id).delete()
         db.session.commit()

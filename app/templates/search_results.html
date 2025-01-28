@@ -33,7 +33,7 @@
             <div class="pricet">
                 <p><strong>Price:</strong> ₹{{ product.price }}</p>
             </div>
-            <p><strong>Rating:</strong> ⭐ {{ product.rating if product.rating else 'N/A' }}</p>
+            <p><strong>Rating:</strong> ⭐ {{ product.avg_rating if product.avg_rating else 'N/A' }}</p>
             <div class="bb">
                 <form action="/add_to_cart" method="POST" style="display: inline;">
                     <input type="hidden" name="product_id" value="{{ product.id }}">
