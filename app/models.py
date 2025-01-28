@@ -1,6 +1,7 @@
 from flask_login import UserMixin
 from datetime import date, datetime
-from sqlalchemy import ForeignKeyConstraint
+from sqlalchemy import ForeignKeyConstraint, Enum, Column, Integer, String, Float, Date, DateTime # Added Enum here
+
 from . import db
 
 class User(UserMixin, db.Model):
@@ -39,14 +40,14 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     description = db.Column(db.String(255), nullable=False)
     category = db.Column(db.String(100), nullable=False)
-    size = db.Column(db.String(20))  # Ensure this line exists
-    colour = db.Column(db.String(20), nullable=True)
-    gender = db.Column(db.String(10), nullable=True)  # New field for gender
     quantity = db.Column(db.Integer, nullable=False)
     manufacturer = db.Column(db.String(100), nullable=True)
     country_of_origin = db.Column(db.String(50), nullable=True)
     rating = db.Column(db.Float, nullable=True)
     discount = db.Column(db.Float, default=0.0, nullable=True)
+    size = db.Column(db.String(20))  # Ensure this line exists
+    colour = db.Column(db.String(20), nullable=True)
+    gender = db.Column(db.String(10), nullable=True)  # New field for gender
     # Change backref name to avoid conflict
     images = db.relationship('ProductImage', backref='product', lazy=True)
   
@@ -88,25 +89,41 @@ class Wishlist(db.Model):
 
     def __repr__(self):
         return f'<Wishlist {self.id}>'
-# Order Table
+    
 class Order(db.Model):
     __tablename__ = "order"
     id = db.Column(db.Integer, primary_key=True)
-    order_amount = db.Column(db.Float, nullable=False)
-    order_date = db.Column(db.Date, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    order_details_id = db.Column(db.Integer, db.ForeignKey('order_details.id'), nullable=False) # Foreign key to OrderDetails
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
-    city = db.Column(db.String(100), nullable=False)
-    address = db.Column(db.String(200), nullable=False)
-    status = db.Column(db.String(20), default='Pending')
-    quantity = db.Column(db.Integer, nullable=False) # Added quantity column
-
-
+    quantity = db.Column(db.Integer, nullable=False)
+    order_amount = db.Column(db.Float, nullable=False) #Individual item total price
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # Added user_id
     
-    product = db.relationship("Product", backref="order_items")
+    order_details = db.relationship("OrderDetails", backref=db.backref("orders", lazy=True)) # Relationship to OrderDetails
+    product = db.relationship("Product", backref=db.backref("order_items", passive_deletes=True))
 
     def __repr__(self):
         return f'<Order {self.id}>'
 
+# OrderDetails Table (modified)
+class OrderDetails(db.Model):
+    __tablename__ = "order_details"
+    id = db.Column(db.Integer, primary_key=True)
+    user_name = db.Column(db.String(100), nullable=False)
+    user_email = db.Column(db.String(100), nullable=False)
+    user_contact = db.Column(db.String(20), nullable=False)
+    user_address = db.Column(db.String(200), nullable=False)
+    user_city = db.Column(db.String(100), nullable=False)
+    subtotal = db.Column(db.Float, nullable=False)
+    delivery_charges = db.Column(db.Float, nullable=False)
+    grand_total = db.Column(db.Float, nullable=False)
+    order_date = db.Column(db.DateTime, nullable=False)
+    Delivered_Date = db.Column(db.DateTime, nullable=True) # Added Delivered_Date
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # Added user_id
 
-    
+    status = db.Column(Enum("Pending", "Shipped", "Delivered", "Failed"), default="Pending", nullable=False)  # Corrected Enum usage
+
+
+
+    def __repr__(self):
+        return f'<OrderDetails {self.id}>'

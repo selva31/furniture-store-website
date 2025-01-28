@@ -1,7 +1,7 @@
 from flask_login import login_required, current_user
 import random
 from flask import Blueprint, render_template, redirect, url_for, flash, request,jsonify
-from .models import Product, Cart, db,Wishlist,Order
+from .models import Product, Cart, db,Wishlist,Order,OrderDetails
 from sqlalchemy.orm import joinedload
 import sqlalchemy
 from datetime import datetime
@@ -80,6 +80,8 @@ def calculate_tax(total_price):
         return 100
     else:
         return 50
+    
+    
 @main.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
@@ -95,19 +97,34 @@ def checkout():
     if request.method == 'POST':
         city = request.form.get('city')
         address = request.form.get('address')
+        name = request.form.get('name')
+        email = request.form.get('email')
+        contact = request.form.get('contact')
 
-        if not city or not address:
-            flash("Please fill in city and address.", "danger")
-            return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address)
+        # Input validation (basic example - enhance as needed)
+        if not city or not address or not name or not email or not contact:
+            flash("Please fill in all fields.", "danger")
+            return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address, name=current_user.username, email=current_user.email, contact=current_user.contact)
 
+        if not contact.isdigit() or len(contact) != 10:
+            flash("Invalid contact number.", "danger")
+            return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address, name=current_user.username, email=current_user.email, contact=current_user.contact)
 
-        current_user.city = city
-        current_user.address = address
-        db.session.commit()  # Update user's city and address in the database
-        return redirect(url_for('main.place_order')) # Redirect to place order after update
+        try:
+            # Update user info (Consider email verification for security!)
+            current_user.city = city
+            current_user.address = address
+            current_user.username = name
+            current_user.email = email  # Email update - Implement verification!
+            current_user.contact = contact
+            db.session.commit()
+            return redirect(url_for('main.place_order', name=name, email=email, contact=contact, city=city, address=address, total_price=total_price, tax=tax, grand_total=grand_total))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"An error occurred updating user information: {e}", "danger")
+            return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address, name=current_user.username, email=current_user.email, contact=current_user.contact)
 
-    return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address)
-
+    return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address, name=current_user.username, email=current_user.email, contact=current_user.contact)
 
 
 
@@ -122,20 +139,39 @@ def place_order():
     total_price = sum(item.total_price for item in cart_items)
     tax = calculate_tax(total_price)
     grand_total = total_price + tax
-    
-    
-    city = None  # Initialize city and address to None
-    address = None
 
-    if request.method == 'POST':  #Only get city and address if it's a POST request
-        city = request.form.get('city')
-        address = request.form.get('address')
-        if not city or not address:
-            flash("Please fill in city and address.", "danger")
-            return redirect(url_for('main.checkout')) # Redirect back to checkout if missing data
+    # Get data from GET request (if redirected from checkout), or fallback to user data
+    name = request.form.get('name')
+    email = request.form.get('email')
+    contact = request.form.get('contact')
+    city = request.form.get('city')
+    address = request.form.get('address')
+
+
+    if not city or not address:
+        flash("City and address are required.", "danger")
+        return redirect(url_for('main.checkout')) # Redirect back to checkout if missing data
 
 
     try:
+        # Create OrderDetails first
+        order_details = OrderDetails(
+            user_name=name,
+            user_email=email,
+            user_contact=contact,
+            user_address=address,
+            user_city=city,
+            subtotal=total_price,
+            delivery_charges=tax,
+            grand_total=grand_total,
+            order_date=datetime.utcnow(),
+            user_id=current_user.id
+        )
+        db.session.add(order_details)
+        db.session.flush()  # Get the order_details ID
+        order_details_id = order_details.id
+
+
         for item in cart_items:
             product = Product.query.get(item.product_id)
             if product.quantity < item.quantity:
@@ -144,14 +180,11 @@ def place_order():
             product.quantity -= item.quantity
 
             new_order = Order(
-                order_amount=item.total_price,
-                order_date=datetime.utcnow().date(),
-                user_id=current_user.id,
+                order_details_id=order_details_id, # Use the OrderDetails ID
                 product_id=item.product_id,
-                status='Pending',
                 quantity=item.quantity,
-                city=city, # Use updated user city and address
-                address=address
+                order_amount=item.total_price,
+                user_id=current_user.id
             )
             db.session.add(new_order)
 
@@ -163,11 +196,8 @@ def place_order():
     except Exception as e:
         db.session.rollback()
         flash(f"An error occurred: {e}", "danger")
-        return redirect(url_for('main.checkout')) # Redirect back to checkout on error
-
-
-
-
+        return redirect(url_for('main.checkout'))
+ 
 
 @main.route('/add_to_cart', methods=['POST'])
 @login_required
@@ -213,8 +243,13 @@ def update_cart_item(cart_item_id):
             return jsonify({'success': False, 'error': 'Invalid request data'}), 400
 
         new_quantity = int(data['quantity'])
-        if new_quantity < 1:  #Quantity must be at least 1
+        product = cart_item.product # Get the associated product from cart_item
+
+        if new_quantity < 1:
             return jsonify({'success': False, 'error': 'Quantity must be at least 1'}), 400
+        if new_quantity > product.quantity: # Check for stock availability
+            return jsonify({'success': False, 'error': f'Only {product.quantity} units in stock'}), 400
+
 
         cart_item.quantity = new_quantity
         cart_item.total_price = cart_item.quantity * cart_item.product.price
@@ -234,9 +269,21 @@ def update_cart_item(cart_item_id):
 @main.route('/cart')
 @login_required
 def cart():
-    cart_items = Cart.query.filter_by(user_id=current_user.id).all()
-    return render_template('cart.html', cart_items=cart_items)
+    cart_items = (Cart.query
+                  .filter_by(user_id=current_user.id)
+                  .options(joinedload(Cart.product).joinedload(Product.images)) # Eager load related objects
+                  .all())
 
+    # Filter out items where product is None
+    valid_cart_items = [item for item in cart_items if item.product]
+
+
+    product_stock = {}
+    for item in valid_cart_items:
+        if item.product:
+            product_stock[item.product.id] = item.product.quantity
+
+    return render_template('cart.html', cart_items=valid_cart_items, product_stock=product_stock)
 @main.route('/remove_from_cart', methods=['POST'])
 @login_required
 def remove_from_cart():
