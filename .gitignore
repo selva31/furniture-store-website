@@ -1,4 +1,7 @@
 .env
 venv
 tests
-__pyache__
+__pycache__
+virtual_env
+.vscode
+.pytest_cache

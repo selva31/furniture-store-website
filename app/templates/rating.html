@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rate Products</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='product_details.css') }}">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #1c1c1c;
+                color: #fff;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            .rating-container {
+                width: 90%;
+                max-width: 800px;
+                margin: 20px;
+                padding: 20px;
+                background-color: #2d2d2d;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .product-container {
+                display: flex;
+                align-items: flex-start;
+                margin-bottom: 20px;
+                border-bottom: 1px solid #444;
+                padding: 10px 0;
+            }
+
+            .product-image {
+                background-color: #3b82f6;
+                border-radius: 10px;
+                margin-right: 20px;
+                flex-shrink: 0;
+                overflow: hidden;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .product-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                border-radius: 10px;
+            }
+
+            .product-info-box {
+                flex: 1;
+            }
+
+            .product-info-box p {
+                margin: 5px 0;
+            }
+
+            .stars {
+                /* display: flex;
+            justify-content: start;
+            margin-top: 10px; */
+                display: flex;
+                flex-direction: row-reverse;
+                justify-content: start;
+                gap: 5px;
+                position: relative;
+            }
+
+            .stars input[type="radio"] {
+                position: absolute;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .stars label {
+                font-size: 30px;
+                color: #ccc;
+                cursor: pointer;
+                transition: color 0.3s;
+            }
+
+            .stars label:hover,
+            .stars label:hover~label,
+            .stars input[type="radio"]:checked~label {
+                color: #ff9900;
+            }
+
+            p {
+                padding-bottom: 30px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Rate Products</h1>
+        <div class="rating-container">
+            {% for product in products %}
+            <div class="product-container">
+                <div class="product-image">
+                    <div class="image-slider">
+                        {% for image in product.images %}
+                        <img src="{{ url_for('static', filename=image.image_url) }}" alt="{{ product.name }}"
+                            class="{% if loop.first %}active{% endif %}">
+                        {% endfor %}
+                        <div class="controls">
+                            <button id="prev-btn">&lt;</button>
+                            <button id="next-btn">&gt;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-info-box">
+                    <h2>{{ product.name }}</h2>
+                    <p>Price: ₹{{ product.price }}</p>
+                    <p>Size: {{ product.size }}</p>
+                    <p>Color: {{ product.colour }}</p>
+                    <p>Manufacturer: {{ product.manufacturer }}</p>
+                    <p>Description: {{ product.description }}</p>
+                    <div class="stars" data-product-id="{{ product.id }}">
+                        <input type="radio" id="star5-{{ product.id }}" name="rating-{{ product.id }}" value="5">
+                        <label for="star5-{{ product.id }}">&#9733;</label>
+
+                        <input type="radio" id="star4-{{ product.id }}" name="rating-{{ product.id }}" value="4">
+                        <label for="star4-{{ product.id }}">&#9733;</label>
+
+                        <input type="radio" id="star3-{{ product.id }}" name="rating-{{ product.id }}" value="3">
+                        <label for="star3-{{ product.id }}">&#9733;</label>
+
+                        <input type="radio" id="star2-{{ product.id }}" name="rating-{{ product.id }}" value="2">
+                        <label for="star2-{{ product.id }}">&#9733;</label>
+
+                        <input type="radio" id="star1-{{ product.id }}" name="rating-{{ product.id }}" value="1">
+                        <label for="star1-{{ product.id }}">&#9733;</label>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const starSections = document.querySelectorAll('.stars');
+
+                starSections.forEach(starSection => {
+                    starSection.addEventListener('change', async (event) => {
+                        const product_id = starSection.getAttribute('data-product-id');
+                        const rating = event.target.value;
+
+                        try {
+                            const response = await fetch('{{ url_for("rating.submit_rating_action") }}', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ product_id, rating, "order_id": '{{ order_id }}' })
+                            });
+
+                            if (response.ok) {
+                                alert(`Rating for product ${product_id} updated to ${rating} stars.`);
+                            } else {
+                                alert('Failed to update rating.');
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            alert('Error updating rating.');
+                        }
+                    });
+                });
+            });
+        </script>
+        <script>
+            const image_sliders = document.querySelectorAll(".image-slider");
+            image_sliders.forEach((image_slider, index) => {
+                let images = image_slider.querySelectorAll("img");
+                let prevBtn = image_slider.querySelector("#prev-btn");
+                let nextBtn = image_slider.querySelector("#next-btn");
+                let currentIndex = 0;
+                function updateSlider() {
+                    images.forEach((img, index) => {
+                        img.classList.toggle('active', index === currentIndex);
+                    });
+                }
+
+                prevBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + images.length) % images.length;
+                    updateSlider();
+                });
+
+                nextBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % images.length;
+                    updateSlider();
+                });
+            });
+        </script>
+    </body>
+
+</html>

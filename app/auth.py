@@ -98,7 +98,9 @@ def login():
             session['user_id'] = user.id
             session['username'] = user.username
             
-            
+            # if the user was redirected from a page to the login page then on successful login redirect the user to that page
+            if request.args.get("next"):
+                return redirect(request.args["next"])
             
             # Redirect to the home page
             return redirect(url_for('main.home'))

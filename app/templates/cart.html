@@ -56,7 +56,7 @@
                 <h2>{{ item.product.name }}</h2>
                 <p>{{ item.product.manufacturer }}</p>
                 <p>₹<span class="product-price">{{ item.product.price }}</span></p>
-                <p>⭐ {{ item.product.rating }}</p>
+                <p>⭐ {{ item.product.avg_rating }}</p>
                 <div>
                     <label for="quantity-{{ item.id }}">Quantity:</label>
                     <select id="quantity-{{ item.id }}" class="quantity-dropdown" data-price="{{ item.product.price }}" data-cart-item-id="{{ item.id }}" data-stock="{{ product_stock[item.product.id] }}">

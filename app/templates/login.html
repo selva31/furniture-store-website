@@ -27,7 +27,7 @@
  
         <h2>Login</h2>
         
-        <form id="loginForm" action="{{ url_for('auth.login') }}" method="POST"> <!-- Corrected action -->
+        <form id="loginForm" action="" method="POST"> <!-- Corrected action -->
             {{ form.hidden_tag() }} <!-- CSRF token if using Flask-WTF -->
             
             <div class="form-group">

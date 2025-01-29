@@ -104,7 +104,6 @@ def add_product():
             quantity=form.quantity.data,
             manufacturer=form.manufacturer.data,
             country_of_origin=form.country_of_origin.data,
-            rating=form.rating.data,
             discount=form.discount.data
         )
 
@@ -217,7 +216,6 @@ def update_product(id):
         product.quantity = form.quantity.data
         product.manufacturer = form.manufacturer.data
         product.country_of_origin = form.country_of_origin.data
-        product.rating = form.rating.data
         product.discount = form.discount.data
 
         try:
@@ -258,7 +256,6 @@ def update_product(id):
     form.gender.data = product.gender
     form.manufacturer.data = product.manufacturer
     form.country_of_origin.data = product.country_of_origin
-    form.rating.data = product.rating
     form.discount.data = product.discount
 
     return render_template('update_product.html', form=form, product=product)

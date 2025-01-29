@@ -69,7 +69,6 @@ class ProductForm(FlaskForm):
     quantity = IntegerField('Quantity', validators=[DataRequired()])
     manufacturer = StringField('Manufacturer', validators=[Optional()])
     country_of_origin = StringField('Country of Origin', validators=[Optional()])
-    rating = FloatField('Rating', validators=[Optional()])
     discount = FloatField('Discount', validators=[Optional()])
     images = MultipleFileField('Product Images', validators=[
         FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')

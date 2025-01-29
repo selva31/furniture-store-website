@@ -27,7 +27,7 @@ def product_view_by_gender(gender):
             'manufacturer': product.manufacturer,
             'price': product.price,
             'gender': product.gender,
-            'rating': product.rating,
+            'rating': product.avg_rating,
             'image_url': image_url
         })
 
@@ -41,7 +41,7 @@ def product_view_by_category(category):
     cursor = conn.cursor()
      # user_id = session.get('user_id', 1)
     user_id=1
-    cursor.execute("SELECT id, name, manufacturer, price,  category, rating FROM product where category = ?", (category,))
+    cursor.execute("SELECT id, name, manufacturer, price,  category, avg_rating FROM product where category = ?", (category,))
     products_by_category = cursor.fetchall()
     cart = cursor.execute(
         "SELECT product_id FROM cart WHERE user_id = ?",
