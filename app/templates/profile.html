@@ -238,9 +238,9 @@ footer button:active {
             </header>
 
             <div class="center-buttons">
-                <button>Cart</button>
-                <button>Orders</button>
-                <button>Wishlist</button>
+                <a href="{{ url_for('main.cart') }}"><button>Cart</button></a>
+                <a href="{{ url_for('main.your_orders') }}"><button>Orders</button></a>
+                <a href="{{ url_for('main.wishlist') }}" ><button>Wishlist</button></a>
             </div>
             {% if user.role == 'delivery' %}
             <div class="center-buttons">

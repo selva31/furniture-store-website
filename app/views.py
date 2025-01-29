@@ -2,7 +2,7 @@ from flask_login import login_required, current_user
 import random
 from flask import Blueprint, render_template, redirect, url_for, flash, request,jsonify
 from .models import Product, Cart, db,Wishlist,OrderedProduct,OrderDetails
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, subqueryload
 import sqlalchemy
 from datetime import datetime
 
@@ -28,6 +28,25 @@ def product_details(product_id):
     cat = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
 
     return render_template('product_details.html', product=product, related_products=related_products, wishlist=wishlist, cat=cat)
+
+@main.route('/your_orders')
+@login_required
+def your_orders():
+    try:
+        orders = (OrderDetails.query
+                  .filter_by(user_id=current_user.id)
+                  .options(joinedload(OrderDetails.orders).joinedload(OrderedProduct.product).joinedload(Product.images)) #Added image loading
+                  .order_by(OrderDetails.order_date.desc())
+                  .all())
+
+        if not orders:
+            flash("You haven't placed any orders yet.", "info")
+            return render_template('your_orders.html', orders=[])
+
+        return render_template('your_orders.html', orders=orders)
+    except Exception as e:
+        flash(f"An error occurred while fetching your orders: {e}", "danger")
+        return redirect(url_for('main.home'))
 
 def get_related_products(product, limit=5):
     """Finds related products based on category, then manufacturer and name."""
