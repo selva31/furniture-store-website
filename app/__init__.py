@@ -37,7 +37,7 @@ def create_app():
     app.config["MAIL_USE_SSL"] = False  # Disable SSL when using TLS
     app.config["MAIL_USERNAME"] = "chamanyadav38113114@gmail.com"  # Add your email
     app.config["MAIL_PASSWORD"] = "houatbnyyafmqknx"  # Add your email password or app-specific password
-    app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_DEFAULT_SENDER")
+    app.config["MAIL_DEFAULT_SENDER"] = "chamanyadav38113114@gmail.com" 
     app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads")  # Directory to store images
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # Max file size (16 MB)
 
@@ -67,6 +67,7 @@ def create_app():
     from .admin import admin
     from .category import category
     from .rating import rating
+    from .delivery_person import delivery_person
 
     app.register_blueprint(main)
     app.register_blueprint(auth, url_prefix="/auth")
@@ -74,6 +75,7 @@ def create_app():
     app.register_blueprint(password, url_prefix="/password")
     app.register_blueprint(category)
     app.register_blueprint(rating)
+    app.register_blueprint(delivery_person)
 
     # Database creation and admin user setup
     with app.app_context():
@@ -81,9 +83,11 @@ def create_app():
         # Creates database tables
         from .admin import create_admin_user  # Assuming this function exists in admin.py
         from .customer import create_customer_user
+        from .delivery_person import create_delivery_person_user
 
         create_admin_user()
         create_customer_user()
+        create_delivery_person_user()
     # print(app.url_map)
 
     return app
