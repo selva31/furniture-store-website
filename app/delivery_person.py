@@ -30,7 +30,7 @@ def create_delivery_person_user():
 
 
 # Route to render the dashboard
-@delivery_person.route("/")
+@delivery_person.route("/", methods=["GET"])
 @login_required
 @restrict_to_deliveryPerson()
 def delivery_person_dashboard():
@@ -39,7 +39,7 @@ def delivery_person_dashboard():
 
 
 # Route to get the orders table for delivery person based on order status
-@delivery_person.route("/orders_table")
+@delivery_person.route("/orders_table", methods=["GET"])
 @login_required
 @restrict_to_deliveryPerson()
 def filtered_orders_table():

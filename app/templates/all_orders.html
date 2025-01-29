@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static',filename='delivery_dashboard.css') }}">
+        <title>All Orders</title>
+
+    </head>
+
+    {% extends 'home.html' %}
+    {% block content %}
+    <div class="dashboard-container">
+        <div class="header">All Orders Details</div>
+        <div class="order-list">
+            {% if orders %}
+            <table>
+                <thead>
+                    <tr>
+                        <th> Order Id </th>
+                        <th> Customer Name </th>
+                        <th> Customer Contact </th>
+                        <th> Customer Address </th>
+                        <th> Ordered Products</th>
+                        <th> Order Date</th>
+                        <th> Order Amount</th>
+                        <th> Order Status </th>
+                        <th> Order Delivery Date </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.user.username }}</td>
+                        <td>{{ order.user.contact }}</td>
+                        <td>{{ order.user.address }}</td>
+                        <td>
+                            <hr>
+                            {% for product in order.products %}
+                            <p class="product-name">{{ product.name }}</p>
+                            <hr>
+                            {% endfor %}
+                        </td>
+                        <td>{{ order.order_date.strftime('%Y-%m-%d') }}</td>
+                        <td>₹{{ order.grand_total }}</td>
+                        <td>{{ order.status }}</td>
+                        <td>{{ order.delivered_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No orders available.</p>
+            {% endif %}
+        </div>
+    </div>
+    </div>
+
+    {% endblock %}
+
+</html>

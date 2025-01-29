@@ -1,6 +1,6 @@
 <div class="order-list">
     {% if orders %}
-    <table border="1" cellspacing="0" cellpadding="10" style="width: 100%; margin-top: 20px; text-align: center;">
+    <table>
         <thead>
             <tr>
                 <th> Order Id </th>
@@ -37,6 +37,6 @@
         </tbody>
     </table>
     {% else %}
-    <p>No orders available.</p>
+    <p class="default-message">No orders available.</p>
     {% endif %}
 </div>
