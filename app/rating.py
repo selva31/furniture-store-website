@@ -9,7 +9,7 @@ rating = Blueprint("rating", __name__, url_prefix="/rate")
 
 @rating.route("/<int:order_id>", methods=["GET"])
 @login_required
-def submit_rating(order_id):
+def rate_order(order_id):
     # Fetch the order by ID
     order = db.session.get(OrderDetails, order_id)
     if not order:
