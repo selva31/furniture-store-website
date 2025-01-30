@@ -211,6 +211,9 @@
                         {% if current_user.role == 'admin' %}
                             <a href="{{ url_for('admin.admin_dashboard') }}">Admin Dashboard</a>
                         {% endif %}
+                        {% if current_user.role == 'delivery' %}
+                            <a href="{{ url_for('delivery_person.delivery_person_dashboard') }}">Delivery Dashboard</a>
+                        {% endif %}
                     {% else %}
                         <a href="{{ url_for('auth.register') }}">Register</a>
                         <a href="{{ url_for('auth.login') }}">Login</a>

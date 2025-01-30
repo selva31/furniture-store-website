@@ -69,6 +69,22 @@ body {
   display: block; /* Make the entire container clickable */
 }
 
+button {
+  background-color: #007bff; /* Blue */
+  margin-top: 20px;
+  color: white;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+  background-color: #0069d9; /* Darker blue */
+  transform: scale(1.05);
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -96,8 +112,7 @@ body {
                     <p><strong>Total:</strong> ${{ order.grand_total }}</p>
                     <p><strong>Shipping Address:</strong> {{ order.user_address }}, {{ order.user_city }}</p>
                     <p><strong>Contact Number:</strong> {{ order.user_contact }}</p>
-                    <p><strong>Delivery Date:</strong> {% if order.Delivered_Date %}{{ order.Delivered_Date.strftime('%Y-%m-%d') }}{% else %}N/A{% endif %}</p>
-
+                    <p><strong>Delivery Date:</strong> {% if order.delivered_date %}{{ order.delivered_date.strftime('%Y-%m-%d') }}{% else %}N/A{% endif %}</p>
                     <h3>Products:</h3>
                     <table class="product-table">
                         <thead>
@@ -129,6 +144,13 @@ body {
                           {% endfor %}
                       </tbody>
                     </table>
+                    {% if order.delivered_date %}
+                    <a href="{{ url_for('rating.rate_order',order_id=order.id) }}">
+                    <button>
+                        Rate Products
+                    </button>
+                    </a>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>

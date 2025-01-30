@@ -1,0 +1,42 @@
+<div class="order-list">
+    {% if orders %}
+    <table>
+        <thead>
+            <tr>
+                <th> Order Id </th>
+                <th> Customer Name </th>
+                <th> Customer Contact </th>
+                <th> Customer Address </th>
+                <th> Order Date</th>
+                <th> Order Amount</th>
+                <th> Order Status </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.user.username }}</td>
+                <td>{{ order.user.contact }}</td>
+                <td>{{ order.user.address }}</td>
+                <td>{{ order.order_date.strftime('%Y-%m-%d') }}
+                <td>₹{{ order.grand_total }}</td>
+                <td>
+                    <select class="status-select" onchange="updateStatus('{{order.id}}' , this.value)">
+                        {% for status_option in order.status_options.enums %}
+
+                        <option value="{{status_option}}" {% if order.status==status_option %}selected{% endif %}>
+                            {{status_option}}
+                        </option>
+
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="default-message">No orders available.</p>
+    {% endif %}
+</div>

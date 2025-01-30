@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, abort, current_app
 from flask_login import login_user, logout_user, login_required,current_user
-from .models import User,Product, Wishlist
+from .models import User,Product, Wishlist, OrderDetails
 from . import db, bcrypt, mail
 from .forms import ProductForm
 from flask_mail import Message
@@ -11,9 +11,9 @@ from .models import RoleApprovalRequest, Cart
 from werkzeug.utils import secure_filename
 from app.models import ProductImage
 import os  # Make sure to import this module
+from .utils import restrict_to_admin
 
-
-admin = Blueprint('admin', __name__)
+admin = Blueprint('admin', __name__, url_prefix="/admin")
 
 def create_admin_user():
     admin = User.query.filter_by(email='admin@gmail.com').first()
@@ -32,7 +32,7 @@ def create_admin_user():
         db.session.add(new_admin)
         db.session.commit()
 
-@admin.route('/admin/admin_dashboard')
+@admin.route('/admin_dashboard')
 def admin_dashboard():
     if session.get('role') != 'admin':
         flash('Unauthorized access!', 'danger')
@@ -40,7 +40,7 @@ def admin_dashboard():
 
     return render_template('admin_dashboard.html', username=session.get('username'))
 
-@admin.route('/admin/view_products')
+@admin.route('/view_products')
 def view_products():
     if current_user.role != 'admin':
         flash('Unauthorized access!', 'danger')
@@ -51,7 +51,7 @@ def view_products():
     return render_template('view_products.html', products=products)
 
 
-@admin.route('/admin/delete_product/<int:product_id>', methods=['POST'])
+@admin.route('/delete_product/<int:product_id>', methods=['POST'])
 @login_required
 def delete_product(product_id):
     if current_user.role != 'admin':
@@ -83,7 +83,7 @@ def delete_product(product_id):
 
 
 
-@admin.route('/admin/add_product', methods=['GET', 'POST'])
+@admin.route('/add_product', methods=['GET', 'POST'])
 @login_required
 def add_product():
     if current_user.role != 'admin':
@@ -193,7 +193,7 @@ def add_product():
 
 
 
-@admin.route('/admin/update_product/<int:id>', methods=['GET', 'POST'])
+@admin.route('/update_product/<int:id>', methods=['GET', 'POST'])
 def update_product(id):
     if current_user.role != 'admin':
         flash('Unauthorized access!', 'danger')
@@ -364,7 +364,7 @@ Your Application Team
         print(f"Error sending role approval email: {e}")
 
 
-@admin.route('/admin/role_approval_requests', methods=['GET', 'POST'])
+@admin.route('/role_approval_requests', methods=['GET', 'POST'])
 def role_approval_requests():
     if session.get('role') != 'admin':
         flash('Unauthorized access!', 'danger')
@@ -404,7 +404,7 @@ def role_approval_requests():
     return render_template('role_approval_requests.html', requests=requests)
 
 
-@admin.route('/admin/user_details', methods=['GET', 'POST'])
+@admin.route('/user_details', methods=['GET', 'POST'])
 def user_details():
     if session.get('role') != 'admin':
         flash('Unauthorized access!', 'danger')
@@ -424,3 +424,11 @@ def user_details():
     users = query.all()
 
     return render_template('user_details.html', users=users, role_filter=role_filter, city_filter=city_filter)
+
+
+@admin.route("/orders", methods=["GET"])
+@login_required
+@restrict_to_admin()
+def order_details():
+    all_orders = db.session.query(OrderDetails).all()
+    return render_template("all_orders.html",orders=all_orders)
