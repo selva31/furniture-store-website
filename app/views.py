@@ -5,7 +5,6 @@ from .models import Product, Cart, db,Wishlist,OrderedProduct,OrderDetails
 from sqlalchemy.orm import joinedload, subqueryload
 import sqlalchemy
 from datetime import datetime
-from flask_paginate import Pagination, get_page_parameter
 
 main = Blueprint('main', __name__)
 

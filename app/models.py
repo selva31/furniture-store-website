@@ -136,12 +136,14 @@ class OrderDetails(db.Model):
     grand_total = db.Column(db.Float, nullable=False)
     order_date = db.Column(db.DateTime, nullable=False)
     delivered_date = db.Column(db.DateTime, nullable=True)  # Added Delivered_Date
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)  # Added user_id
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id",name="u_id"), nullable=False)  # Added user_id
+    assigned_delivery_person_id = Column(Integer, ForeignKey("user.id",name="d_id"), nullable=True)
 
     status_options = Enum("Pending", "Shipped", "Delivered", "Failed")
     status = db.Column(status_options, default="Pending", nullable=False)  # Corrected Enum usage
-    user = relationship("User")
-    products = relationship("Product", secondary="ordered_product",viewonly=True)
+    user = relationship("User", foreign_keys=[user_id])
+    assigned_delivery_person = relationship("User", foreign_keys=[assigned_delivery_person_id])
+    products = relationship("Product", secondary="ordered_product", viewonly=True)
 
     def __repr__(self):
         return f"<OrderDetails {self.id}>"
