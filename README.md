@@ -1,5 +1,7 @@
 # FusionFits E-commerce Application
 
+![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)
+
 This project implements a basic e-commerce application using Flask and SQLAlchemy. It includes features for user registration, login, product browsing, adding items to a cart and wishlist, checkout, order placement, and admin functionalities.
 
 ## Features
@@ -104,4 +106,6 @@ FusionFits/
 
 Contributions are welcome! Please open an issue or submit a pull request.
 
+## License
 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
