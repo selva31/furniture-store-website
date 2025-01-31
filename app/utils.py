@@ -1,12 +1,12 @@
 from flask import redirect, url_for, flash
 from functools import wraps
 from flask_login import current_user
-
-
+from flask_login import login_required
 
 def restrict_to_admin():
     def decorator(f):
         @wraps(f)
+        @login_required
         def decorated_function(*args, **kwargs):
             if current_user.role != "admin":
                 # Redirect to login or unauthorized access page
@@ -22,6 +22,7 @@ def restrict_to_admin():
 def restrict_to_deliveryPerson():
     def decorator(f):
         @wraps(f)
+        @login_required
         def decorated_function(*args, **kwargs):
             if current_user.role != "delivery":
                 # Redirect to login or unauthorized access page

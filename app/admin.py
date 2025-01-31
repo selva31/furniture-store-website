@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, session, abort, current_app
+from flask import Blueprint, render_template, redirect, url_for, flash, request, abort, current_app
 from flask_login import login_user, logout_user, login_required,current_user
 from .models import User,Product, Wishlist, OrderDetails
 from . import db, bcrypt, mail
@@ -33,31 +33,21 @@ def create_admin_user():
         db.session.commit()
 
 @admin.route('/admin_dashboard')
+@restrict_to_admin()
 def admin_dashboard():
-    if session.get('role') != 'admin':
-        flash('Unauthorized access!', 'danger')
-        return redirect(url_for('auth.login'))
-
-    return render_template('admin_dashboard.html', username=session.get('username'))
+    return render_template('admin_dashboard.html', username=current_user.username)
 
 @admin.route('/view_products')
+@restrict_to_admin()
 def view_products():
-    if current_user.role != 'admin':
-        flash('Unauthorized access!', 'danger')
-        return redirect(url_for('auth.login'))
-
     # Query all products from the database
     products = Product.query.all()
     return render_template('view_products.html', products=products)
 
 
 @admin.route('/delete_product/<int:product_id>', methods=['POST'])
-@login_required
+@restrict_to_admin()
 def delete_product(product_id):
-    if current_user.role != 'admin':
-        flash('Unauthorized access!', 'danger')
-        return redirect(url_for('auth.login'))
-
     product = Product.query.get_or_404(product_id)
 
     try:
@@ -84,12 +74,8 @@ def delete_product(product_id):
 
 
 @admin.route('/add_product', methods=['GET', 'POST'])
-@login_required
+@restrict_to_admin()
 def add_product():
-    if current_user.role != 'admin':
-        flash('Unauthorized access!', 'danger')
-        return redirect(url_for('auth.login'))
-
     form = ProductForm()
 
     if form.validate_on_submit():
@@ -194,11 +180,8 @@ def add_product():
 
 
 @admin.route('/update_product/<int:id>', methods=['GET', 'POST'])
+@restrict_to_admin()
 def update_product(id):
-    if current_user.role != 'admin':
-        flash('Unauthorized access!', 'danger')
-        return redirect(url_for('auth.login'))
-
     # Fetch the product by its ID
     product = Product.query.get_or_404(id)
     
@@ -365,11 +348,8 @@ Your Application Team
 
 
 @admin.route('/role_approval_requests', methods=['GET', 'POST'])
+@restrict_to_admin()
 def role_approval_requests():
-    if session.get('role') != 'admin':
-        flash('Unauthorized access!', 'danger')
-        return redirect(url_for('auth.login'))
-
     # Fetch all pending role approval requests
     requests = RoleApprovalRequest.query.filter_by(status='pending').all()
 
@@ -425,11 +405,8 @@ def role_approval_requests():
 
 #     return render_template('user_details.html', users=users, role_filter=role_filter, city_filter=city_filter)
 @admin.route('/user_details', methods=['GET', 'POST'])
+@restrict_to_admin()
 def user_details():
-    if session.get('role') != 'admin':
-        flash('Unauthorized access!', 'danger')
-        return redirect(url_for('auth.login'))
-
     # Filters
     role_filter = request.args.get('role','')
     location_filter = request.args.get('location','')
@@ -447,7 +424,6 @@ def user_details():
     return render_template('user_details.html', users=users, role_filter=role_filter, location_filter=location_filter)
 
 @admin.route("/orders", methods=["GET"])
-@login_required
 @restrict_to_admin()
 def order_details():
     all_orders = db.session.query(OrderDetails).all()
