@@ -79,12 +79,12 @@
 </div>
 
 
-        <label for="gender">Gender:</label>
+        <!-- <label for="gender">Gender:</label>
         <select name="gender" id="gender">
             <option value="">All</option>
-            <option value="male" {% if gender_filter == 'male' %}selected{% endif %}>Male</option>
-            <option value="female" {% if gender_filter == 'female' %}selected{% endif %}>Female</option>
-        </select>
+            <option value="male" {% if gender_filter =='male' %}selected{% endif %}>Male</option>
+            <option value="female" {% if gender_filter =='female' %}selected{% endif %}>Female</option>
+        </select> -->
 
         <button type="submit">Filter</button>
     </form>
@@ -98,7 +98,6 @@
                 <th>Contact</th>
                 <th>Location</th>
                 <th>Date of Birth</th>
-                <th>Gender</th>
             </tr>
         </thead>
         <tbody>
@@ -108,9 +107,9 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.role }}</td>
                     <td>{{ user.contact }}</td>
-                    <td>{{ user.location }}</td>
+                    <td>{{ user.city }}</td>
                     <td>{{ user.dob }}</td>
-                    <td>{{ user.gender }}</td>
+                    <!-- <td>{{ user.gender }}</td> -->
                 </tr>
             {% endfor %}
         </tbody>
