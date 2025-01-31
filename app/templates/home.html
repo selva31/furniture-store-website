@@ -230,12 +230,12 @@
         <nav class="categories-nav">
             <ul>
                 <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a></li>
-                <li><a href="/gender/Men" class="{% if request.path == '/gender/Men' %}active{% endif %}">Men's Fashion</a></li>
-                <li><a href="/gender/Female" class="{% if request.path == '/gender/Female' %}active{% endif %}">Women's Fashion</a></li>
-                <li><a href="/category/Kids" class="{% if request.path == '/category/Kids' %}active{% endif %}">Kids's Fashion</a></li>
-                <li><a href="/category/Dress" class="{% if request.path == '/category/Dress' %}active{% endif %}">Dresses</a></li>
-                <li><a href="/category/Accessory" class="{% if request.path == '/category/Accessory' %}active{% endif %}">Accessories</a></li>
-                <li><a href="/category/Shoe" class="{% if request.path == '/category/Shoe' %}active{% endif %}">Shoes</a></li>
+                <li><a href="{{ url_for('main.gender_specific', gender='male') }}" class="{% if request.path.startswith('/gender/male') %}active{% endif %}">Men's Fashion</a></li>
+                <li><a href="{{ url_for('main.gender_specific', gender='female') }}" class="{% if request.path.startswith('/gender/female') %}active{% endif %}">Women's Fashion</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='kids') }}" class="{% if request.path.startswith('/category/kids') %}active{% endif %}">Kids' Fashion</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='Dress') }}" class="{% if request.path.startswith('/category/dress') %}active{% endif %}">Dresses</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='sccessory') }}" class="{% if request.path.startswith('/category/accessory') %}active{% endif %}">Accessories</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='shoes') }}" class="{% if request.path.startswith('/category/shoes') %}active{% endif %}">Shoes</a></li>
             </ul>
         </nav>
     </header>

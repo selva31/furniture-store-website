@@ -5,6 +5,7 @@ from .models import Product, Cart, db,Wishlist,OrderedProduct,OrderDetails
 from sqlalchemy.orm import joinedload, subqueryload
 import sqlalchemy
 from datetime import datetime
+from flask_paginate import Pagination, get_page_parameter
 
 main = Blueprint('main', __name__)
 
@@ -29,6 +30,25 @@ def product_details(product_id):
 
     return render_template('product_details.html', product=product, related_products=related_products, wishlist=wishlist, cat=cat)
 
+@main.route('/gender/<string:gender>')
+def gender_specific(gender):
+    gender = gender.lower()  # Convert to lowercase for case-insensitive matching
+    products = Product.query.filter(Product.gender.ilike(f'%{gender}%')).all()
+    wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
+    cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
+    return render_template('gender_specific.html', products=products, wishlist=wishlist, cart=cart, gender=gender.capitalize()) # Capitalize for display
+
+@main.route('/category/<string:category>')
+def category_specific(category):
+    category = category.lower()
+    products = Product.query.filter(Product.category.ilike(f'%{category}%')).all()
+    wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
+    cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
+    return render_template('category_specific.html', products=products, wishlist=wishlist, cart=cart, category=category.capitalize())
+
+
+
+
 @main.route('/your_orders')
 @login_required
 def your_orders():
@@ -48,45 +68,45 @@ def your_orders():
         flash(f"An error occurred while fetching your orders: {e}", "danger")
         return redirect(url_for('main.home'))
 
+
+import sqlalchemy
+from sqlalchemy import or_
+
 def get_related_products(product, limit=5):
-    """Finds related products based on category, then manufacturer and name."""
+    """Finds related products based on category, then manufacturer and name, handling partial matches."""
     if not product:
         return []
 
-    # Exclude the current product
     query_criteria = [Product.id != product.id]
 
-    # 1. Prioritize same category
+    # 1. Prioritize same category (handling partial matches)
     if product.category:
-        query_criteria.append(Product.category == product.category)
+        category_parts = set(product.category.lower().split(','))  #Convert to set for efficient comparison
+        query_criteria.append(or_(*[Product.category.ilike(f"%{part}%") for part in category_parts])) #ilike for case-insensitive match
 
-    # 2. If same category, filter by manufacturer (only if there are products in the same category)
-    #   The subquery counts matching products in the same category
+    # 2. If same category (or partially matching), filter by gender (handling partial matches)
     subquery = db.session.query(db.func.count(Product.id)).filter(
-        Product.category == product.category, Product.id != product.id
-    ).scalar()
-    
-    # if subquery > 0 and product.manufacturer:  #Only add manufacturer filter if same category products exist
-    #     query_criteria.append(Product.manufacturer == product.manufacturer)
+        or_(*[Product.category.ilike(f"%{part}%") for part in category_parts if product.category]) , Product.id != product.id
+    ).scalar() if product.category else 0
 
-    if subquery > 0 and product.gender:  #Only add gender filter if same category products exist
-        query_criteria.append(Product.gender == product.gender)
+    if subquery > 0 and product.gender:
+        gender_parts = set(product.gender.lower().split(','))
+        query_criteria.append(or_(*[Product.gender.ilike(f"%{part}%") for part in gender_parts]))
+
     # 3. If no match yet, filter by name similarity (least priority)
-    name_parts = product.name.lower().split()  # Use the whole name for similarity
-    if not any(isinstance(crit, sqlalchemy.sql.expression.BinaryExpression) for crit in query_criteria): #Check if criteria exist before adding name query
-        name_query = " OR ".join([f"name LIKE '%{part}%'" for part in name_parts])
-        query_criteria.append(db.text(name_query))
+    name_parts = product.name.lower().split()
+    if not any(isinstance(crit, sqlalchemy.sql.expression.BinaryExpression) for crit in query_criteria):
+        name_query = or_(*[Product.name.ilike(f"%{part}%") for part in name_parts]) #Use or_ for any part match
+        query_criteria.append(name_query)
 
 
     related_products = (Product.query
                         .filter(*query_criteria)
-                        .order_by(db.func.random()) #Add random ordering for diversity
-                        .limit(12)
+                        .order_by(db.func.random())
+                        .limit(limit) #Corrected limit to the input value
                         .all())
 
     return related_products
-
-
 
 def calculate_tax(total_price):
     if total_price > 3000:

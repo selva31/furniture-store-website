@@ -1,0 +1,68 @@
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='homepage.css') }}">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+      /* Green color for "Add to Cart" */
+.add-btn {
+  background-color: green;
+}
+
+/* Red color for "Remove from Cart" */
+.remove-btn {
+  background-color: red;
+}
+  </style>
+</head>
+<body>
+  <!-- Bootstrap JS and dependencies (jQuery and Popper.js) -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% extends "home.html" %}
+
+{% block title %} {{ gender }} Fashion {% endblock %}
+
+{% block content %}
+
+    <div class="boxed">
+      <header class="welcome-heading" style="text-align: center; background-color: #f4f4f4; color: black; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">
+        <h2>{{ gender }} Fashion</h2>
+    </header>
+    <div class="products">
+        {% for product in products %}
+            <!-- (Product display code - same as homepage.html) -->
+            <div class="product">
+                <form action="{% if product.id in wishlist %}/remove_from_wishlist{% else %}/wishlist{% endif %}" method="POST" style="display: inline;">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <button type="submit" class="heart-icon" name="wishlist-btn">
+                        {% if product.id in wishlist %}
+                            ❤️
+                        {% else %}
+                            🤍
+                        {% endif %}
+                    </button>
+                </form>
+                <img src="{{ url_for('static', filename=product.images[0].image_url if product.images else 'default_image.jpg') }}" alt="{{ product.name }}">
+                <h2>{{ product.name }}</h2>
+                <p><strong>Price:</strong> ₹{{ product.price }}</p>
+                <p><strong>Rating:</strong> ⭐ {{ product.avg_rating if product.avg_rating else 'N/A' }}</p>
+                <div class="bb">
+                    <form action="/add_to_cart" method="POST" style="display: inline;">
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <button type="submit" class="add-to-cart {% if product.id in cart %}remove-btn{% else %}add-btn{% endif %}">
+                            {% if product.id in cart %}
+                                Remove from Cart
+                            {% else %}
+                                Add to Cart
+                            {% endif %}
+                        </button>
+                    </form>
+                    <a href="{{ url_for('main.product_details', product_id=product.id) }}">
+                      <button class="view-btn">View</button>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
