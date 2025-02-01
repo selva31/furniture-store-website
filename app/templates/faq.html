@@ -1,0 +1,254 @@
+{% extends "home.html" %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQs - FusionFits</title>
+    <style>
+        
+        body {
+    font-family: 'Roboto', sans-serif;
+    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: #333;
+    position: relative;
+}
+
+/* Overlay to reduce opacity */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
+    z-index: -1;
+}
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            
+        }
+        .faq-container {
+            max-width: 1000px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            
+        }
+        .faq-item {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+            
+        }
+        .faq-question {
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px;
+            background: #007BFF;
+            color: white;
+            border-radius: 5px;
+            display: block;
+            transition: background 0.3s;
+            
+        }
+        .faq-question:hover {
+            background: #0056b3;
+        }
+        .faq-answer {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            
+        }
+
+    </style>
+    <script>
+        function toggleAnswer(id) {
+            var answer = document.getElementById(id);
+            answer.style.display = (answer.style.display === "none" || answer.style.display === "") ? "block" : "none";
+        }
+    </script>
+</head>
+<body>
+    <div class="faq-container">
+        <h2>Frequently Asked Questions</h2>
+        
+        <!-- Existing Customer FAQs -->
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q1')">1) Can I change my shipping address after placing the order?</p>
+            <p class="faq-answer" id="q1">No, the shipping address cannot be changed once the order is placed. Please contact customer support for assistance.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q2')">2) How do I register on FusionFits?</p>
+            <p class="faq-answer" id="q2">You can sign up by providing your username, email, password, role, contact, address, city, and date of birth.</p>
+        </div>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q3')">3) How do I place an order?</p>
+            <p class="faq-answer" id="q3">Select the product, add it to the cart, proceed to checkout, enter delivery details, and complete payment.</p>
+        </div>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q4')">4) How do I reset my password?</p>
+            <p class="faq-answer" id="q4">Click on "Forgot Password" on the login page and follow the instructions sent to your email.</p>
+        </div>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q5')">5) How can I contact customer support?</p>
+            <p class="faq-answer" id="q5">You can reach out via email, chat support, or call our helpline available on the Contact Us page.</p>
+        </div>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q6')">6) What payment methods do you accept?</p>
+            <p class="faq-answer" id="q6">We accept credit/debit cards, UPI, net banking, wallets, and cash on delivery (COD) where applicable.</p>
+        </div>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q7')">7) Can I change my email or contact details after registering?</p>
+            <p class="faq-answer" id="q7">Yes, you can update your profile details under the "User Account" section.</p>
+        </div>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q8')">8) How do I search for a product?</p>
+            <p class="faq-answer" id="q8">Use the search bar on the home page. Related products will also be displayed.</p>
+        </div>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q9')">9) Can I delete my account permanently?</p>
+            <p class="faq-answer" id="q9">Yes, you can delete your account under "Account Settings." Note that this action is irreversible.</p>
+        </div>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q10')">10) How do I update my profile details?</p>
+            <p class="faq-answer" id="q10">Navigate to "My Account" > "Edit Profile" to update your name, address, contact details, and preferences.</p>
+        </div>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q11')">11) Do you offer international shipping?</p>
+            <p class="faq-answer" id="q11">Yes, we offer international shipping to select countries. Shipping costs and delivery times may vary based on location.</p>
+        </div>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q12')">12) How do I track my order?</p>
+            <p class="faq-answer" id="q12">Once your order is shipped, you will receive a tracking number via email. You can use this to track your order on the courier’s website.</p>
+        </div>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q13')">13) What is your return policy?</p>
+            <p class="faq-answer" id="q13">We accept returns within 14 days of delivery. The product must be unused, in its original packaging, and accompanied by the invoice.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q14')">14)How do I apply a discount code?</p>
+            <p class="faq-answer" id="q14">We accept returns within 14 days of delivery. The product must be unused, in its original packaging, and accompanied by the invoice.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('q15')">15)Do you provide warranty on products?</p>
+            <p class="faq-answer" id="q15">Yes, warranty details vary by product. Please check the product description or contact customer support for warranty information.</p>
+    </div>
+        <!-- More Customer FAQs -->
+        
+        <!-- Delivery Person FAQs -->
+        <h2>FAQs for Delivery Personnel</h2>
+        
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d1')">1) How do I receive new delivery assignments?</p>
+            <p class="faq-answer" id="d1">New delivery assignments will be sent via the FusionFits delivery app. You will receive notifications for new orders.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d2')">2) What should I do if I cannot deliver an order?</p>
+            <p class="faq-answer" id="d2">If you are unable to deliver an order, inform the dispatch center immediately and update the order status in the app.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d3')">3) How do I handle a customer dispute?</p>
+            <p class="faq-answer" id="d3">Contact customer support and provide the necessary details. Never argue with the customer and remain professional.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d4')">4) What happens if the customer is unavailable?</p>
+            <p class="faq-answer" id="d4">Try contacting the customer via the provided phone number. If they remain unreachable, follow company guidelines for undelivered orders.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d5')">5) How do I update order status?</p>
+            <p class="faq-answer" id="d5">Use the FusionFits delivery app to mark orders as picked up, in transit, or delivered.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d6')">6) What should I do if I have a vehicle breakdown?</p>
+            <p class="faq-answer" id="d6">Inform the dispatch team immediately and request assistance. Arrange for an alternate vehicle if possible.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d7')">7) How do I ensure customer safety during delivery?</p>
+            <p class="faq-answer" id="d7">Always verify the delivery details and follow company protocols for contactless or secure deliveries.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d8')">8) Can I refuse a delivery assignment?</p>
+            <p class="faq-answer" id="d8">Refusal is allowed only in specific situations, such as vehicle issues or emergencies. Inform the dispatch team if you are unable to deliver.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d9')">9) What should I do in case of an accident while delivering?</p>
+            <p class="faq-answer" id="d9">Ensure your safety first, contact emergency services if needed, and report the incident to the dispatch team.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d10')">10) How do I handle cash-on-delivery (COD) payments?</p>
+            <p class="faq-answer" id="d10">Always count the cash in front of the customer and provide a receipt. Follow company guidelines for handling COD payments.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d11')">11) How do I navigate to the delivery location?</p>
+            <p class="faq-answer" id="d11">Use the in-app navigation feature or Google Maps for accurate directions.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d12')">12) What should I do if a customer refuses to accept the order?</p>
+            <p class="faq-answer" id="d12">Politely ask for a reason, update the app with the status, and return the item if necessary.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d13')">13) How do I handle damaged products?</p>
+            <p class="faq-answer" id="d13">Report any damages before delivery and contact support for guidance.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d14')">14) How do I report late deliveries?</p>
+            <p class="faq-answer" id="d14">Use the app to update the estimated delivery time and inform the dispatch team.</p>
+        </div>
+
+        <div class="faq-item">
+            <p class="faq-question" onclick="toggleAnswer('d15')">15) What is the dress code for deliveries?</p>
+            <p class="faq-answer" id="d15">Wear company-provided uniforms or adhere to the professional dress code policy.</p>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

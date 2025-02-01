@@ -6,6 +6,33 @@
     <title>Confirm Account Deletion</title>
 
     <style>
+     
+        body {
+    font-family: 'Roboto', sans-serif;
+    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: #333;
+    position: relative;
+}
+
+/* Overlay to reduce opacity */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
+    z-index: -1;
+}
+
         .form-container {
   width: 600px; /* Increased width for a larger form */
   height: 330px;

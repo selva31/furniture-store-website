@@ -26,7 +26,7 @@
         {% endif %}
         {% endwith %}
 
-        <h2>Register</h2>
+        <h2>Sign-up</h2>
 
         <form id="registerForm" action="{{ url_for('auth.register') }}" method="POST">
             {{ form.hidden_tag() }} <!-- Adds CSRF token -->

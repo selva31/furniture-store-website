@@ -5,16 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <style>
-        /* Global styles */
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f7fc;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            color: #333;
-        }
+    font-family: 'Roboto', sans-serif;
+    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: #333;
+    position: relative;
+}
 
+/* Overlay to reduce opacity */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
+    z-index: -1;
+}
+
+/* Ensuring content appears above the overlay */
+.form-container, .dashboard {
+    position: relative;
+    z-index: 1;
+}
         /* Centered header */
         h1 {
             text-align: center;
@@ -85,12 +106,11 @@
         /* Container for Form */
         .form-container {
             padding: 20px;
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             margin-bottom: 40px;
         }
-
     </style>
 </head>
 <body>
