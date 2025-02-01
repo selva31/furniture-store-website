@@ -428,3 +428,7 @@ def search():
     wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
 
     return render_template('search_results.html', products=search_results, query=query, wishlist=wishlist)
+
+@main.route('/faq')
+def faq():
+    return render_template('faq.html')
