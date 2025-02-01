@@ -51,6 +51,7 @@
                         <th> Ordered Products</th>
                         <th> Order Date</th>
                         <th> Order Amount</th>
+                        <th> Order Assigned To </th>
                         <th> Order Status </th>
                         <th> Order Delivery Date </th>
                     </tr>
@@ -71,6 +72,12 @@
                         </td>
                         <td>{{ order.order_date.strftime('%Y-%m-%d') }}</td>
                         <td>₹{{ order.grand_total }}</td>
+                        <td>{% if order.assigned_delivery_person %}
+                            {{ order.assigned_delivery_person.username }}
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </td>
                         <td>{{ order.status }}</td>
                         <td>{{ order.delivered_date }}</td>
                     </tr>
