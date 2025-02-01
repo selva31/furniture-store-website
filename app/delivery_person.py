@@ -51,7 +51,7 @@ def filtered_orders_table():
             db.session.query(OrderDetails)
             .filter(
                 and_(
-                    OrderDetails.user.has(city=current_user.city),
+                    OrderDetails.user_city == current_user.city,
                     OrderDetails.assigned_delivery_person == None,
                 )
             )
@@ -62,7 +62,7 @@ def filtered_orders_table():
             db.session.query(OrderDetails)
             .filter(
                 and_(
-                    OrderDetails.user.has(city=current_user.city),
+                    OrderDetails.user_city == current_user.city,
                     OrderDetails.assigned_delivery_person == current_user,
                     OrderDetails.status == filtered_order_status,
                 )
@@ -78,12 +78,12 @@ def filtered_orders_table():
 @delivery_person.route("/assign_order", methods=["POST"])
 @restrict_to_deliveryPerson()
 def assign_order():
-    order_id = request.json.get('order_id')
+    order_id = request.json.get("order_id")
     order = db.session.get(OrderDetails, order_id)
     if order == None:
         return "Order Does Not Exist", 404
 
-    if order.user.city != current_user.city:
+    if order.user_city != current_user.city:
         return "You Cannot Take Orders At This Location", 403
 
     if order.assigned_delivery_person != None:
@@ -134,14 +134,14 @@ def update_status():
 
 # Function to send email to the customer
 def send_order_delivered_email(order: "OrderDetails"):
-    customer_email = order.user.email  # Assuming the `Order` model has a `user` relationship with an `email` attribute
+    customer_email = order.user_email  # Assuming the `Order` model has a `user` relationship with an `email` attribute
     ratings_link = url_for("rating.rate_order", order_id=order.id, _external=True)
 
     msg = Message(
         subject="Your Order Has Been Delivered!",
         recipients=[customer_email],
         html=f"""
-        <p>Dear {order.user.username},</p>
+        <p>Dear {order.user_name},</p>
 
         <p>Your order has been successfully delivered.</p>
         <p>Please share your feedback by clicking on the link below:</p>

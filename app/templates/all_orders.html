@@ -60,9 +60,9 @@
                     {% for order in orders %}
                     <tr>
                         <td>{{ order.id }}</td>
-                        <td>{{ order.user.username }}</td>
-                        <td>{{ order.user.contact }}</td>
-                        <td>{{ order.user.address }}</td>
+                        <td>{{ order.user_name }}</td>
+                        <td>{{ order.user_contact }}</td>
+                        <td>{{ order.user_address }}</td>
                         <td>
                             <hr>
                             {% for product in order.products %}
