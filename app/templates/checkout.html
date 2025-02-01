@@ -62,7 +62,7 @@
             <select name="city" id="city" class="form-control" required>
                 <option value="" disabled>Select your city</option>
                 {% for city_option in ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Surat', 'Pune', 'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Vadodara', 'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan', 'Vasai-Virar', 'Varanasi', 'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai', 'Allahabad', 'Howrah', 'Ranchi', 'Coimbatore', 'Jabalpur', 'Gwalior', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli-Dharwad'] %}
-                    <option value="{{ city_option }}" {% if city_option == address %}selected{% endif %}>{{ city_option }}</option>
+                    <option value="{{ city_option }}" {% if city_option == city %}selected{% endif %}>{{ city_option }}</option>
                 {% endfor %}
             </select>
 
