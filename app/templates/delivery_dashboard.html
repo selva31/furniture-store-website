@@ -11,75 +11,96 @@
 
     {% extends 'home.html' %}
     {% block content %}
-        <div class="dashboard-container">
-            <h1 align="center">Delivery Dashboard</h1>
-            <div class="header">Order Details</div>
-            <div class="order-status-selector">
-                Select Order Status :
-                {% for order_status in order_status_options %}
-                <button class="status-filter-button" id="{{order_status}}"
-                    onclick="filter_by_order_status('{{order_status}}');">
-                    {{order_status}}
-                </button>
-                {% endfor %}
-            </div>
-            <div id="orders-table">
-            </div>
-
+    <div class="dashboard-container">
+        <div class="header">Delivery Dashboard</div>
+        <div class="order-status-selector">
+            Select Order Status :
+            {% for order_status in order_status_options %}
+            <button class="status-filter-button" id="{{order_status}}"
+                onclick="filter_by_order_status('{{order_status}}');">
+                {{order_status}}
+            </button>
+            {% endfor %}
+        </div>
+        <div id="orders-table">
         </div>
 
-        <script>
-            let selected_status = "{{order_status_options[0]}}";
-            window.onload(filter_by_order_status(selected_status));
-            function filter_by_order_status(order_status) {
-                const orders_table_url = new URL("{{ url_for('delivery_person.filtered_orders_table') }}", window.location.origin);
-                orders_table_url.searchParams.append("order_status", order_status);
-                fetch(orders_table_url, { method: "GET" }).then(
-                    (response) => {
-                        if (response.ok) {
-                            const all_buttons = document.querySelectorAll(".status-filter-button");
-                            const selected_status_button = document.getElementById(order_status);
-                            const orders_table_div = document.getElementById("orders-table");
-                            all_buttons.forEach(
-                                (button) => { button.classList.remove("selected-status"); }
-                            );
-                            selected_status_button.classList.add("selected-status")
-                            selected_status = order_status;
-                            response.text().then(
-                                (orders_table) => {
-                                    orders_table_div.innerHTML = orders_table;
-                                }
-                            );
-                        } else {
-                            alert("Unable to get orders table.")
-                        }
-                    }
-                );
-            }
-            function updateStatus(orderId, new_status) {
-                fetch('{{ url_for("delivery_person.update_status") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ order_id: orderId, status: new_status }),
-                })
-                    .then(response => {
-                        return response.json(); // Parse the JSON response
-                    })
-                    .then(data => {
-                        if (data.message) {
-                            alert(data.message);
-                            // reload the current table after a status change
-                            filter_by_order_status(selected_status);
-                        } else if (data.error) {
-                            alert(data.error);
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
-            }
-        </script>
+    </div>
 
-{% endblock %}
+    <script>
+        let selected_status_filter = "{{order_status_options[0]}}";
+        window.onload(refresh_selected_status_filter());
+        function filter_by_order_status(new_status_filter) {
+            const orders_table_url = new URL("{{ url_for('delivery_person.filtered_orders_table') }}", window.location.origin);
+            orders_table_url.searchParams.append("order_status", new_status_filter);
+            fetch(orders_table_url, { method: "GET" }).then(
+                (response) => {
+                    if (response.ok) {
+                        const old_selected_status_button = document.getElementById(selected_status_filter);
+                        old_selected_status_button.classList.remove("selected-status");
+
+                        const new_selected_status_button = document.getElementById(new_status_filter);
+                        new_selected_status_button.classList.add("selected-status");
+                        selected_status_filter = new_status_filter;
+
+                        const orders_table_div = document.getElementById("orders-table");
+                        response.text().then(
+                            (orders_table) => {
+                                orders_table_div.innerHTML = orders_table;
+                            }
+                        );
+                    } else {
+                        alert("Unable to get orders table.")
+                    }
+                }
+            );
+        }
+        function refresh_selected_status_filter() {
+            filter_by_order_status(selected_status_filter);
+        }
+        function updateStatus(orderId, new_status) {
+            fetch('{{ url_for("delivery_person.update_status") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order_id: orderId, status: new_status }),
+            })
+                .then(response => {
+                    return response.json(); // Parse the JSON response
+                })
+                .then(data => {
+                    if (data.message) {
+                        // alert(data.message);
+                        // refresh the current table after a status change
+                        refresh_selected_status_filter();
+                    } else if (data.error) {
+                        alert(data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        function assign_order(order_id) {
+            fetch("{{ url_for('delivery_person.assign_order') }}", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order_id }),
+            }).then(
+                (response) => {
+                    refresh_selected_status_filter();
+                    if (!response.ok) {
+                        response.text().then(
+                            (message) => { alert(message) }
+                        );
+                    }
+                }
+            );
+
+        }
+    </script>
+
+    {% endblock %}
 
 </html>

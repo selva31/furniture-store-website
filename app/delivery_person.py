@@ -1,13 +1,14 @@
-from flask import request, jsonify, render_template, session, Blueprint, url_for
+from flask import request, jsonify, render_template, Blueprint, url_for
 from flask_mail import Message
 from . import db, bcrypt, mail
 from .models import OrderDetails, User
 from .utils import restrict_to_deliveryPerson
 from datetime import datetime
-from flask_login import current_user, login_required
+from flask_login import current_user
 from sqlalchemy import and_
 
 delivery_person = Blueprint("delivery_person", __name__, url_prefix="/delivery_person")
+UNASSIGNED_ORDER_STATUS = "Unassigned"
 
 
 # Function to create the delivery person account
@@ -31,39 +32,70 @@ def create_delivery_person_user():
 
 # Route to render the dashboard
 @delivery_person.route("/", methods=["GET"])
-@login_required
 @restrict_to_deliveryPerson()
 def delivery_person_dashboard():
-    order_status_options = OrderDetails.status_options.enums
+    order_status_options = [UNASSIGNED_ORDER_STATUS] + OrderDetails.status_options.enums
     return render_template("delivery_dashboard.html", order_status_options=order_status_options)
 
 
 # Route to get the orders table for delivery person based on order status
 @delivery_person.route("/orders_table", methods=["GET"])
-@login_required
 @restrict_to_deliveryPerson()
 def filtered_orders_table():
     filtered_order_status = request.args.get("order_status")
 
-    if filtered_order_status not in OrderDetails.status_options.enums:
+    is_unassigned_orders = False
+    if filtered_order_status == UNASSIGNED_ORDER_STATUS:
+        is_unassigned_orders = True
+        orders = (
+            db.session.query(OrderDetails)
+            .filter(
+                and_(
+                    OrderDetails.user.has(city=current_user.city),
+                    OrderDetails.assigned_delivery_person == None,
+                )
+            )
+            .all()
+        )
+    elif filtered_order_status in OrderDetails.status_options.enums:
+        orders = (
+            db.session.query(OrderDetails)
+            .filter(
+                and_(
+                    OrderDetails.user.has(city=current_user.city),
+                    OrderDetails.assigned_delivery_person == current_user,
+                    OrderDetails.status == filtered_order_status,
+                )
+            )
+            .all()
+        )
+    else:
         return jsonify({"error": "Invalid filter for order status"}), 400
 
-    orders = (
-        db.session.query(OrderDetails)
-        .filter(
-            and_(
-                OrderDetails.user.has(city=current_user.city),
-                OrderDetails.status == filtered_order_status,
-            )
-        )
-        .all()
-    )
-    return render_template("delivery_dashboard_orders_table.html", orders=orders)
+    return render_template("delivery_dashboard_orders_table.html", orders=orders, is_unassigned_orders=is_unassigned_orders)
+
+
+@delivery_person.route("/assign_order", methods=["POST"])
+@restrict_to_deliveryPerson()
+def assign_order():
+    order_id = request.json.get('order_id')
+    order = db.session.get(OrderDetails, order_id)
+    if order == None:
+        return "Order Does Not Exist", 404
+
+    if order.user.city != current_user.city:
+        return "You Cannot Take Orders At This Location", 403
+
+    if order.assigned_delivery_person != None:
+        return "This order has already been assigned to another delivery person.", 403
+
+    order.assigned_delivery_person_id = current_user.id
+    db.session.commit()
+    return "The Order Has Successfully Assigned To You", 200
 
 
 # Route to update the status of an order
 @delivery_person.route("/update_status", methods=["POST"])
-@login_required
 @restrict_to_deliveryPerson()
 def update_status():
     data = request.get_json()
@@ -79,7 +111,7 @@ def update_status():
         return jsonify({"error": "Order not found"}), 404
 
     if new_status not in order.status_options.enums:
-        return jsonify({"error": f"Invalid Status For Order"}), 400
+        return jsonify({"error": "Invalid Status For Order"}), 400
 
     # Update order status
     order.status = new_status
