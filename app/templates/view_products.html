@@ -20,11 +20,9 @@
             <th>Image</th>
             <th>Name</th>
             <th>Price</th>
-            <th>Description</th>
             <th>Category</th>
             <th>Quantity</th>
             <th>Average Rating</th>
-            <th>Discount</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -42,13 +40,11 @@
                 
                 <td>{{ product.name }}</td>
                 <td>{{ product.price }}</td>
-                <td>{{ product.description }}</td>
                 <td>{{ product.category }}</td>
                 <td>{{ product.quantity }}</td>
                 
                
                 <td>{{ product.avg_rating }}</td>
-                <td>{{ product.discount }}</td>
                 <td>
                    <!-- Update Button -->
                    <form action="{{ url_for('admin.update_product', id=product.id) }}" method="get" style="display: inline; padding: 0;">

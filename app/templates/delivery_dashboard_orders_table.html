@@ -1,3 +1,4 @@
+<!-- This page will always be embedded in delivery_dashboard.html -->
 <div class="order-list">
     {% if orders %}
     <table>
@@ -22,6 +23,11 @@
                 <td>{{ order.order_date.strftime('%Y-%m-%d') }}
                 <td>₹{{ order.grand_total }}</td>
                 <td>
+                    {% if is_unassigned_orders %}
+                    <button class="status-filter-button" onclick="assign_order('{{ order.id }}')">
+                        Take This Order
+                    </button>
+                    {% else %}
                     <select class="status-select" onchange="updateStatus('{{order.id}}' , this.value)">
                         {% for status_option in order.status_options.enums %}
 
@@ -31,6 +37,7 @@
 
                         {% endfor %}
                     </select>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
