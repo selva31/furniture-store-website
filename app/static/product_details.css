@@ -10,7 +10,7 @@ body {
 .product-details {
   display: flex;
   max-width: 1000px;
-  max-height: 600px;
+  max-height: 2000px;
   margin: auto;
   padding: 20px;
   gap: 20px;

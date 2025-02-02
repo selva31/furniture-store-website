@@ -30,15 +30,15 @@ main {
 
 .product {
   display: grid;
-  grid-template-columns: 150px 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 130px 1.7fr 1fr 1fr 1fr 1fr 1fr;
   gap: 10px;
   column-gap: 70px;
   align-items: center;
   border: 1px solid #ddd;
   padding: 15px;
   border-radius: 5px;
-  background-color: rgb(230, 226, 237);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: rgb(230, 226, 237,0.7);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   transition: transform 0.3s ease; 
 }
 

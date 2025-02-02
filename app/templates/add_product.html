@@ -22,6 +22,8 @@ border: 1px solid #ddd;
   <form method="POST" action="{{ url_for('admin.add_product') }}" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
 
+    <h2>ADD PRODUCT</h2>
+
     <div class="form-group">
         <label for="name">Product Name:</label>
         {{ form.name(class="form-control", id="name") }}
@@ -91,7 +93,7 @@ border: 1px solid #ddd;
         {{ form.discount(class="form-control", id="discount") }}
     </div>
 
-    <div class="form-group">
+    <div class="form-group" style="padding-bottom: 10px; padding-top: 10px;">
         <label for="images">Images:</label>
         {{ form.images(class="form-control", id="images", multiple=True) }}
     </div>

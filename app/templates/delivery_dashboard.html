@@ -38,7 +38,8 @@
     {% extends 'home.html' %}
     {% block content %}
     <div class="dashboard-container">
-        <div class="header">Delivery Dashboard</div>
+        <div class="header" style="border: 2px solid #ccc; border-radius: 8px; padding: 10px;">Delivery Dashboard</div>
+
         <div class="order-status-selector">
             Select Order Status :
             {% for order_status in order_status_options %}
