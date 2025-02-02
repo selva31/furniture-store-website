@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+    font-family: 'Roboto', sans-serif;
+    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: #333;
+    position: relative;
+}
+
+/* Overlay to reduce opacity */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
+    z-index: -1;
+}
+
+/* Ensuring content appears above the overlay */
+.form-container, .dashboard {
+    position: relative;
+    z-index: 1;
+}
+        /* Centered header */
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 36px;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        /* Dashboard container */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Button styles */
+        .dashboard button {
+            background: linear-gradient(145deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        /* Hover effect */
+        .dashboard button:hover {
+            background: linear-gradient(145deg, #2575fc, #6a11cb);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Button focus */
+        .dashboard button:focus {
+            outline: none;
+        }
+
+        /* Button active state */
+        .dashboard button:active {
+            transform: translateY(1px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .dashboard button {
+                width: 100%;
+                font-size: 16px;
+                padding: 15px;
+            }
+        }
+
+        /* Container for Form */
+        .form-container {
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            text-decoration: none; /* Remove underline */
+        }
+        
+        .button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+            text-decoration: none; /* Remove underline */
+        }
+        /* Main Content Styling */
+.content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px;
+    gap: 20px; /* Add spacing between elements */
+}
+
+/* Chart Section */
+.chart-container {
+    flex: 1;
+    min-width: 300px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Real-Time Reports Section */
+.analytics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Individual Report Items */
+.analytics div {
+    background: #f9f9f9;
+    color: #333;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #aac4e2;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Heading Styles */
+.analytics h4 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #444;
+}
+
+/* Value Styles */
+.analytics p {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+    color: #222;
+}
+
+/* Hover Effect */
+.analytics div:hover {
+    transform: scale(1.03);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Revenue Table Enhancements */
+.table-section {
+    margin-top: 25px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table-section h4 {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    color: #333;
+}
+
+/* Table Styling */
+.table-section table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Header */
+.table-section thead {
+    background-color: #007bff;
+    color: white;
+    text-transform: uppercase;
+}
+
+/* Table Header Cells */
+.table-section th {
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+}
+
+/* Table Rows */
+.table-section tbody tr {
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s ease-in-out;
+}
+
+/* Alternating Row Colors */
+.table-section tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+/* Table Cells */
+.table-section td {
+    padding: 10px;
+    color: #444;
+}
+
+/* Hover Effect on Rows */
+.table-section tbody tr:hover {
+    background: #f0f0f0;
+}
+
+/* Small, Outlined Button Styling */
+button {
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 5px;
+    border: 1px solid #666;
+    background: transparent;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+/* Hover Effect */
+button:hover {
+    background: #eee;
+    border-color: #444;
+}
+
+/* Click Effect */
+button:active {
+    transform: scale(0.95);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .analytics {
+        grid-template-columns: 1fr;
+    }
+
+    .analytics div {
+        padding: 12px;
+    }
+
+    .analytics p {
+        font-size: 18px;
+    }
+
+    .table-section th,
+    .table-section td {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    button {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    {% extends "home.html" %}
+
+    
+
+    {% block content %}
+    <div class="form-container">
+        <div class="button-container">
+            <a href="/visualization/roles_chart" class="button">View Users by Roles</a>
+            <a href="/visualization/sales_by_city" class="button">Sales Based on City</a>
+            <a href="/visualization/revenue_trends" class="button">Revenue Trends</a>
+            <a href="/visualization/delivery_chart" class="button">Delivery Chart</a>
+            <a href="/visualization/inventory_status" class="button">Inventory Status</a>
+            <a href="/visualization/financial_health" class="button">Financial status</a>
+            <a href="/visualization/customer_trends" class="button">Customer Trends</a>
+        </div>
+        <!-- Main Content -->
+    <div class="content">
+        <!-- Chart Section -->
+        <div class="chart-container">
+            
+            <img src="data:image/png;base64,{{ chart_data }}" alt="Revenue Chart">
+        </div>
+        
+        
+
+    <!-- Table Section -->
+    <div class="table-section">
+        <h3>Order Details</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endblock %}
+</body>
+</html>

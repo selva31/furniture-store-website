@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+    font-family: 'Roboto', sans-serif;
+    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: #333;
+    position: relative;
+}
+
+/* Overlay to reduce opacity */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
+    z-index: -1;
+}
+
+/* Ensuring content appears above the overlay */
+.form-container, .dashboard {
+    position: relative;
+    z-index: 1;
+}
+        /* Centered header */
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 36px;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        /* Dashboard container */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Button styles */
+        .dashboard button {
+            background: linear-gradient(145deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        /* Hover effect */
+        .dashboard button:hover {
+            background: linear-gradient(145deg, #2575fc, #6a11cb);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Button focus */
+        .dashboard button:focus {
+            outline: none;
+        }
+
+        /* Button active state */
+        .dashboard button:active {
+            transform: translateY(1px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .dashboard button {
+                width: 100%;
+                font-size: 16px;
+                padding: 15px;
+            }
+        }
+
+        /* Container for Form */
+        .form-container {
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            text-decoration: none; /* Remove underline */
+        }
+        
+        .button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+            text-decoration: none; /* Remove underline */
+        }
+        /* Main Content Styling */
+.content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px;
+    gap: 20px; /* Add spacing between elements */
+}
+
+/* Chart Section */
+.chart-container {
+    flex: 1;
+    min-width: 300px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.chart-container {
+    text-align: center;
+    margin: 30px 0;
+}
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+/* Analytics Section */
+.analytics-section {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.analytics-card {
+    width: 28%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    text-align: center;
+    margin: 10px;
+}
+
+.analytics-card h3 {
+    font-size: 18px;
+}
+
+.analytics-card p {
+    font-size: 16px;
+}
+
+.search-bar {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.search-bar input {
+    width: 80%;
+    max-width: 400px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.search-bar input:focus {
+    outline: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+table th {
+    background-color: #f4f4f4;
+    font-size: 16px;
+}
+
+table tbody tr.low-stock {
+    background-color: #ffcccc;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .analytics-card {
+        width: 90%;
+        margin: 10px auto;
+    }
+
+    table, table th, table td {
+        font-size: 14px;
+    }
+
+    .button, .button1 {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+    </style>
+</head>
+<body>
+    {% extends "home.html" %}
+
+    
+
+    {% block content %}
+    <div class="form-container">
+        <div class="button-container">
+            <a href="/visualization/roles_chart" class="button">View Users by Roles</a>
+            <a href="/visualization/sales_by_city" class="button">Sales Based on City</a>
+            <a href="/visualization/revenue_trends" class="button">Revenue Trends</a>
+            <a href="/visualization/delivery_chart" class="button">Delivery Chart</a>
+            <a href="/visualization/inventory_status" class="button">Inventory Status</a>
+            <a href="/visualization/financial_health" class="button">Financial status</a>
+            <a href="/visualization/customer_trends" class="button">Customer Trends</a>
+        </div>
+        <!-- Main Content -->
+    <!-- Category Buttons -->
+    <div class="button-container1">
+        <a href="?category=Accessories" class="button1">Accessories</a>
+        <a href="?category=Kids Fashion" class="button1">Kids</a>
+        <a href="?category=Women\'s Fashion" class="button1">Women's Fashion</a>
+        <a href="?category=Men\'s Fashion" class="button1">Men's Fashion</a>
+    </div>
+
+    <!-- Analytics Section -->
+    <div class="analytics-section">
+        <div class="analytics-card">
+            <h3>Total Stock</h3>
+            <p>{{ analytics['Total Stock'] }}</p>
+        </div>
+        <div class="analytics-card">
+            <h3>Number of Products</h3>
+            <p>{{ analytics['Number of Products'] }}</p>
+        </div>
+        <div class="analytics-card">
+            <h3>Low Stock Alerts</h3>
+            <p>{{ analytics['Low Stock Alerts'] }}</p>
+        </div>
+        <div class="analytics-card">
+            <h3>Out of Stock Items</h3>
+            <p>{{ analytics['Out of Stock Items'] }}</p>
+        </div>
+        <div class="analytics-card">
+            <h3>Category with Max Stock</h3>
+            <p>{{ analytics['Category with Max Stock'] }}</p>
+        </div>
+        <div class="analytics-card">
+            <h3>Category with Min Stock</h3>
+            <p>{{ analytics['Category with Min Stock'] }}</p>
+        </div>
+    </div>
+
+    <!-- Product Table -->
+    <div class="table-section">
+        <h3>Product Details</h3>
+        <div class="search-bar">
+            <input type="text" placeholder="Search products..." id="search">
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr class="{% if product.quantity < 10 %}low-stock{% endif %}">
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category }}</td>
+                    <td>{{ product.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+    {% endblock %}
+    <!-- Search Script -->
+    <script>
+        document.querySelector('#search').addEventListener('input', function (e) {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('tbody tr').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -111,35 +111,50 @@ body::before {
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             margin-bottom: 40px;
         }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            text-decoration: none; /* Remove underline */
+        }
+        
+        .button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+            text-decoration: none; /* Remove underline */
+        }
     </style>
 </head>
 <body>
     {% extends "home.html" %}
 
-    {% block title %}Admin Dashboard{% endblock %}
+    
 
     {% block content %}
     <div class="form-container">
-        <h1>Admin Dashboard</h1>
-        <div class="dashboard">
-            <button onclick="location.href='{{ url_for('admin.role_approval_requests') }}'">
-                Role Approval Requests
-            </button>
-            <button onclick="location.href='{{ url_for('admin.user_details') }}'">
-                View User Details
-            </button>
-            <button onclick="location.href='{{ url_for('admin.add_product') }}'">
-                Add New Product
-            </button>
-            <button onclick="location.href='{{ url_for('admin.view_products') }}'">
-                Manage Products
-            </button>
-            <button onclick="location.href='{{ url_for('admin.order_details') }}'">
-                View Order Details
-            </button>
-            <button onclick="location.href='{{ url_for('visualization.home') }}'">
-                Visualization
-            </button>
+        <div class="button-container">
+            <a href="/visualization/roles_chart" class="button">View Users by Roles</a>
+            <a href="/visualization/sales_by_city" class="button">Sales Based on City</a>
+            <a href="/visualization/revenue_trends" class="button">Revenue Trends</a>
+            <a href="/visualization/delivery_chart" class="button">Delivery Chart</a>
+            <a href="/visualization/inventory_status" class="button">Inventory Status</a>
+            <a href="/visualization/financial_health" class="button">Financial status</a>
+            <a href="/visualization/customer_trends" class="button">Customer Trends</a>
         </div>
     </div>
     {% endblock %}
