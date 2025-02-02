@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color: #333;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: -1;
+        }
+
+        .form-container, .dashboard {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 36px;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            padding: 20px;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            text-decoration: none; /* Remove underline */
+        }
+        
+        .button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+            text-decoration: none; /* Remove underline */
+        }
+        .chart-container {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .analytics-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 250px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .analytics-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #aac4e2;
+        }
+
+        .analytics-box h2 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #444;
+        }
+
+        .analytics-box p {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+            color: #222;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .analytics-section {
+                width: 100%;
+            }
+        }
+        /* Financial Data Table Styling */
+h3 {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* Table Container */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Enables scrolling for smaller screens */
+    margin-top: 20px;
+    padding: 10px;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Header */
+thead {
+    background: #007bff; /* Deep blue header */
+    color: white;
+    text-transform: uppercase;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Alternate Row Colors */
+tbody tr:nth-child(even) {
+    background: #f8f9fa; /* Subtle gray */
+}
+
+/* Hover Effect */
+tbody tr:hover {
+    background: #e9ecef; /* Slightly darker on hover */
+    transition: background 0.3s ease-in-out;
+}
+
+/* Font for Numbers */
+td:nth-child(4),
+td:nth-child(5),
+td:nth-child(6) {
+    font-weight: bold;
+    text-align: right;
+}
+
+/* Profit Color Indicators */
+td:nth-child(6) { /* Profit Column */
+    color: green;
+    font-weight: bold;
+}
+
+td:nth-child(5) { /* Expenses Column */
+    color: red;
+    font-weight: bold;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+    table {
+        font-size: 14px;
+    }
+    
+    th, td {
+        padding: 8px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    {% extends "home.html" %}
+    {% block content %}
+    <div class="form-container">
+        <div class="button-container">
+            <a href="/visualization/roles_chart" class="button">View Users by Roles</a>
+            <a href="/visualization/sales_by_city" class="button">Sales Based on City</a>
+            <a href="/visualization/revenue_trends" class="button">Revenue Trends</a>
+            <a href="/visualization/delivery_chart" class="button">Delivery Chart</a>
+            <a href="/visualization/inventory_status" class="button">Inventory Status</a>
+            <a href="/visualization/financial_health" class="button">Financial status</a>
+            <a href="/visualization/customer_trends" class="button">Customer Trends</a>
+        </div>
+
+        <div class="content">
+            <div class="chart-container">
+                <img src="data:image/png;base64,{{ img_line_base64 }}" alt="Revenue Chart">
+            </div>
+            
+            <div class="analytics-section">
+                <div class="analytics-box">
+                    <h2>Current Revenue</h2>
+                    <p style="font-size: 24px; color: blue;">{{ real_time_analytics['Current Revenue'] }}</p>
+                </div>
+                <div class="analytics-box">
+                    <h2>Current Expenses</h2>
+                    <p style="font-size: 24px; color: red;">{{ real_time_analytics['Current Expenses'] }}</p>
+                </div>
+                <div class="analytics-box">
+                    <h2>Current Profit</h2>
+                    <p style="font-size: 24px; color: green;">{{ real_time_analytics['Current Profit'] }}</p>
+                </div>
+            </div>
+            
+        </div>
+
+        <h3>Financial Data Table</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Total (Rs)</th>
+                    <th>Expenses (Rs)</th>
+                    <th>Profit (Rs)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in financial_data %}
+                    <tr>
+                        <td>{{ record.customer }}</td>
+                        <td>{{ record.product }}</td>
+                        <td>{{ record.quantity }}</td>
+                        <td>{{ record.total }}</td>
+                        <td>{{ record.expenses }}</td>
+                        <td>{{ record.profit }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endblock %}
+</body>
+</html>

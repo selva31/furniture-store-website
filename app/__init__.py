@@ -66,6 +66,7 @@ def create_app():
     from .password import password
     from .admin import admin
     from .category import category
+    from .visualization import visualization
     from .rating import rating
     from .delivery_person import delivery_person
 
@@ -73,6 +74,7 @@ def create_app():
     app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(admin)
     app.register_blueprint(password, url_prefix="/password")
+    app.register_blueprint(visualization,url_prefix="/visualization")
     app.register_blueprint(category)
     app.register_blueprint(rating)
     app.register_blueprint(delivery_person)
