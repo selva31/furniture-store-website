@@ -38,7 +38,6 @@ body::before {
             font-weight: bold;
             margin-left: 10px;
         }
-        
     </style>
 </head>
 <body>
@@ -67,6 +66,7 @@ body::before {
             <div>Rating</div>
             <div>Quantity</div>
             <div>Sub Total</div>
+            <!-- <div>Discount</div> -->
         </div>
 
         <div class="products">
@@ -87,7 +87,7 @@ body::before {
                 <p>⭐ {{ item.product.avg_rating }}</p>
                 <div>
                     <label for="quantity-{{ item.id }}">Quantity:</label>
-                    <select id="quantity-{{ item.id }}" class="quantity-dropdown" data-price="{{ item.product.price }}" data-cart-item-id="{{ item.id }}" data-stock="{{ product_stock[item.product.id] }}">
+                    <select id="quantity-{{ item.id }}" class="quantity-dropdown" data-price="{{ item.product.price }}" discount1="{{item.product.discount}}" data-cart-item-id="{{ item.id }}" data-stock="{{ product_stock[item.product.id] }}">
                         {% for i in range(1, product_stock[item.product.id] + 1) %}
                             <option value="{{ i }}" {% if i == item.quantity %}selected{% endif %}>{{ i }}</option>
                         {% endfor %}
@@ -97,6 +97,7 @@ body::before {
                     {% endif %}
                 </div>
                 <p>₹<span class="subtotal">{{ item.total_price }}</span></p>
+                <p><span style="display: none;" class="temp">{{item.total_price * (item.product.discount / 100) * item.quantity }}</span></p>
                 <div class="bbuttons">
                     <form action="/remove_from_cart" method="POST" style="display: inline;">
                         <input type="hidden" name="cart_item_id" value="{{ item.id }}">
@@ -118,15 +119,16 @@ body::before {
                 <div class="invoice-details">
                     <span>Subtotal:</span>
                     <span>₹<span id="invoice-subtotal">0</span></span>
-                </div>
-                <div class="invoice-details">
-                    <span>Discount:</span>
+                </div> 
+                 <div class="invoice-details">
+                    <span>Total Discount:</span>
                     <span>-₹<span id="d-message">0</span></span>
                 </div>
                 <div class="invoice-details">
                     <span>Delivery Charges:</span>
                     <span>₹<span id="invoice-tax">0</span></span>
                 </div>
+                <div></div>
                 <div class="invoice-details">
                     <span>Grand Total:</span>
                     <span>₹<span id="invoice-grand-total">0</span></span>
@@ -136,9 +138,17 @@ body::before {
                     <button id="apply-coupon" class="appl">Apply</button>
                     <p id="coupon-message" style="color: green; margin-top: 10px; display: none;">Coupon applied successfully!</p>
                 </div>
-                <a href="{{ url_for('main.checkout') }}">
+                <a href="{{ url_for('main.checkout') }}" id = "buythis">
                     <button class="buy-button">Buy Now</button>
                 </a>
+
+                <form id="checkout-form" action="{{ url_for('main.checkout') }}" method="POST" style="display: none;">
+                    <!-- <input type="hidden" name="subtotal" id="checkout-subtotal"> -->
+                    <!-- <input type="hidden" name="discount" id="checkout-discount"> -->
+                    <input type="hidden" name="grand_total" id="checkout-grand-total">
+                    <!-- You can add other hidden fields if needed -->
+                </form>
+
             </div>
         </div>
     </div>
@@ -156,14 +166,30 @@ const couponMessage = document.getElementById('coupon-message');
 const dm = document.getElementById('d-message');
 let discount = 0;
 
+
+document.getElementById('buythis').addEventListener('click', function (e) {
+    e.preventDefault();
+    const grandTotal = document.getElementById('invoice-grand-total').textContent;
+
+
+    document.getElementById('checkout-grand-total').value = grandTotal;
+    console.log("Done", grandTotal)
+    document.getElementById('checkout-form').submit();
+})
+
+
 quantityDropdowns.forEach(dropdown => {
     dropdown.addEventListener('change', event => {
+        // let d = parseFloat(document.getElementById("temp").textContent);
+        const d = parseFloat(event.target.getAttribute('discount1'));
+        console.log("hello",d);
         const quantity = parseInt(event.target.value);
         const price = parseFloat(event.target.getAttribute('data-price'));
         const cartItemId = event.target.getAttribute('data-cart-item-id'); // Get cart item ID from data attribute
         const stock = parseInt(event.target.getAttribute('data-stock')); // Get stock from data attribute
         const productElement = event.target.closest('.product');
         const subtotalElement = productElement.querySelector('.subtotal');
+        const discountElemnt = productElement.querySelector('.temp');
 
         if(quantity > stock){
             alert(`Only ${stock} units are available`);
@@ -171,7 +197,13 @@ quantityDropdowns.forEach(dropdown => {
             return;
         }
 
+        const newdiscount = ((price * (d / 100)) * quantity);
+        // disc
         const newSubtotal = quantity * price;
+        console.log(newdiscount, newSubtotal-newdiscount)
+        // dm.innerText = newdiscount.toFixed(2); 
+        //     console.log(dm)
+        discountElemnt.textContent = newdiscount.toFixed(2);
         subtotalElement.textContent = newSubtotal.toFixed(2);
 
 
@@ -222,13 +254,21 @@ applyCouponButton.addEventListener('click', () => {
 });
 
 function updateCartTotal() {
+    // var d = parseFloat(document.getElementById("temp").textContent);
+    // console.log(d)
     let total = 0;
+    let dis = 0;
     document.querySelectorAll('.subtotal').forEach(subtotalElement => {
         total += parseFloat(subtotalElement.textContent);
     });
+    document.querySelectorAll('.temp').forEach(discountElemnt => {
+        dis += parseFloat(discountElemnt.textContent);
+    });
+
+    console.log(dis);
 
     let tax;
-    dm.textContent = (total * discount).toFixed(2);
+    // dm.textContent = (total * discount).toFixed(2);
 
     if (total > 3000 || total <= 0) {
         tax = 0;
@@ -241,8 +281,14 @@ function updateCartTotal() {
     } else {
         tax = 50;
     }
+    // dm.innerText = dis.toFixed(2);
+    let gt = total + tax - dis;
+    let disc = gt * discount
+    gt -= disc
 
-    const grandTotal = total - total * discount + tax;
+    const grandTotal = gt
+
+    dm.innerText = (dis+disc).toFixed(2)
 
     invoiceSubtotal.textContent = total.toFixed(2);
     invoiceTax.textContent = tax.toFixed(2);
@@ -250,6 +296,7 @@ function updateCartTotal() {
 }
 
 updateCartTotal();
+
 </script>
 {% endblock %}
 </body>

@@ -27,105 +27,116 @@ body::before {
     z-index: -1;
 }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.product-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.product-form label {
-    font-weight: bold;
-}
-
-.product-form input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.product-form button {
-    padding: 10px;
-    background-color: #4285F4;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.product-form button:hover {
-    background-color: #2962FF;
-}
-
-</style>
-
-{% extends "home.html" %}
-
-{% block content %}
-<main>
-    <div class="container">
-        <form action="{{ url_for('main.place_order') }}" method="POST" class="product-form">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" value="{{ current_user.username }}" required>
-
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
-
-            <label for="contact">Contact:</label>
-            <input type="tel" id="contact" name="contact" value="{{ current_user.contact }}" required>
-
-
-
-
-            <label for="address">Address:</label>
-            <input type="text" id="address" name="address" value="{{ current_user.address }}" required>
-
-            <label for="city">City:</label>
-            <select name="city" id="city" class="form-control" required>
-                <option value="" disabled>Select your city</option>
-                {% for city_option in ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Surat', 'Pune', 'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Vadodara', 'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan', 'Vasai-Virar', 'Varanasi', 'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai', 'Allahabad', 'Howrah', 'Ranchi', 'Coimbatore', 'Jabalpur', 'Gwalior', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli-Dharwad'] %}
-                    <option value="{{ city_option }}" {% if city_option == city %}selected{% endif %}>{{ city_option }}</option>
-                {% endfor %}
-            </select>
-
-
-            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                <thead>
-                    <tr style="background-color: #f2f2f2;">
-                        <th style="border: 1px solid #ccc; padding: 10px;">Item Name</th>
-                        <th style="border: 1px solid #ccc; padding: 10px;">Item Price</th>
-                        <th style="border: 1px solid #ccc; padding: 10px;">Item Quantity</th>
-                        <th style="border: 1px solid #ccc; padding: 10px;">Item Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                    <tr>
-                        <td style="border: 1px solid #ccc; padding: 10px;">{{ item.product.name }}</td>
-                        <td style="border: 1px solid #ccc; padding: 10px;">₹{{ item.product.price }}</td>
-                        <td style="border: 1px solid #ccc; padding: 10px;">{{ item.quantity }}</td>
-                        <td style="border: 1px solid #ccc; padding: 10px;">₹{{ item.total_price }}</td>
-                    </tr>
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .product-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .product-form label {
+        font-weight: bold;
+    }
+    
+    .product-form input {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    .product-form button {
+        padding: 10px;
+        background-color: #4285F4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .product-form button:hover {
+        background-color: #2962FF;
+    }
+    
+    </style>
+    
+    {% extends "home.html" %}
+    
+    {% block content %}
+    <main>
+        <div class="container">
+            <form action="{{ url_for('main.place_order') }}" method="POST" class="product-form">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="{{ current_user.username }}" required>
+    
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
+    
+                <label for="contact">Contact:</label>
+                <input type="tel" id="contact" name="contact" value="{{ current_user.contact }}" required>
+    
+                <input name = "grand_total" id = "lafoot" value="{{data}}" type="hidden">
+                
+    
+    
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" value="{{ current_user.address }}" required>
+    
+                <label for="city">City:</label>
+                <select name="city" id="city" class="form-control" required>
+                    <option value="" disabled>Select your city</option>
+                    {% for city_option in ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Surat', 'Pune', 'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Vadodara', 'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan', 'Vasai-Virar', 'Varanasi', 'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai', 'Allahabad', 'Howrah', 'Ranchi', 'Coimbatore', 'Jabalpur', 'Gwalior', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli-Dharwad'] %}
+                        <option value="{{ city_option }}" {% if city_option == current_user.city %}selected{% endif %}>{{ city_option }}</option>
                     {% endfor %}
-                </tbody>
-            </table>
-
-            <label for="price">Sub Total</label>
-            <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ total_price }}</label>
-
-            <label for="price">Delivery Charges</label>
-            <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ tax }}</label>
-
-            <label for="price">Grand Total Amount</label>
-            <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ grand_total }}</label>
-
-            <button type="submit">Place Your Order</button>
-        </form>
-    </div>
-</main>
-{% endblock %}
+                </select>
+    
+    
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <thead>
+                        <tr style="background-color: #f2f2f2;">
+                            <th style="border: 1px solid #ccc; padding: 10px;">Item Name</th>
+                            <th style="border: 1px solid #ccc; padding: 10px;">Item Price</th>
+                            <th style="border: 1px solid #ccc; padding: 10px;">Item Quantity</th>
+                            <th style="border: 1px solid #ccc; padding: 10px;">Item Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                        <tr>
+                            <td style="border: 1px solid #ccc; padding: 10px;">{{ item.product.name }}</td>
+                            <td style="border: 1px solid #ccc; padding: 10px;">₹{{ item.product.price }}</td>
+                            <td style="border: 1px solid #ccc; padding: 10px;">{{ item.quantity }}</td>
+                            <td style="border: 1px solid #ccc; padding: 10px;">₹{{ item.total_price }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+    
+                <label for="price">Sub Total</label>
+                <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ total_price }}</label>
+    
+                <label for="price">Delivery Charges</label>
+                <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ tax }}</label>
+    
+                <label for="price">Discount</label>
+                <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ total_discount }}</label>
+    
+                <label for="price">Grand Total Amount</label>
+                <label for="item-name" id="grand_total" data="{{ grand_total }}" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ grand_total }}</label>
+    
+                <button type="submit">Place Your Order</button>
+            </form>
+        </div>
+    </main>
+    <script>
+        const g = document.getElementById("grand_total").textContent
+        document.getElementById("lafoot").value = g;
+    
+        
+        console.log(g);
+    </script>
+    {% endblock %}

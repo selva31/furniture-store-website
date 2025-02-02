@@ -119,56 +119,32 @@ def calculate_tax(total_price):
     else:
         return 50
     
-    
+
 @main.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
+    g = request.form.get('grand_total')
+    print(g)
     cart_items = Cart.query.filter_by(user_id=current_user.id).all()
     if not cart_items:
         flash("Your cart is empty!", "danger")
         return redirect(url_for('main.cart'))
-
+    # print(item for item in cart_items)
     total_price = sum(item.total_price for item in cart_items)
+    
+   
     tax = calculate_tax(total_price)
-    grand_total = total_price + tax
-
-    if request.method == 'POST':
-        city = request.form.get('city')
-        address = request.form.get('address')
-        name = request.form.get('name')
-        email = request.form.get('email')
-        contact = request.form.get('contact')
-
-        # Input validation (basic example - enhance as needed)
-        if not city or not address or not name or not email or not contact:
-            flash("Please fill in all fields.", "danger")
-            return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address, name=current_user.username, email=current_user.email, contact=current_user.contact)
-
-        if not contact.isdigit() or len(contact) != 10:
-            flash("Invalid contact number.", "danger")
-            return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address, name=current_user.username, email=current_user.email, contact=current_user.contact)
-
-        try:
-            # Update user info (Consider email verification for security!)
-            current_user.city = city
-            current_user.address = address
-            current_user.username = name
-            current_user.email = email  # Email update - Implement verification!
-            current_user.contact = contact
-            db.session.commit()
-            return redirect(url_for('main.place_order', name=name, email=email, contact=contact, city=city, address=address, total_price=total_price, tax=tax, grand_total=grand_total))
-        except Exception as e:
-            db.session.rollback()
-            flash(f"An error occurred updating user information: {e}", "danger")
-            return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address, name=current_user.username, email=current_user.email, contact=current_user.contact)
-
-    return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total, city=current_user.city, address=current_user.address, name=current_user.username, email=current_user.email, contact=current_user.contact)
-
-
+    total_discount= round(total_price - float(g),2)+tax
+    grand_total = total_price - total_discount  + tax
+    
+    return render_template('checkout.html', cart_items=cart_items, total_price=total_price, 
+                           total_discount=total_discount, tax=tax, grand_total=grand_total)
 
 @main.route('/place_order', methods=['GET', 'POST'])
 @login_required
 def place_order():
+    g = request.form.get('grand_total')
+    print("lafoot price",g)
     cart_items = Cart.query.filter_by(user_id=current_user.id).all()
     if not cart_items:
         flash("Your cart is empty!", "danger")
@@ -176,7 +152,9 @@ def place_order():
 
     total_price = sum(item.total_price for item in cart_items)
     tax = calculate_tax(total_price)
-    grand_total = total_price + tax
+    total_discount= round(total_price - float(g[1:]),2) + tax
+    grand_total = total_price - total_discount + tax
+    print(grand_total)
 
     # Get data from GET request (if redirected from checkout), or fallback to user data
     name = request.form.get('name')
