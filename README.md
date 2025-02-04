@@ -44,6 +44,7 @@ This project implements a basic e-commerce application using Flask and SQLAlchem
 - **SQLAlchemy:** ORM for database operations.
 - **SQLite:** Database (for development). Consider PostgreSQL or MySQL for production.
 - **dotenv:** For managing environment variables.
+- **pytest:** Testing framework.
 
 ## Setup
 
@@ -79,6 +80,22 @@ This project implements a basic e-commerce application using Flask and SQLAlchem
    flask run
    ```
 
+## Testing
+
+This application uses pytest for comprehensive testing.  The tests are located in the `tests/` directory and cover:
+
+- **Unit Tests:** Individual components (functions, models) are tested in isolation.
+- **Integration Tests:** Interactions between different components are tested.  For example,  tests verify the interaction between the views and the database.
+- **Functional Tests:** End-to-end testing of user flows (e.g., registration, adding to cart, checkout). These tests simulate actual user actions.
+
+
+To run the tests, navigate to the project's root directory and execute the following command:
+
+```bash
+pytest tests/ 
+```
+
+
 ## Directory Structure
 
 ```
@@ -98,6 +115,7 @@ FusionFits/
 │   ├── static/           # Static files (CSS, JS, images)
 │   │   └── uploads/      # Folder to store uploaded product images
 ├── migrations/           # Database migration files
+├── tests/                # Test files using pytest
 ├── requirements.txt      # Project dependencies
 ├── .env                  # Environment variables
 ```
