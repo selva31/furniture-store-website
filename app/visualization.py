@@ -359,43 +359,68 @@ def financial_health():
                            profit=profit,
                            financial_data=financial_data)
 
-
 def generate_chart(data):
+    
+    if not data:
+        
+        return None  
+
     product_names = [item["name"] for item in data]
     stock = [item["stock"] for item in data]
 
-    # Create bar chart
+  
+
     plt.figure(figsize=(8, 6))
     plt.bar(product_names, stock, color="skyblue")
     plt.title("Product Stock Chart")
     plt.xlabel("Products")
     plt.ylabel("Stock")
+    plt.xticks(rotation=45)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
 
-    # Save the chart as a base64 image
     buf = BytesIO()
     plt.savefig(buf, format="png", bbox_inches="tight")
     buf.seek(0)
     chart_data = base64.b64encode(buf.getvalue()).decode("utf-8")
     buf.close()
+    
     return chart_data
+
+
+
 @visualization.route('/visualization/<category>')
 def category_page(category):
+    
+    
     page = request.args.get('page', default=1, type=int)
     has_next = True  # Example logic for pagination
+    products = Product.query.all()
+    for product in products:
+        print(f"Product Name: {product.name}, Category: {product.category}, Stock: {product.quantity}")
+    # Fetch products for the selected category
+    products_query = Product.query.filter_by(category=category).paginate(page=page, per_page=10, error_out=False)
+    total_stock = db.session.query(db.func.sum(Product.quantity)).filter_by(category=category).scalar()
+    total_stock = total_stock if total_stock else 0  # Ensure it doesn't return None
 
-    # Query the Product table to fetch products based on the category
-    products_query = Product.query.filter_by(category=category).all()
-
-    # If category exists in the database
-    if products_query:
-        # Prepare the data to send to the chart generation function
-        products = [{"name": product.name, "stock": product.quantity} for product in products_query]
-        chart_data = generate_chart(products)
-
-        return render_template("category_page.html", category=category, title=category.capitalize(), products=products, chart_data=chart_data, page=page, has_next=has_next)
     
-    return "Category not found", 404
+    if products_query.items:  # Check if there are products
+        products = [{"name": product.name, "stock": product.quantity} for product in products_query.items]
+      
+        chart_data = generate_chart(products)
+    else:
+       
+        products = []
+        chart_data = None  
+
+    return render_template(
+        "category_page.html", 
+        category=category, 
+        title=category.capitalize(), 
+        products=products, 
+        chart_data=chart_data, 
+        page=page,total_stock=total_stock, 
+        has_next=has_next
+    )
 
 
 
@@ -404,6 +429,7 @@ def category_page(category):
 def inventory_status():
     # Static data for pagination logic
     page = request.args.get('page', default=1, type=int)
+
     has_next = True  # Example logic for pagination
 
     # Query the Product table to get the categories and total stock
@@ -419,10 +445,22 @@ def inventory_status():
     max_stock_category = category_labels[category_stock.index(max(category_stock))]
     min_stock_category = category_labels[category_stock.index(min(category_stock))]
 
+    low_stock_threshold = 5
+    low_stock_products = Product.query.filter(Product.quantity < low_stock_threshold).all()
+
+    # Out of Stock Items
+    out_of_stock_items = Product.query.filter(Product.quantity == 0).all()
+
+    # Total number of products
+    total_products = Product.query.count()
+
     analytics = {
         "Total Stock": total_stock,
         "Category with Max Stock": max_stock_category,
         "Category with Min Stock": min_stock_category,
+        "Low Stock Alerts": len(low_stock_products),
+        "Out of Stock Items": len(out_of_stock_items),
+        "Total Products": total_products
     }
 
     # Default stock value
