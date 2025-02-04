@@ -402,10 +402,11 @@ def search():
         ).all()
     else:
         search_results = []
-    
-    wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
 
-    return render_template('search_results.html', products=search_results, query=query, wishlist=wishlist)
+    wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
+    cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else [] # Added cart data
+
+    return render_template('search_results.html', products=search_results, query=query, wishlist=wishlist, cart=cart) # Pass cart to template
 
 @main.route('/faq')
 def faq():

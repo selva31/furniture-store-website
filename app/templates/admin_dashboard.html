@@ -1,147 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard</title>
     <style>
-        body {
-    font-family: 'Roboto', sans-serif;
-    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: #333;
-    position: relative;
-}
+      body {
+        font-family: "Roboto", sans-serif;
+        background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        color: #333;
+        position: relative;
+      }
 
-/* Overlay to reduce opacity */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-    z-index: -1;
-}
+      /* Overlay to reduce opacity */
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
+        z-index: -1;
+      }
 
-/* Ensuring content appears above the overlay */
-.form-container, .dashboard {
-    position: relative;
-    z-index: 1;
-}
-        /* Centered header */
+      /* Centered header */
+      h1 {
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 36px;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: bold;
+      }
+
+      /* Dashboard container */
+      .dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 30px;
+        padding: 30px;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      /* Button styles */
+      .dashboard button {
+        background-color: rgb(27, 36, 83);
+        color: rgba(228, 210, 173, 0.803);
+        border: none;
+        padding: 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0 6px 20px rgba(62, 66, 71, 0.8);
+        text-transform: uppercase;
+        text-align: center;
+      }
+
+      /* Hover effect */
+      .dashboard button:hover {
+        background: linear-gradient(145deg, #88b2dc, #334a5a);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Button focus */
+      .dashboard button:focus {
+        outline: none;
+      }
+
+      /* Button active state */
+      .dashboard button:active {
+        transform: translateY(1px);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
         h1 {
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 36px;
-            color: #333;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: bold;
+          font-size: 28px;
         }
 
-        /* Dashboard container */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 30px;
-            padding: 40px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        /* Button styles */
         .dashboard button {
-            background: linear-gradient(145deg, #6a11cb, #2575fc);
-            color: white;
-            border: none;
-            padding: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            text-transform: uppercase;
-            text-align: center;
+          width: 100%;
+          font-size: 16px;
+          padding: 15px;
         }
-
-        /* Hover effect */
-        .dashboard button:hover {
-            background: linear-gradient(145deg, #2575fc, #6a11cb);
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Button focus */
-        .dashboard button:focus {
-            outline: none;
-        }
-
-        /* Button active state */
-        .dashboard button:active {
-            transform: translateY(1px);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 28px;
-            }
-
-            .dashboard button {
-                width: 100%;
-                font-size: 16px;
-                padding: 15px;
-            }
-        }
-
-        /* Container for Form */
-        .form-container {
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom: 40px;
-        }
+      }
     </style>
-</head>
-<body>
-    {% extends "home.html" %}
-
-    {% block title %}Admin Dashboard{% endblock %}
-
-    {% block content %}
+  </head>
+  <body>
+    {% extends "home.html" %} {% block title %}Admin Dashboard{% endblock %} {%
+    block content %}
     <div class="form-container">
-        <h1>Admin Dashboard</h1>
-        <div class="dashboard">
-            <button onclick="location.href='{{ url_for('admin.role_approval_requests') }}'">
-                Role Approval Requests
-            </button>
-            <button onclick="location.href='{{ url_for('admin.user_details') }}'">
-                View User Details
-            </button>
-            <button onclick="location.href='{{ url_for('admin.add_product') }}'">
-                Add New Product
-            </button>
-            <button onclick="location.href='{{ url_for('admin.view_products') }}'">
-                Manage Products
-            </button>
-            <button onclick="location.href='{{ url_for('admin.order_details') }}'">
-                View Order Details
-            </button>
-            <button onclick="location.href='{{ url_for('visualization.home') }}'">
-                Visualization
-            </button>
-        </div>
+      <h1>Admin Dashboard</h1>
+      <div class="dashboard">
+        <button
+          onclick="location.href='{{ url_for('admin.role_approval_requests') }}'"
+        >
+          Role Approval Requests
+        </button>
+        <button onclick="location.href='{{ url_for('admin.user_details') }}'">
+          View User Details
+        </button>
+        <button onclick="location.href='{{ url_for('admin.add_product') }}'">
+          Add New Product
+        </button>
+        <button onclick="location.href='{{ url_for('admin.view_products') }}'">
+          Manage Products
+        </button>
+        <button onclick="location.href='{{ url_for('admin.order_details') }}'">
+          View Order Details
+        </button>
+        <button onclick="location.href='{{ url_for('visualization.home') }}'">
+          Visualization
+      </button>
+      </div>
     </div>
     {% endblock %}
-</body>
+  </body>
 </html>
