@@ -42,6 +42,9 @@ body::before {
 .remove-btn {
     background-color: red;
 }
+#support{
+    padding: top 50px;
+}
 
     </style>
 </head>
@@ -71,14 +74,17 @@ body::before {
             <p>{{ product.description }}</p>
             <h3>Product Details</h3>
             <p><strong>Size:</strong> {{ product.size }}</p>
-            <p><strong>Gender:</strong> {{ product.gender }}</p>
+            <!-- <p><strong>Gender:</strong> {{ product.gender }}</p> -->
             <p><strong>Category:</strong> {{ product.category }}</p>
             <p><strong>Color:</strong> {{ product.colour }}</p>
             <p><strong>Manufacturer:</strong> {{ product.manufacturer }}</p>
             <p><strong>Country:</strong> {{ product.country_of_origin }}</p>
+            <p><strong>Discount:</strong> {{ product.discount }}%</p>
             <p><strong>Ratings:</strong> ⭐{{ product.avg_rating if product.avg_rating else 'N/A' }}</p>
             <div class="pricet">
-                <p><strong>Price:</strong> ₹{{ product.price }}</p>
+                <strong>Price:</strong> 
+        <span style="text-decoration: line-through; color: gray;">₹{{ product.price }}</span>
+        <span style="color: green; font-weight: bold;"> ₹{{ (product.price * (1 - product.discount / 100)) | round(2) }}</span>
             </div>
             <div class="actions">
                 <form action="/add_to_cart" method="POST" style="display: inline;">

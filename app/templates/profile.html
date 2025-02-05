@@ -228,15 +228,11 @@
             <a href="{{ url_for('main.cart') }}"><button>Cart</button></a>
             <a href="{{ url_for('main.your_orders') }}"><button>Orders</button></a>
             <a href="{{ url_for('main.wishlist') }}" ><button>Wishlist</button></a>
+            {% if user.role == 'delivery' %}
+            <a href="{{ url_for('delivery_person.delivery_person_dashboard') }}" ><button>Delivery Dashboard</button></a>
+            {% endif %}
         </div>
-        {% if user.role == 'delivery' %}
-        <div class="center-buttons">
-            <button>Delivery Dashboard</button>
-            <button>Delivery Requests</button>
-            <button>Active Delivery</button>
-            <button>Completed Delivery</button>
-        </div>
-        {% endif %}
+        
         
         <div class="profile-sections">
             <section id="personal-details">
@@ -292,19 +288,7 @@
             </section>
         </div>
 
-        {% if user.role == 'delivery' %}
-        <section id="performance">
-            <h2>Performance</h2>
-            <div>
-                <span>Performance Matrix</span>
-                <button class="performance-btn">Performance Matrix</button>
-            </div>
-            <div>
-                <span>Earnings Summary</span>
-                <button class="earnings-btn">Earnings</button>
-            </div>
-        </section>
-        {% endif %}
+        
         
     </div>
     {% endblock %}

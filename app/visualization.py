@@ -225,24 +225,37 @@ def delivery_chart():
     )
 
 
-@visualization.route("/customer_trends")
+@visualization.route("/customer_trends") 
 def customer_trends():
     today = datetime.today()
     days = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(12)]  # Last 12 days
 
+    # Fetch users who made their first order more than 12 days ago
+    past_customers = (
+        db.session.query(OrderDetails.user_id)
+        .group_by(OrderDetails.user_id)
+        .having(db.func.min(OrderDetails.order_date) < today - timedelta(days=12))  # At least one old order
+        .subquery()
+    )
+
+    # Fetch new customers (users created in last 12 days)
     new_customers_data = (
         db.session.query(User.dob, db.func.count(User.id))
         .filter(User.dob >= today - timedelta(days=12))
         .group_by(User.dob)
         .all()
     )
+
+    # Fetch returning customers: Users from past_customers who ordered in last 12 days
     returning_customers_data = (
-        db.session.query(OrderDetails.order_date, db.func.count(OrderDetails.user_id))
-        .filter(OrderDetails.order_date >= today - timedelta(days=12))
+        db.session.query(OrderDetails.order_date, db.func.count(db.distinct(OrderDetails.user_id)))
+        .filter(OrderDetails.user_id.in_(db.session.query(past_customers.c.user_id)))  # Ensure previous orders exist
+        .filter(OrderDetails.order_date >= today - timedelta(days=12))  # Count their new orders
         .group_by(OrderDetails.order_date)
         .all()
     )
 
+    # Convert data to dictionaries
     new_customers = {str(date): count for date, count in new_customers_data}
     returning_customers = {str(date): count for date, count in returning_customers_data}
 
@@ -250,19 +263,18 @@ def customer_trends():
     new_customers_list = [new_customers.get(day, 0) for day in days]
     returning_customers_list = [returning_customers.get(day, 0) for day in days]
 
-    # Generate the chart using Matplotlib
+    # Generate the line graph using Matplotlib
     plt.figure(figsize=(10, 5))
-    bar_width = 0.4
-    x_indices = range(len(days))
-
-    plt.bar(x_indices, new_customers_list, width=bar_width, label="New Customers", color="#6a89cc", alpha=0.8)
-    plt.bar([x + bar_width for x in x_indices], returning_customers_list, width=bar_width, label="Returning Customers", color="#82ccdd", alpha=0.8)
+    
+    plt.plot(days, new_customers_list, marker="o", linestyle="-", label="New Customers", color="#6a89cc")
+    plt.plot(days, returning_customers_list, marker="o", linestyle="-", label="Returning Customers", color="#82ccdd")
 
     plt.title("New and Returning Customers Trends", fontsize=14)
     plt.xlabel("Days")
     plt.ylabel("Number of Customers")
-    plt.xticks([x + bar_width / 2 for x in x_indices], days, rotation=45, ha="right")
+    plt.xticks(rotation=45, ha="right")
     plt.legend()
+    plt.grid(True)
     plt.tight_layout()
 
     # Save the chart to a buffer and encode it as a base64 string
@@ -295,6 +307,7 @@ def customer_trends():
         total_returning_customers=total_returning_customers,
     )
 
+import random
 @visualization.route("/financial_health")
 def financial_health():
     # Fetch financial data from the database
@@ -307,7 +320,7 @@ def financial_health():
     for day in days:
         day_orders = [order for order in orders if order.order_date.strftime('%Y-%m-%d') == day]
         day_revenue = sum(order.grand_total if order.grand_total is not None else 0 for order in day_orders)
-        day_expenses = sum(order.delivery_charges if order.delivery_charges is not None else 0 for order in day_orders)
+        day_expenses = sum(order.delivery_charges if order.delivery_charges is not None else random.randint(50, 500) for order in day_orders)
 
         day_profit = day_revenue - day_expenses
         

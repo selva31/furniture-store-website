@@ -69,7 +69,11 @@ body::before {
             <div class="bb">
                 <form action="/add_to_cart" method="POST" style="display: inline;">
                     <input type="hidden" name="product_id" value="{{ product.id }}">
-                    <button type="submit" class="add-to-cart">Add to Cart</button>
+                    {% if product.id in cart %}
+                  <button type="submit" class="btn btn-danger">Remove from Cart</button>
+                {% else %}
+                  <button type="submit" class="btn btn-primary">Add to Cart</button>
+                {% endif %}
                 </form>
 
                 <a href="{{ url_for('main.product_details', product_id=product.id) }}">

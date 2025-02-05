@@ -32,7 +32,8 @@ def product_details(product_id):
 @main.route('/gender/<string:gender>')
 def gender_specific(gender):
     gender = gender.lower()  # Convert to lowercase for case-insensitive matching
-    products = Product.query.filter(Product.gender.ilike(f'%{gender}%')).all()
+    # products = Product.query.filter(Product.gender.ilike(f'%{gender}%')).all()
+    products = Product.query.filter(Product.gender.ilike(f'{gender}%')).all()
     wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
     cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
     return render_template('gender_specific.html', products=products, wishlist=wishlist, cart=cart, gender=gender.capitalize()) # Capitalize for display
@@ -401,10 +402,11 @@ def search():
         ).all()
     else:
         search_results = []
-    
-    wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
 
-    return render_template('search_results.html', products=search_results, query=query, wishlist=wishlist)
+    wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
+    cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else [] # Added cart data
+
+    return render_template('search_results.html', products=search_results, query=query, wishlist=wishlist, cart=cart) # Pass cart to template
 
 @main.route('/faq')
 def faq():

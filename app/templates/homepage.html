@@ -72,11 +72,16 @@ body::before {
             <!-- Product details form -->
             <img src="{{ url_for('static', filename=product.images[0].image_url if product.images else 'default_image.jpg') }}" alt="{{ product.name }}">
             <h2>{{ product.name }}</h2>
-            <p><strong>Discount:</strong> {{ product.discount }}%</p>
-            <div class="pricet">
-                <p><strong>Price:</strong> ₹{{ product.price }}</p>
-            </div>
             <p><strong>Rating:</strong> ⭐ {{ product.avg_rating if product.avg_rating else 'N/A' }}</p>
+            
+            <div class="pricet" style="padding-bottom: 10px;">
+                <strong>Price:</strong> 
+        <span style="text-decoration: line-through; color: gray;">₹{{ product.price }}</span>
+        <span style="color: green; font-weight: bold;"> ₹{{ (product.price * (1 - product.discount / 100)) | round(2) }}</span>
+
+                
+            </div>
+            
 
             <!-- Add to Cart and View buttons -->
             <div class="bb">
