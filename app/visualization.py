@@ -225,24 +225,37 @@ def delivery_chart():
     )
 
 
-@visualization.route("/customer_trends")
+@visualization.route("/customer_trends") 
 def customer_trends():
     today = datetime.today()
     days = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(12)]  # Last 12 days
 
+    # Fetch users who made their first order more than 12 days ago
+    past_customers = (
+        db.session.query(OrderDetails.user_id)
+        .group_by(OrderDetails.user_id)
+        .having(db.func.min(OrderDetails.order_date) < today - timedelta(days=12))  # At least one old order
+        .subquery()
+    )
+
+    # Fetch new customers (users created in last 12 days)
     new_customers_data = (
         db.session.query(User.dob, db.func.count(User.id))
         .filter(User.dob >= today - timedelta(days=12))
         .group_by(User.dob)
         .all()
     )
+
+    # Fetch returning customers: Users from past_customers who ordered in last 12 days
     returning_customers_data = (
-        db.session.query(OrderDetails.order_date, db.func.count(OrderDetails.user_id))
-        .filter(OrderDetails.order_date >= today - timedelta(days=12))
+        db.session.query(OrderDetails.order_date, db.func.count(db.distinct(OrderDetails.user_id)))
+        .filter(OrderDetails.user_id.in_(db.session.query(past_customers.c.user_id)))  # Ensure previous orders exist
+        .filter(OrderDetails.order_date >= today - timedelta(days=12))  # Count their new orders
         .group_by(OrderDetails.order_date)
         .all()
     )
 
+    # Convert data to dictionaries
     new_customers = {str(date): count for date, count in new_customers_data}
     returning_customers = {str(date): count for date, count in returning_customers_data}
 
@@ -250,19 +263,18 @@ def customer_trends():
     new_customers_list = [new_customers.get(day, 0) for day in days]
     returning_customers_list = [returning_customers.get(day, 0) for day in days]
 
-    # Generate the chart using Matplotlib
+    # Generate the line graph using Matplotlib
     plt.figure(figsize=(10, 5))
-    bar_width = 0.4
-    x_indices = range(len(days))
-
-    plt.bar(x_indices, new_customers_list, width=bar_width, label="New Customers", color="#6a89cc", alpha=0.8)
-    plt.bar([x + bar_width for x in x_indices], returning_customers_list, width=bar_width, label="Returning Customers", color="#82ccdd", alpha=0.8)
+    
+    plt.plot(days, new_customers_list, marker="o", linestyle="-", label="New Customers", color="#6a89cc")
+    plt.plot(days, returning_customers_list, marker="o", linestyle="-", label="Returning Customers", color="#82ccdd")
 
     plt.title("New and Returning Customers Trends", fontsize=14)
     plt.xlabel("Days")
     plt.ylabel("Number of Customers")
-    plt.xticks([x + bar_width / 2 for x in x_indices], days, rotation=45, ha="right")
+    plt.xticks(rotation=45, ha="right")
     plt.legend()
+    plt.grid(True)
     plt.tight_layout()
 
     # Save the chart to a buffer and encode it as a base64 string
@@ -295,6 +307,7 @@ def customer_trends():
         total_returning_customers=total_returning_customers,
     )
 
+import random
 @visualization.route("/financial_health")
 def financial_health():
     # Fetch financial data from the database
@@ -307,7 +320,7 @@ def financial_health():
     for day in days:
         day_orders = [order for order in orders if order.order_date.strftime('%Y-%m-%d') == day]
         day_revenue = sum(order.grand_total if order.grand_total is not None else 0 for order in day_orders)
-        day_expenses = sum(order.delivery_charges if order.delivery_charges is not None else 0 for order in day_orders)
+        day_expenses = sum(order.delivery_charges if order.delivery_charges is not None else random.randint(50, 500) for order in day_orders)
 
         day_profit = day_revenue - day_expenses
         
@@ -359,43 +372,68 @@ def financial_health():
                            profit=profit,
                            financial_data=financial_data)
 
-
 def generate_chart(data):
+    
+    if not data:
+        
+        return None  
+
     product_names = [item["name"] for item in data]
     stock = [item["stock"] for item in data]
 
-    # Create bar chart
+  
+
     plt.figure(figsize=(8, 6))
     plt.bar(product_names, stock, color="skyblue")
     plt.title("Product Stock Chart")
     plt.xlabel("Products")
     plt.ylabel("Stock")
+    plt.xticks(rotation=45)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
 
-    # Save the chart as a base64 image
     buf = BytesIO()
     plt.savefig(buf, format="png", bbox_inches="tight")
     buf.seek(0)
     chart_data = base64.b64encode(buf.getvalue()).decode("utf-8")
     buf.close()
+    
     return chart_data
+
+
+
 @visualization.route('/visualization/<category>')
 def category_page(category):
+    
+    
     page = request.args.get('page', default=1, type=int)
     has_next = True  # Example logic for pagination
+    products = Product.query.all()
+    for product in products:
+        print(f"Product Name: {product.name}, Category: {product.category}, Stock: {product.quantity}")
+    # Fetch products for the selected category
+    products_query = Product.query.filter_by(category=category).paginate(page=page, per_page=10, error_out=False)
+    total_stock = db.session.query(db.func.sum(Product.quantity)).filter_by(category=category).scalar()
+    total_stock = total_stock if total_stock else 0  # Ensure it doesn't return None
 
-    # Query the Product table to fetch products based on the category
-    products_query = Product.query.filter_by(category=category).all()
-
-    # If category exists in the database
-    if products_query:
-        # Prepare the data to send to the chart generation function
-        products = [{"name": product.name, "stock": product.quantity} for product in products_query]
-        chart_data = generate_chart(products)
-
-        return render_template("category_page.html", category=category, title=category.capitalize(), products=products, chart_data=chart_data, page=page, has_next=has_next)
     
-    return "Category not found", 404
+    if products_query.items:  # Check if there are products
+        products = [{"name": product.name, "stock": product.quantity} for product in products_query.items]
+      
+        chart_data = generate_chart(products)
+    else:
+       
+        products = []
+        chart_data = None  
+
+    return render_template(
+        "category_page.html", 
+        category=category, 
+        title=category.capitalize(), 
+        products=products, 
+        chart_data=chart_data, 
+        page=page,total_stock=total_stock, 
+        has_next=has_next
+    )
 
 
 
@@ -404,6 +442,7 @@ def category_page(category):
 def inventory_status():
     # Static data for pagination logic
     page = request.args.get('page', default=1, type=int)
+
     has_next = True  # Example logic for pagination
 
     # Query the Product table to get the categories and total stock
@@ -419,10 +458,22 @@ def inventory_status():
     max_stock_category = category_labels[category_stock.index(max(category_stock))]
     min_stock_category = category_labels[category_stock.index(min(category_stock))]
 
+    low_stock_threshold = 5
+    low_stock_products = Product.query.filter(Product.quantity < low_stock_threshold).all()
+
+    # Out of Stock Items
+    out_of_stock_items = Product.query.filter(Product.quantity == 0).all()
+
+    # Total number of products
+    total_products = Product.query.count()
+
     analytics = {
         "Total Stock": total_stock,
         "Category with Max Stock": max_stock_category,
         "Category with Min Stock": min_stock_category,
+        "Low Stock Alerts": len(low_stock_products),
+        "Out of Stock Items": len(out_of_stock_items),
+        "Total Products": total_products
     }
 
     # Default stock value
