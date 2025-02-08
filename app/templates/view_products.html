@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
-
+   
 </head>
 <body>
     {% extends "home.html" %}
@@ -46,41 +46,46 @@
                
                 <td>{{ product.avg_rating }}</td>
                 <td>
-                   <!-- Update Button -->
-                   <form action="{{ url_for('admin.update_product', id=product.id) }}" method="get" style="display: inline; padding: 0;">
-                    <button type="submit" 
-                        class="btn btn-warning" 
-                        style="
-                            border: none; 
-                            color: white; 
-                            padding: 5px 10px; 
-                            cursor: pointer; 
-                            transition: all 0.3s ease-in-out; 
-                        "
-                        onmouseover="this.style.transform='scale(1.1)';"
-                        onmouseout="this.style.transform='scale(1)';"
-                    >
-                        Update
-                    </button>
-                </form>
-                <!-- Delete Button -->
-                <form action="{{ url_for('admin.delete_product', product_id=product.id) }}" method="POST" style="display: inline; padding: 0;">
-                    <button type="submit" 
-                        class="btn btn-danger" 
-                        style="
-                            border: none; 
-                            color: white; 
-                            padding: 5px 10px; 
-                            cursor: pointer; 
-                            transition: all 0.3s ease-in-out; 
-                        "
-                        onmouseover="this.style.transform='scale(1.1)';"
-                        onmouseout="this.style.transform='scale(1)';"
-                    >
-                        Delete
-                    </button>
-                </form>
+                    <!-- Update Button -->
+                    <form action="{{ url_for('admin.update_product', id=product.id) }}" method="get" style="display: inline; padding: 0; background-color: transparent;">
+                        <button type="submit" 
+                            class="btn btn-warning" 
+                            style="
+                                border: none; 
+                                
+                                padding: 8px 20px; 
+                                cursor: pointer; 
+                                border-radius: 30px;
+                                transition: all 0.3s ease-in-out;
+                            "
+                            onmouseover="this.style.transform='scale(1.1)';"
+                            onmouseout="this.style.transform='scale(1)';"
+                        >
+                            Update
+                        </button>
+                    </form>
+                    
+                    <!-- Delete Button -->
+                    <form action="{{ url_for('admin.delete_product', product_id=product.id) }}" method="POST" style="display: inline; padding: 0; background-color: transparent;">
+                        <button type="submit" 
+                            class="btn btn-danger" 
+                            style="
+                                border: none; 
+                                
+                                padding: 8px 20px; 
+                                cursor: pointer; 
+                                border-radius: 30px;
+                                transition: all 0.3s ease-in-out;
+                            "
+                            onmouseover="this.style.transform='scale(1.1)';"
+                            onmouseout="this.style.transform='scale(1)';"
+                        >
+                            Delete
+                        </button>
+                    </form>
                 </td>
+                
+                
             </tr>
         {% endfor %}
     </tbody>

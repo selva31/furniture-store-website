@@ -31,20 +31,51 @@ def product_details(product_id):
 
 @main.route('/gender/<string:gender>')
 def gender_specific(gender):
-    gender = gender.lower()  # Convert to lowercase for case-insensitive matching
-    # products = Product.query.filter(Product.gender.ilike(f'%{gender}%')).all()
-    products = Product.query.filter(Product.gender.ilike(f'{gender}%')).all()
+    gender = gender.lower()
+    products = Product.query.filter(Product.gender.ilike(f'%{gender}%')).all()
+
     wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
     cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
-    return render_template('gender_specific.html', products=products, wishlist=wishlist, cart=cart, gender=gender.capitalize()) # Capitalize for display
+
+    video_mapping = {
+        "male": "Mens Video.mp4",
+        "female": "girls banner.mp4",
+       
+    }
+    video_filename = video_mapping.get(gender, "default_video.mp4")
+
+    return render_template('gender_specific.html', 
+                           products=products, 
+                           wishlist=wishlist, 
+                           cart=cart, 
+                           gender=gender.capitalize(),  
+                           video_filename=video_filename)
 
 @main.route('/category/<string:category>')
 def category_specific(category):
+    print(f"Category received: {category}")  # Debugging line
     category = category.lower()
     products = Product.query.filter(Product.category.ilike(f'%{category}%')).all()
     wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
     cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
-    return render_template('category_specific.html', products=products, wishlist=wishlist, cart=cart, category=category.capitalize())
+    
+    # Define video filename dynamically based on category
+    video_mapping = {
+        "kids": "videos/Kids Video.mp4",
+        "shoes": "videos/shoes.mp4",
+        "Accessories": "videos/Accesories.mp4" # Check if this is added
+    }
+    
+    video_filename = video_mapping.get(category, "videos/Accesories.mp4")  # Default video if category not found
+    
+    print(f"Video filename: {video_filename}")  # Debugging line
+
+    return render_template('category_specific.html', 
+                           products=products, 
+                           wishlist=wishlist, 
+                           cart=cart, 
+                           category=category.capitalize(), 
+                           video_filename=video_filename)
 
 
 
@@ -394,19 +425,20 @@ def inject_wishlist():
 @main.route('/search')
 def search():
     query = request.args.get('q', '').strip()
-    if query:
-        search_results = Product.query.filter(
-            Product.name.ilike(f'%{query}%') |
-            Product.description.ilike(f'%{query}%') |
-            Product.category.ilike(f'%{query}%')
-        ).all()
-    else:
-        search_results = []
+    
+    if not query:  # If query is empty or only contains spaces, redirect to home
+        return redirect(url_for('main.home'))
+    
+    search_results = Product.query.filter(
+        Product.name.ilike(f'%{query}%') |
+        Product.description.ilike(f'%{query}%') |
+        Product.category.ilike(f'%{query}%')
+    ).all()
 
     wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
-    cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else [] # Added cart data
+    cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
 
-    return render_template('search_results.html', products=search_results, query=query, wishlist=wishlist, cart=cart) # Pass cart to template
+    return render_template('search_results.html', products=search_results, query=query, wishlist=wishlist, cart=cart)
 
 @main.route('/faq')
 def faq():

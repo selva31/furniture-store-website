@@ -1,108 +1,147 @@
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='homepage.css') }}">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-       
-        body {
-    font-family: 'Roboto', sans-serif;
-    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: #333;
-    position: relative;
-}
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='homepage.css') }}"
+  />
+  <link
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    /* Banner Container */
+    .banner-container {
+      width: flex;
+      display: flex;
+      justify-content: center;
+      margin: 30px 0; /* Adds spacing between the heading and the products */
+    }
 
-/* Overlay to reduce opacity */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-    z-index: -1;
-}
+    /* Banner Video Styling */
+    .banner-video {
+      width: 80%; /* Adjust width */
+      height: 50vh; /* Adjust height */
+      max-height: 400px;
+      border-radius: 15px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      object-fit: cover;
+    }
+    /* Adjust product grid margin */
+    .products {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      padding: 30px;
+      margin-top: 30px; /* Ensures the grid starts right below the video */
+    }
 
-        /* Green color for "Add to Cart" */
-.add-btn {
-    background-color: green;
-}
+    body {
+      background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      color: #333;
+      position: relative;
+    }
 
-/* Red color for "Remove from Cart" */
-.remove-btn {
-    background-color: red;
-}
-    </style>
+    /* Overlay to reduce opacity */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
+      z-index: -1;
+    }
+
+    /* Green color for "Add to Cart" */
+    .add-btn {
+      background-color: green;
+    }
+
+    /* Red color for "Remove from Cart" */
+    .remove-btn {
+      background-color: red;
+    }
+  </style>
 </head>
 <body>
-    <!-- Bootstrap JS and dependencies (jQuery and Popper.js) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- Bootstrap JS and dependencies (jQuery and Popper.js) -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    {% extends "home.html" %}
-  
-    {% block title %}View Products{% endblock %}
-    
-    {% block content %}
-    <div class="products-container">
-        <h1 class="welcome-heading" style="text-align: center; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Welcome To Our Store</h1>
+  {% extends "home.html" %} {% block title %}View Products{% endblock %} {%
+  block content %}
+  <div class="products-container">
+    <!-- Banner Video -->
+    <div class="banner-container">
+      <video class="banner-video" autoplay muted loop>
+        <source
+          src="{{ url_for('static', filename='videos/banner.mp4') }}"
+          type="video/mp4"
+        />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
     <div class="products">
+      {% for product in products %}
+      <div class="product">
+        <!-- Wishlist form -->
+        <form
+          action="{% if product.id in wishlist %}/remove_from_wishlist{% else %}/wishlist{% endif %}"
+          method="POST"
+          style="display: inline"
+        >
+          <input type="hidden" name="product_id" value="{{ product.id }}" />
+          <button type="submit" class="heart-icon" name="wishlist-btn">
+            {% if product.id in wishlist %} ❤️ {% else %} 🤍 {% endif %}
+          </button>
+        </form>
 
-        {% for product in products %}
-        <div class="product">
-            <!-- Wishlist form -->
-            <form action="{% if product.id in wishlist %}/remove_from_wishlist{% else %}/wishlist{% endif %}" method="POST" style="display: inline;">
-                <input type="hidden" name="product_id" value="{{ product.id }}">
-                <button type="submit" class="heart-icon" name="wishlist-btn">
-                    {% if product.id in wishlist %}
-                        ❤️
-                    {% else %}
-                        🤍
-                    {% endif %}
-                </button>
-            </form>
+        <!-- Product details form -->
+        <img
+          src="{{ url_for('static', filename=product.images[0].image_url if product.images else 'default_image.jpg') }}"
+          alt="{{ product.name }}"
+        />
+        <h2>{{ product.name }}</h2>
 
-            <!-- Product details form -->
-            <img src="{{ url_for('static', filename=product.images[0].image_url if product.images else 'default_image.jpg') }}" alt="{{ product.name }}">
-            <h2>{{ product.name }}</h2>
-            <p><strong>Rating:</strong> ⭐ {{ product.avg_rating if product.avg_rating else 'N/A' }}</p>
-            
-            <div class="pricet" style="padding-bottom: 10px;">
-                <strong>Price:</strong> 
-        <span style="text-decoration: line-through; color: gray;">₹{{ product.price }}</span>
-        <span style="color: green; font-weight: bold;"> ₹{{ (product.price * (1 - product.discount / 100)) | round(2) }}</span>
-
-                
-            </div>
-            
-
-            <!-- Add to Cart and View buttons -->
-            <div class="bb">
-                <form action="/add_to_cart" method="POST" style="display: inline;">
-                    <input type="hidden" name="product_id" value="{{ product.id }}">
-                    <button type="submit" class="add-to-cart {% if product.id in cart %}remove-btn{% else %}add-btn{% endif %}">
-                        {% if product.id in cart %}
-                            Remove from Cart
-                        {% else %}
-                            Add to Cart
-                        {% endif %}
-                    </button>
-                </form>
-  
-                <a href="{{ url_for('main.product_details', product_id=product.id) }}">
-                  <button class="view-btn">View</button>
-                </a>
-            </div>
+        <div class="pricet">
+          <p><strong>Price:</strong> ₹{{ product.price }}</p>
         </div>
-        {% endfor %}
+        <p>
+          <strong>Rating:</strong> ⭐ {{ product.avg_rating if
+          product.avg_rating else 'N/A' }}
+        </p>
+
+        <!-- Add to Cart and View buttons -->
+        <div class="bb">
+          <form action="/add_to_cart" method="POST" style="display: inline">
+            <input type="hidden" name="product_id" value="{{ product.id }}" />
+            <button
+              type="submit"
+              class="add-to-cart {% if product.id in cart %}remove-btn{% else %}add-btn{% endif %}"
+            >
+              {% if product.id in cart %} Remove from Cart {% else %} Add to
+              Cart {% endif %}
+            </button>
+          </form>
+
+          <a
+            href="{{ url_for('main.product_details', product_id=product.id) }}"
+          >
+            <button class="view-btn">View</button>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
     </div>
-    </div>
-    {% endblock %}
+  </div>
+  {% endblock %}
 </body>

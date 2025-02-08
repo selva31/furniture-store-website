@@ -5,242 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FusionFits{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            /* font-family: 'Arial', sans-serif;
-            background-color: #FFDAB9;
-            color: #333; */
-        }
-        main {
-    min-height: 90vh;
-
- 
- 
-    padding: 20px;
-    display: flex; /* Enables flexbox */
-    justify-content: center; /* Centers horizontally */
     
-}
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #0d2357; 
-            color: white;
-            padding: 2px 20px;
-            flex-wrap: wrap;
-            /* width: 100%; Span the entire width */
-        }
-        header {
-            background: #0d2357; 
-            width: 100%;
-        }
-        .logo a {
-            text-decoration: none;
-            color: white;
-            font-size: 1.5em;
-            font-weight: bold;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-        .search-bar input {
-            padding: 2px;
-            border: none;
-            border-radius: 3px;
-            width: 300px;
-          
- 
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 
-        }
-        .search-bar button {
-            padding: 2px 8px;
-            border: none;
-            background-color: #fff;
-            cursor: pointer;
-            border-radius: 100%;
-            margin-left: 5px;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-        }
-        .nav-links .dropdown .dropbtn {
-            color: white;
-            z-index: 10;
-            text-decoration: none;
-            font-size: 1em;
-            padding: 0;
-            background: none;
-            margin: 0;
-            border: none;
-        }
-        /* .dropdown {
-            position: relative;
-        }
-        .dropbtn {
-            /* background-color: none; */
-            /* border: none; */
-            /* color: white; */
-            /*cursor: pointer;
-            font: 1em;
-        } */
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color:  #FFDAB9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-            right: 0;
-        }
-        .dropdown-content a {
-            color: black;
-            padding: 10px 15px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        footer {
-            background-color:  #011032; 
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            width: 100%;
-            
-            bottom: 0;
-            left: 0;
-            position: relative;
-        }
-        main {
-            min-height: 90vh;
-            padding: 10px;
-        }
-        .categories-nav {
-            background-color: #2a4686;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            /* background-color: #13327b; /* Blue bar */
-            display: flex;
-            padding: 2px 20px;
-            justify-content: center;
-         
-            flex-wrap: wrap; 
-        }
-        .categories-nav ul {
-            list-style: none;
-            display: flex;
-            padding: 0.5rem;
-            margin-bottom: 0px;
-            /* gap: 20px; */
-            flex-wrap: wrap;
-        }
-        .categories-nav li {
-            margin: 0 15px;
-            color: #fff;
-            font-weight: 500;
-            font-size: 16px;
-            transition: color 0.3s ease;
-        }
-        .categories-nav a {
-            text-decoration: none;
-            color: #fff;
-            font-weight: 500;
-            font-size: 16px;
-            transition: color 0.3s ease;
-        }
-        .categories-nav a:hover {
-            color: #f1c40f; /* Yellow on hover */
-        }
-        .categories-nav a.active {
-            color: #f1c40f; /* Highlighted color for the active category */
-            font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo"><a href="/">FusionFits</a></div>
-        <div class="search-bar">
-            <form action="{{ url_for('main.search') }}" method="get">
-                <input type="text" name="q" placeholder=" Discover Fashion, Brands & More! 👜💃" value="{{ request.args.get('q', '') }}" value="{{ request.args.get('q', '') }}">
-                <button><i class="fa fa-search"></i></button>
-            </form>
-            
-            <!-- <form action="/search" method="get">
-            <input type="text" name="q" placeholder="Search" />
-            <button><i class="fa fa-search"></i></button>
-        </form> -->
+        <div class="logo">
+            <a href="/">
+                <img src="{{ url_for('static', filename='videos/FUSIONFITS_LOGO.jpg') }}" alt="FusionFits Logo" ">
+            </a>
         </div>
-        <ul class="nav-links">
-            <li>
+    <nav class="categories-nav">
+            <ul >
+                <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">HOME</a></li>
+                <li><a href="{{ url_for('main.gender_specific', gender='male') }}" class="{% if request.path.startswith('/gender/male') %}active{% endif %}">MEN</a></li>
+                <li><a href="{{ url_for('main.gender_specific', gender='female') }}" class="{% if request.path.startswith('/gender/female') %}active{% endif %}">WOMEN</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='kids') }}" class="{% if request.path.startswith('/category/kids') %}active{% endif %}">KIDS</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='shoes') }}" class="{% if request.path.startswith('/category/shoes') %}active{% endif %}">SHOES</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='asccessory') }}" class="{% if request.path.startswith('/category/accessory') %}active{% endif %}">ACCESSORIES</a></li>
+            </ul>
+        
+        </nav> 
+        
+            <div class="search-container">
+                <form action="{{ url_for('main.search') }}" method="get">
+                    <input type="text" name="q" placeholder="Search for products, brands and more" value="{{ request.args.get('q', '') }}">
+                    <button type="submit"><i class="fa fa-search"></i></button>
+                </form>
+            </div>
+           
+       
+        
+            
+            <!-- Add this div to group the buttons together for centering -->
+            <div class="navbar-buttons">
+                <a href="{{ url_for('main.cart') }}" class="cart-btn">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Cart</span>
+                </a>
 
-             
-                    {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('main.cart') }}" >Cart<i class="fa-solid fa-cart-plus"></i></a>
-                    {% else %}
-                    {% endif %}
-            </li>
-            <li><a href="{{ url_for('main.wishlist') }}" >Wishlist <i class="fa fa-heart"></i></a></li>
-            <li>
-              <div class="dropdown navbar-right">
-                <button class="dropbtn">Account <i class="fa fa-caret-down"></i></button>
-                <div class="dropdown-content">
-                    {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('auth.profile', id=current_user.id) }}">Profile</a>
-                        <a href="{{ url_for('auth.logout') }}">Logout</a>
-                        {% if current_user.role == 'admin' %}
-                            <a href="{{ url_for('admin.admin_dashboard') }}">Admin Dashboard</a>
+                <a href="{{ url_for('main.wishlist') }}" class="wishlist-btn">
+                    <i class="fa fa-heart"></i>
+                    <span>Wishlist</span>
+                </a>
+
+                <div class="dropdown navbar-right">
+                    <button class="dropbtn">
+                    <i class="fa fa-user"></i>
+                    <span> Account </span>
+                    </button>
+                    <div class="dropdown-content">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('auth.profile', id=current_user.id) }}">Profile</a>
+                            <a href="{{ url_for('auth.logout') }}">Logout</a>
+                            {% if current_user.role == 'admin' %}
+                                <a href="{{ url_for('admin.admin_dashboard') }}">Admin Dashboard</a>
+                            {% endif %}
+                            {% if current_user.role == 'delivery' %}
+                                <a href="{{ url_for('delivery_person.delivery_person_dashboard') }}">Delivery Dashboard</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('auth.register') }}">Register</a>
+                            <a href="{{ url_for('auth.login') }}">Login</a>
                         {% endif %}
-                        {% if current_user.role == 'delivery' %}
-                            <a href="{{ url_for('delivery_person.delivery_person_dashboard') }}">Delivery Dashboard</a>
-                        {% endif %}
-                    {% else %}
-                        <a href="{{ url_for('auth.register') }}">Register</a>
-                        <a href="{{ url_for('auth.login') }}">Login</a>
-                    {% endif %}
-                    <a href="{{ url_for('main.your_orders') }}">Your Orders</a>
+                        <a href="{{ url_for('main.your_orders') }}">Your Orders</a>
+                    </div>
                 </div>
             </div>
-            
-            </li>
-        </ul>
+        </div>
     </nav>
+    
 
     <header>
-        <nav class="categories-nav">
-            <ul>
-                <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a></li>
-                <li><a href="{{ url_for('main.gender_specific', gender='male') }}" class="{% if request.path.startswith('/gender/male') %}active{% endif %}">Men's Fashion</a></li>
-                <li><a href="{{ url_for('main.gender_specific', gender='female') }}" class="{% if request.path.startswith('/gender/female') %}active{% endif %}">Women's Fashion</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='kids') }}" class="{% if request.path.startswith('/category/kids') %}active{% endif %}">Kids' Fashion</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='Dress') }}" class="{% if request.path.startswith('/category/dress') %}active{% endif %}">Dresses</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='asccessory') }}" class="{% if request.path.startswith('/category/accessory') %}active{% endif %}">Accessories</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='shoes') }}" class="{% if request.path.startswith('/category/shoes') %}active{% endif %}">Shoes</a></li>
-            </ul>
-        </nav>
+        
     </header>
+    
     <div id="flash-messages">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -257,6 +98,7 @@
     <main>
         {% block content %}
         <!-- Content will be injected here -->
+         
         {% endblock %}
     </main>
       

@@ -1,87 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Wishlist</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='wishlist.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='wishlist.css') }}"
+    />
     <style>
-        body {
-    font-family: 'Roboto', sans-serif;
-    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: #333;
-    position: relative;
+      body {
+        font-family: "Roboto", sans-serif;
+        background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        color: #333;
+        position: relative;
+      }
+
+      /* Overlay to reduce opacity */
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
+        z-index: -1;
+      }
+      .empty-wishlist-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh; /* Centers vertically */
+  text-align: center;
 }
 
-/* Overlay to reduce opacity */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-    z-index: -1;
+.empty-message {
+  font-size: 3rem; /* Increased from 1.5rem */
+  font-weight: bold; /* Makes it stand out */
+  color: #000000;
 }
-</style>
-</head>
-<body>
-    {% extends "home.html" %}
 
-    {% block title %}Admin Dashboard{% endblock %}
-    
-    {% block content %}
 
+.back-home-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #4285f4;
+  color: white;
+  text-decoration: none;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  font-family: sans-serif;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 15px;
+}
+
+.back-home-btn:hover {
+  background-color: #2962ff;
+  transform: translateY(-3px);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+    </style>
+  </head>
+  <body>
+    {% extends "home.html" %} {% block title %}Admin Dashboard{% endblock %} {%
+    block content %}
 
     <div class="boxed">
+      <header
+        class="welcome-heading"
+        style="
+          text-align: center;
+          background-color: rgba(8, 6, 6, 0.953);
+          color: black;
+          font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        "
+      >
+        
+      </header>
+      {% if wishlist_items %}
+      <div class="wishlist-container">
+        {% for item in wishlist_items %}
+        <div class="wishlist-card">
+          <div class="product-image">
+            <img
+              src="{{ url_for('static', filename=item.product.images[0].image_url) }}"
+              alt="{{ item.product.name }}"
+            />
+          </div>
+          <div class="product-info">
+            <h2 class="product-name">{{ item.product.name }}</h2>
+            <p class="product-price">Price: ₹{{ item.product.price }}</p>
+            {% if item.product.discount > 0 %}
+            <p class="product-discount">
+              Discount: {{ item.product.discount }}%
+            </p>
+            {% endif %}
 
-            <header class="welcome-heading" style="text-align: center; background-color: rgba(244, 244, 244, 0); color: black; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">
-                <h2>My Wishlist</h2>
-            </header>
-        {% if wishlist_items %}
-            <div class="wishlist-container">
-                {% for item in wishlist_items %}
-                    <div class="wishlist-card">
-                        <div class="product-image">
-                            <img src="{{ url_for('static', filename=item.product.images[0].image_url) }}" alt="{{ item.product.name }}">
-                        </div>
-                        <div class="product-info">
-                            <h2 class="product-name">{{ item.product.name }}</h2>
-                            <p class="product-price">Price: ₹{{ item.product.price }}</p>
-                            {% if item.product.discount > 0 %}
-                                <p class="product-discount">Discount: {{ item.product.discount }}%</p>
-                            {% endif %}
-                            
-                            <!-- Remove Button -->
-                            <form action="/remove_from_wishlist" method="POST" style="display: inline;">
-                                <input type="hidden" name="product_id" value="{{ item.product_id }}">
-                                <button type="submit" class="remove-btn">Remove from Wishlist❤️</button>
-                            </form>
-                            
+            <!-- Remove Button -->
+            <form
+              action="/remove_from_wishlist"
+              method="POST"
+              style="display: inline"
+            >
+              <input
+                type="hidden"
+                name="product_id"
+                value="{{ item.product_id }}"
+              />
+              <button type="submit" class="remove-btn">
+                Remove from Wishlist❤️
+              </button>
+            </form>
 
-                            <!-- View Product Button -->
-                            <a href="{{ url_for('main.product_details', product_id=item.product.id) }}">
-                                <button class="view-btn">View</button>
-                            </a>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p>Your wishlist is empty! <a href="/" >
-                <button style="display: inline-block; padding: 10px 20px; background-color: #4285F4; color: white; text-decoration: none; border: none; border-radius: 5px; cursor: pointer; font-family: sans-serif; transition: background-color 0.3s ease, margin 0.3s ease; margin-left: 20px; :hover {background-color: #2962FF; margin-top: 15px; margin-bottom: 25px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);}"  >Back to Home</button>
-              </a></p>
-            
-        {% endif %}
+            <!-- View Product Button -->
+            <a
+              href="{{ url_for('main.product_details', product_id=item.product.id) }}"
+            >
+              <button class="view-btn">View</button>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+<div class="empty-wishlist-container">
+  <p class="empty-message">
+    
+    No trends saved yet? Add your must-haves now. 💃👜
+
+    <br>
+    <a href="/">
+      <button class="back-home-btn">Back to Home</button>
+    </a>
+  </p>
+</div>
+{% endif %}
+
     </div>
     {% endblock %}
-</body>
+  </body>
 </html>

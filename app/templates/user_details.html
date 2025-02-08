@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
     <style>
         body {
-    font-family: 'Roboto', sans-serif;
     background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
     background-size: cover;
     background-position: center;
@@ -40,9 +39,10 @@ body::before {
     {% block title %}Admin Dashboard{% endblock %}
     
     {% block content %}
+    
     <div class="container">
-    <h1>User Details</h1>
-    <form method="GET" action="{{ url_for('admin.user_details') }}">
+        <h1>User Details</h1>
+    <form method="GET" action="{{ url_for('admin.user_details') }}" class= "filter-form">
         <label for="role">Role:</label>
         <select name="role" id="role">
             <option value="">All</option>
