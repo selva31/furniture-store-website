@@ -139,7 +139,7 @@ class OrderDetails(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id",name="u_id"), nullable=False)  # Added user_id
     assigned_delivery_person_id = Column(Integer, ForeignKey("user.id",name="d_id"), nullable=True)
 
-    status_options = Enum("Pending", "Shipped", "Delivered", "Failed")
+    status_options = Enum("Pending", "In Transit", "Delivered", "Failed")
     status = db.Column(status_options, default="Pending", nullable=False)  # Corrected Enum usage
     user = relationship("User", foreign_keys=[user_id])
     assigned_delivery_person = relationship("User", foreign_keys=[assigned_delivery_person_id])

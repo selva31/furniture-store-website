@@ -171,7 +171,7 @@ def delivery_chart():
     status_dict = {status: count for status, count in order_status_counts}
 
     # Define standard categories and fill missing ones with 0
-    categories = ["Pending", "Shipped", "Delivered", "Failed"]
+    categories = ["Pending", "In Transit", "Delivered", "Failed"]
     values = [status_dict.get(status, 0) for status in categories]
 
     # Define color scheme
