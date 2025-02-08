@@ -17,7 +17,7 @@ def create_delivery_person_user():
     if not delivery_person:
         hashed_password = bcrypt.generate_password_hash("delivery123").decode("utf-8")
         new_delivery_person = User(
-            username="delivery_person",
+            username="Giorno",
             email="delivery@gmail.com",
             password=hashed_password,
             role="delivery",

@@ -80,7 +80,6 @@ body::before {
 
 button {
   background-color: #007bff; /* Blue */
-  margin-top: 20px;
   color: white;
   padding: 8px 20px;
   border: none;
@@ -167,7 +166,7 @@ button:hover {
                     </table>
                     {% if order.delivered_date %}
                     <a href="{{ url_for('rating.rate_order',order_id=order.id) }}">
-                    <button>
+                    <button style="margin-top: 20px">
                         Rate Products
                     </button>
                     </a>
