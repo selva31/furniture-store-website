@@ -223,15 +223,19 @@
     {% block content %}
     
     <div class="container">
+
+        <h2 style="text-align: center; font-size: 50px; font-weight: bold; color: #333; margin-top: 20px;margin-bottom: 40px;">
+            Welcome, {{ user.username }}! 
+        </h2>
         
-        <div class="center-buttons">
+<!--         <div class="center-buttons">
             <a href="{{ url_for('main.cart') }}"><button>Cart</button></a>
             <a href="{{ url_for('main.your_orders') }}"><button>Orders</button></a>
             <a href="{{ url_for('main.wishlist') }}" ><button>Wishlist</button></a>
             {% if user.role == 'delivery' %}
             <a href="{{ url_for('delivery_person.delivery_person_dashboard') }}" ><button>Delivery Dashboard</button></a>
             {% endif %}
-        </div>
+        </div> -->
         
         
         <div class="profile-sections">
