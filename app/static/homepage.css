@@ -86,9 +86,9 @@ main {
 
 .heart-icon {
   position: absolute;
-  bottom: 50px;
+  top: 10px;
   right: 10px;
-  font-size: 30px;
+  font-size: 20px;
   border: none;
   cursor: pointer;
   /* Start white */
@@ -117,31 +117,31 @@ main {
 .view-btn,
 .buy-now-btn {
   /* Style all button types similarly */
-  padding: 8px 20px;
+  padding: 10px 10px;
   border: none;
   border-radius: 30px;
-  font-size: 1rem;
+  font-size: 15px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
 }
 
 .add-to-cart {
-  background-color: #7baed0; /* Green */
+  background: rgb(42, 35, 89); /* Green */
   color: white;
 }
 
 .add-to-cart:hover {
-  background-color: #218838; /* Darker green */
+  background: linear-gradient(30deg, #161420, #3027b6); /* Darker green */
   transform: scale(1.05);
 }
 
 .view-btn {
-  background-color: #007bff; /* Blue */
+  background: rgb(42, 35, 89); /* Blue */
   color: white;
 }
 
 .view-btn:hover {
-  background-color: #0069d9; /* Darker blue */
+  background: linear-gradient(30deg, #161420, #3027b6); /* Darker blue */
   transform: scale(1.05);
 }
 

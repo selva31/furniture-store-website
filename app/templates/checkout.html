@@ -31,6 +31,8 @@ body::before {
         max-width: 800px;
         margin: 0 auto;
         padding: 20px;
+        background: rgba(227, 228, 235, 0.9); 
+        border-radius:30px;
     }
     
     .product-form {
@@ -51,15 +53,15 @@ body::before {
     
     .product-form button {
         padding: 10px;
-        background-color: #4285F4;
+        background-color:rgb(11, 16, 63);
         color: white;
         border: none;
-        border-radius: 4px;
+        border-radius: 20px;
         cursor: pointer;
     }
     
     .product-form button:hover {
-        background-color: #2962FF;
+        background:linear-gradient(30deg,rgb(11, 16, 63), rgb(50, 59, 123));
     }
     
     </style>
@@ -68,7 +70,9 @@ body::before {
     
     {% block content %}
     <main>
+        
         <div class="container">
+            
             <form action="{{ url_for('main.place_order') }}" method="POST" class="product-form">
                 <label for="name">Name:</label>
                 <input type="text" id="name" name="name" value="{{ current_user.username }}" required>

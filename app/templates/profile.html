@@ -1,300 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Page</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile</title>
     <style>
-        body {
-            position: relative;
-            background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}'); /* Background image */
-            background-size: cover; /* Ensures the image covers the entire screen */
-            background-position: center; /* Centers the image */
-            background-repeat: no-repeat; /* Prevents the image from repeating */
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
+      body {
+        position: relative;
+        background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}'); /* Background image */
+        background-size: cover; /* Ensures the image covers the entire screen */
+        background-position: center; /* Centers the image */
+        background-repeat: no-repeat; /* Prevents the image from repeating */
+        margin: 0;
+        font-family: Germond, sans-serif;
+      }
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(
+          255,
+          255,
+          255,
+          0.9
+        ); /* Dark overlay with reduced opacity */
+        z-index: -1; /* Makes sure the overlay is behind the content */
+      }
 
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9); /* Dark overlay with reduced opacity */
-            z-index: -1; /* Makes sure the overlay is behind the content */
-        }
+      .parent {
+        display: flex;
+        justify-content: center; /* Centers horizontally */
+        align-items: center; /* Centers vertically */
+        height: 100vh; /* Ensures full viewport height */
+      }
 
-        .parent {
-            display: flex;
-            justify-content: center; /* Centers horizontally */
-            align-items: center; /* Centers vertically */
-            height: 100vh; /* Ensures full viewport height */
-        }
+      header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      header h1 {
+        margin: 0;
+        background-color: #d0e2f1;
+        font-size: 3em; /* Increased font size for a bigger look */
+        color: #333;
+        font-weight: bold; /* Make the font bold for a stronger presence */
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
+        transition: all 0.3s ease-in-out; /* Smooth transition for hover effect */
+      }
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+      header h1:hover {
+        color: #ff0084; /* Change color on hover */
+        text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2); /* Darker shadow on hover */
+      }
 
-        header h1 {
-            margin: 0;
-            background-color: #d0e2f1;
-            font-size: 3em; /* Increased font size for a bigger look */
-            color: #333;
-            font-weight: bold; /* Make the font bold for a stronger presence */
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
-            transition: all 0.3s ease-in-out; /* Smooth transition for hover effect */
-        }
+      ul.info {
+        list-style: none; /* Remove list item markers */
+        padding: 20px;
+        border-radius: 10px;
+        background-color: rgba(206, 214, 243);
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Display two items per row */
+        gap: 15px;
+        margin-bottom: 20px;
+      }
 
-        header h1:hover {
-            color: #ff0084; /* Change color on hover */
-            text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2); /* Darker shadow on hover */
-        }
+      ul.info li {
+        background: rgb(255, 255, 255);
+        padding: 15px;
+        border: 1px solidrgb(255, 251, 251);
+        border-radius: 50px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: row; /* Keep label and value in a row */
+        justify-content: space-between; /* Ensures the label and value are spaced apart evenly */
+        align-items: center; /* Aligns the items vertically */
+        text-align: left;
+      }
 
-        .center-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-        }
+      ul.info li:hover {
+        transform: translateY(1px); /* Lift button on hover */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow effect on hover */
+      }
 
-        .center-buttons button {
-            padding: 12px 24px;
-            background-color: navy;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.1em;
-            transition: all 0.3s ease-in-out; /* Smooth transition for effects */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
-        }
+      ul.info .label {
+        font-weight: bold;
+        color: rgb(11, 15, 65);
+        margin-right: 10px; /* Adds space between label and value */
+        flex-basis: 30%; /* Makes label occupy 30% of the container */
+      }
 
-        .center-buttons button:hover {
-            background-color: #3360e5; /* Slightly darker blue on hover */
-            transform: translateY(-4px); /* Lift the button on hover */
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
-        }
+      ul.info .value {
+        font-size: 0.95rem;
+        color: #333;
+        flex-basis: 65%; /* Makes value occupy 65% of the container */
+        word-wrap: break-word; /* Ensures text breaks to the next line if needed */
+      }
 
-        .center-buttons button:active {
-            transform: translateY(2px); /* Slightly lower when clicked */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Lighter shadow when clicked */
-        }
+      /* Flexbox for personal details and account settings */
+      .profile-sections {
+        display: flex;
+        justify-content: space-between; /* Place them side by side */
+        gap: 30px; /* Space between the sections */
+        flex-wrap: wrap; /* Wrap sections on smaller screens */
+        background-image: linear-gradient(
+          rgba(255, 255, 255, 0.1),
+          rgba(255, 255, 255, 0.1)
+        );
+      }
 
-        ul.info {
-            list-style: none; /* Remove list item markers */
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #f9f9f9;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* Display two items per row */
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+      section {
+        border: 1px solid rgb(225, 224, 241);
+        border-radius: 20px;
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: rgba(206, 214, 243);
+        flex: 1 1 calc(50% - 20px); /* Make each section take 50% of the container width */
+      }
 
-        ul.info li {
-            background: #ffffff;
-            padding: 15px;
-            border: 1px solid #9c9c9c;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: row; /* Keep label and value in a row */
-            justify-content: space-between; /* Ensures the label and value are spaced apart evenly */
-            align-items: center; /* Aligns the items vertically */
-            text-align: left;
-        }
+      section h2 {
+        margin: 0 0 15px;
+        font-size: 1.4em;
+        color: #333;
+      }
 
-        ul.info li:hover {
-            transform: scale(1.03); /* Scale the item slightly when hovered */
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Increase shadow on hover */
-        }
+      section div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+      }
 
-        ul.info .label {
-            font-weight: bold;
-            color: #555;
-            margin-right: 10px; /* Adds space between label and value */
-            flex-basis: 30%; /* Makes label occupy 30% of the container */
-        }
+      #account-settings div,
+      #performance div {
+        display: flex;
+        justify-content: space-between; /* Space out labels and buttons */
+        align-items: center; /* Vertically align items */
+        margin-bottom: 20px; /* Increase space between rows */
+      }
 
-        ul.info .value {
-            font-size: 0.95rem;
-            color: #333;
-            flex-basis: 65%; /* Makes value occupy 65% of the container */
-            word-wrap: break-word; /* Ensures text breaks to the next line if needed */
-        }
+      #account-settings button,
+      #performance button {
+        width: 220px; /* Increased width for more spacious buttons */
+        padding: 12px 20px; /* More padding for a better click area */
+        text-align: center; /* Center text inside button */
+        background-color: rgb(42, 35, 89); /* Button color */
+        color: #fff; /* Text color */
+        border: black 1px solid;
+        border-radius: 30px; /* Add rounded corners */
+        cursor: pointer; /* Pointer on hover */
+        font-size: 1.1em; /* Slightly larger font size for better visibility */
+        transition: all 0.3s ease; /* Smooth transition for hover effects */
+      }
 
-        /* Flexbox for personal details and account settings */
-        .profile-sections {
-            display: flex;
-            justify-content: space-between; /* Place them side by side */
-            gap: 20px; /* Space between the sections */
-            flex-wrap: wrap; /* Wrap sections on smaller screens */
-        }
+      #account-settings button:hover,
+      #performance button:hover {
+        background-color: rgb(0, 0, 0); /* Darker blue on hover */
+        transform: translateY(-4px); /* Lift button on hover */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow effect on hover */
+      }
 
-        section {
-            border: 1px solid #393636;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            background-color: #f9f9f9;
-            flex: 1 1 calc(50% - 20px); /* Make each section take 50% of the container width */
-        }
+      #account-settings span,
+      #performance span {
+        flex: 1; /* Label takes up remaining space */
+        text-align: left; /* Align label text to the left */
+        font-size: 1em; /* Consistent font size */
+        color: #333; /* Label text color */
+        padding-right: 15px; /* Space between label and button */
+      }
 
-        section h2 {
-            margin: 0 0 15px;
-            font-size: 1.4em;
-            color: #333;
-        }
+      section div span {
+        flex: 1;
+        text-align: left;
+        font-size: 1em;
+        color: white;
+      }
 
-        section div {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        #account-settings div, #performance div {
-            display: flex;
-            justify-content: space-between; /* Space out labels and buttons */
-            align-items: center; /* Vertically align items */
-            margin-bottom: 20px; /* Increase space between rows */
-        }
-
-        #account-settings button, #performance button {
-            width: 220px; /* Increased width for more spacious buttons */
-            padding: 12px 20px; /* More padding for a better click area */
-            text-align: center; /* Center text inside button */
-            background-color:navy; /* Button color */
-            color: #fff; /* Text color */
-            border: black 1px solid;
-            border-radius: 8px; /* Add rounded corners */
-            cursor: pointer; /* Pointer on hover */
-            font-size: 1.1em; /* Slightly larger font size for better visibility */
-            transition: all 0.3s ease; /* Smooth transition for hover effects */
-        }
-
-        #account-settings button:hover, #performance button:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-            transform: translateY(-4px); /* Lift button on hover */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow effect on hover */
-        }
-
-        #account-settings span, #performance span {
-            flex: 1; /* Label takes up remaining space */
-            text-align: left; /* Align label text to the left */
-            font-size: 1em; /* Consistent font size */
-            color: #333; /* Label text color */
-            padding-right: 15px; /* Space between label and button */
-        }
-
-        section div span {
-            flex: 1;
-            text-align: left;
-            font-size: 1em;
-            color: white;
-        }
-
-        section div button {
-            padding: 8px 16px;
-            background-color: burlywood;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.95em;
-        }
-
-        /* Transparent background for the customer support section */
-        #support {
-            background-color: transparent; /* Makes the background transparent */
-        }
-
+      section div button {
+        padding: 8px 16px;
+        background-color: burlywood;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.95em;
+      }
+      /* Transparent background for the customer support section */
+      #support {
+        background-color: transparent; /* Makes the background transparent */
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    {% extends "home.html" %} {% block title %}Admin Dashboard{% endblock %} {%
+    block content %}
 
-    {% extends "home.html" %}
-
-    {% block title %}Admin Dashboard{% endblock %}
-    
-    {% block content %}
-    
     <div class="container">
 
-        <h2 style="text-align: center; font-size: 50px; font-weight: bold; color: #333; margin-top: 20px;margin-bottom: 40px;">
-            Welcome, {{ user.username }}! 
-        </h2>
-        
-<!--         <div class="center-buttons">
-            <a href="{{ url_for('main.cart') }}"><button>Cart</button></a>
-            <a href="{{ url_for('main.your_orders') }}"><button>Orders</button></a>
-            <a href="{{ url_for('main.wishlist') }}" ><button>Wishlist</button></a>
-            {% if user.role == 'delivery' %}
-            <a href="{{ url_for('delivery_person.delivery_person_dashboard') }}" ><button>Delivery Dashboard</button></a>
-            {% endif %}
-        </div> -->
-        
-        
-        <div class="profile-sections">
-            <section id="personal-details">
-                <h2>Personal Details</h2>
-                <ul class="info">
-                    <li>
-                        <span class="label">Name:</span>
-                        <span class="value">{{ user.username }}</span>
-                    </li>
-                    <li>
-                        <span class="label">Email:</span>
-                        <span class="value">{{ user.email }}</span>
-                    </li>
-                    <li>
-                        <span class="label">Role:</span>
-                        <span class="value">{{ user.role }}</span>
-                    </li>
-                    <li>
-                        <span class="label">Contact:</span>
-                        <span class="value">{{ user.contact }}</span>
-                    </li>
-                    <li>
-                        <span class="label">City:</span>
-                        <span class="value">{{ user.city }}</span>
-                    </li>
-                    <li>
-                        <span class="label">Date of Birth:</span>
-                        <span class="value">{{ user.dob }}</span>
-                    </li>
-                </ul>
-            </section>
+      <h2 style="text-align: center; font-size: 50px; font-weight: bold; color: #333; margin-top: 20px;margin-bottom: 40px;">
+        Welcome, {{ user.username }}! 
+    </h2>
+    
+      <div class="profile-sections">
+        <section id="personal-details">
+          <h2>Personal Details</h2>
+          <ul class="info">
+            <li>
+              <span class="label">Name:</span>
+              <span class="value">{{ user.username }}</span>
+            </li>
+            <li>
+              <span class="label">Email:</span>
+              <span class="value">{{ user.email }}</span>
+            </li>
+            <li>
+              <span class="label">Role:</span>
+              <span class="value">{{ user.role }}</span>
+            </li>
+            <li>
+              <span class="label">Contact:</span>
+              <span class="value">{{ user.contact }}</span>
+            </li>
+            <li>
+              <span class="label">City:</span>
+              <span class="value">{{ user.city }}</span>
+            </li>
+            <li>
+              <span class="label">Date of Birth:</span>
+              <span class="value">{{ user.dob }}</span>
+            </li>
+          </ul>
+        </section>
 
-            <section id="account-settings">
-                <h2>Account Settings</h2>
-                <div>
-                    <span>Change Password</span>
-                    <form action="{{ url_for('auth.change_password', id=user.id) }}" method="get" style="display: inline;">
-                        <button class="change-password-btn">Change Password</button>
-                    </form>
-                </div>
-                <div>
-                    <span>Update Personal Details</span>
-                    <form action="{{ url_for('auth.update_details', id=user.id) }}" method="get" style="display: inline;">
-                        <button type="submit" class="btn btn-primary">Update Details</button>
-                    </form>
-                </div>
-                <div>
-                    <span>Delete Account</span>
-                    <a href="{{ url_for('auth.confirm_delete', id=user.id) }}">
-                        <button class="delete-account-btn">Delete Account</button>
-                    </a>
-                </div>
-            </section>
-        </div>
-
-        
-        
+        <section id="account-settings">
+          <h2>Account Settings</h2>
+          <div>
+            <span>Change Password</span>
+            <form
+              action="{{ url_for('auth.change_password', id=user.id) }}"
+              method="get"
+              style="display: inline"
+            >
+              <button class="change-password-btn">Change Password</button>
+            </form>
+          </div>
+          <div>
+            <span>Update Personal Details</span>
+            <form
+              action="{{ url_for('auth.update_details', id=user.id) }}"
+              method="get"
+              style="display: inline"
+            >
+              <button type="submit" class="btn btn-primary">
+                Update Details
+              </button>
+            </form>
+          </div>
+          <div>
+            <span>Delete Account</span>
+            <a href="{{ url_for('auth.confirm_delete', id=user.id) }}">
+              <button class="delete-account-btn">Delete Account</button>
+            </a>
+          </div>
+        </section>
+      </div>
     </div>
     {% endblock %}
-</body>
+  </body>
 </html>
