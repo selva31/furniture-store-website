@@ -13,12 +13,12 @@ UNASSIGNED_ORDER_STATUS = "Unassigned"
 
 # Function to create the delivery person account
 def create_delivery_person_user():
-    delivery_person = db.session.query(User).filter_by(email="delivery@gmail.com").first()
+    delivery_person = db.session.query(User).filter_by(email="selvaranisubbaiya@gmail.com").first()
     if not delivery_person:
-        hashed_password = bcrypt.generate_password_hash("delivery123").decode("utf-8")
+        hashed_password = bcrypt.generate_password_hash("hariharan").decode("utf-8")
         new_delivery_person = User(
             username="Giorno",
-            email="delivery@gmail.com",
+            email="selvaranisubbaiya@gmail.com",
             password=hashed_password,
             role="delivery",
             contact="1234567890",
