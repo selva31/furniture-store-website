@@ -1,5 +1,7 @@
 # furniture-store-website
 
+![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)
+
 
 It is a modern e-commerce platform built with Flask and SQLAlchemy, designed for a seamless shopping experience in the furniture industry. Customers can browse furniture, add items to their cart or wishlist, and place orders, while admins can manage products and orders efficiently.
 
@@ -118,3 +120,7 @@ FusionFits/
 ├── requirements.txt      # Project dependencies
 ├── .env                  # Environment variables
 ```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
