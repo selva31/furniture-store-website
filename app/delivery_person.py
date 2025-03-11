@@ -6,9 +6,13 @@ from .utils import restrict_to_deliveryPerson
 from datetime import datetime
 from flask_login import current_user
 from sqlalchemy import and_
+import logging
 
 delivery_person = Blueprint("delivery_person", __name__, url_prefix="/delivery_person")
 UNASSIGNED_ORDER_STATUS = "Unassigned"
+
+onfigure logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 # Function to create the delivery person account

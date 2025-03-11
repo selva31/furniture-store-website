@@ -330,7 +330,7 @@ Thank you,
 Your Application Team
         '''
 
-    msg = Message(msg_subject, sender='selvaranisubbaiya@gmail.com', recipients=[user.email])
+    msg = Message(msg_subject, sender='selvaqueen333@gmail.com', recipients=[user.email])
     msg.body = msg_body
 
     try:

@@ -35,9 +35,9 @@ def create_app():
     app.config["MAIL_PORT"] = 587
     app.config["MAIL_USE_TLS"] = True
     app.config["MAIL_USE_SSL"] = False  # Disable SSL when using TLS
-    app.config["MAIL_USERNAME"] = "selvaranisubbaiya@gmail.com"  # Add your email
+    app.config["MAIL_USERNAME"] = "selvaqueen333@gmail.com"  # Add your email
     app.config["MAIL_PASSWORD"] = "secret password"  # Add your email password or app-specific password
-    app.config["MAIL_DEFAULT_SENDER"] = "selvaranisubbaiya@gmail.com"
+    app.config["MAIL_DEFAULT_SENDER"] = "selvaqueen333@gmail.com"
     app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads")  # Directory to store images
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # Max file size (16 MB)
 
