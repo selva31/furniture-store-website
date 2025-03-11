@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d4308e68-01ec-4900-ba07-30a6a2cdab30" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/delivery_person.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/delivery_person.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/instance/users.db" beforeDir="false" afterPath="$PROJECT_DIR$/instance/users.db" afterDir="false" />
-    </list>
+    <list default="true" id="d4308e68-01ec-4900-ba07-30a6a2cdab30" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -48,13 +43,40 @@
       <option name="presentableId" value="Default" />
       <updated>1739897124681</updated>
     </task>
+    <task id="LOCAL-00001" summary="updated">
+      <created>1741703949089</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1741703949089</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="updated" />
+    <option name="LAST_COMMIT_MESSAGE" value="updated" />
   </component>
   <component name="WindowStateProjectService">
     <state x="404" y="139" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1739897177204">
       <screen x="0" y="0" width="1280" height="672" />
     </state>
     <state x="404" y="139" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1280.672@0.0.1280.672" timestamp="1739897177204" />
+    <state x="297" y="0" key="CommitChangelistDialog2" timestamp="1741703947918">
+      <screen x="0" y="0" width="1280" height="672" />
+    </state>
+    <state x="297" y="0" key="CommitChangelistDialog2/0.0.1280.672@0.0.1280.672" timestamp="1741703947918" />
     <state x="337" y="160" key="com.intellij.ide.util.TipDialog" timestamp="1741703290041">
       <screen x="0" y="0" width="1280" height="672" />
     </state>
