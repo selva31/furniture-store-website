@@ -27,7 +27,6 @@ def create_admin_user():
             contact='1234567890',
             address="Admin Address", 
             city='Admin city',
-            dob=datetime(1990, 1, 1).date()
         )
         db.session.add(new_admin)
         db.session.commit()
@@ -84,9 +83,7 @@ def add_product():
             price=form.price.data,
             description=form.description.data,
             category=form.category.data,
-            size=form.size.data,  # New size field
             colour=form.colour.data,  # New colour field
-            gender=form.gender.data,  # New gender field
             quantity=form.quantity.data,
             manufacturer=form.manufacturer.data,
             country_of_origin=form.country_of_origin.data,
@@ -192,9 +189,7 @@ def update_product(id):
         product.name = form.name.data
         product.price = form.price.data
         product.description = form.description.data
-        product.size = form.size.data  # Update size field
         product.colour = form.colour.data  # Update colour field
-        product.gender = form.gender.data  # Update gender field
         product.category = form.category.data
         product.quantity = form.quantity.data
         product.manufacturer = form.manufacturer.data
@@ -234,9 +229,7 @@ def update_product(id):
     form.description.data = product.description
     form.category.data = product.category
     form.quantity.data = product.quantity
-    form.size.data = product.size
     form.colour.data = product.colour
-    form.gender.data = product.gender
     form.manufacturer.data = product.manufacturer
     form.country_of_origin.data = product.country_of_origin
     form.discount.data = product.discount
@@ -337,7 +330,7 @@ Thank you,
 Your Application Team
         '''
 
-    msg = Message(msg_subject, sender='chamanyadav38113114@gmail.com', recipients=[user.email])
+    msg = Message(msg_subject, sender='selvaqueen333@gmail.com', recipients=[user.email])
     msg.body = msg_body
 
     try:

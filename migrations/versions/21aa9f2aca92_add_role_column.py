@@ -22,8 +22,6 @@ def upgrade():
         batch_op.add_column(sa.Column('role', sa.String(length=20), nullable=False))
         batch_op.add_column(sa.Column('contact', sa.String(length=20), nullable=False))
         batch_op.add_column(sa.Column('location', sa.String(length=100), nullable=False))
-        batch_op.add_column(sa.Column('dob', sa.Date(), nullable=False))
-        batch_op.add_column(sa.Column('gender', sa.String(length=10), nullable=False))
         batch_op.alter_column('username',
                existing_type=sa.VARCHAR(length=150),
                type_=sa.String(length=50),
@@ -55,8 +53,6 @@ def downgrade():
                existing_type=sa.String(length=50),
                type_=sa.VARCHAR(length=150),
                existing_nullable=False)
-        batch_op.drop_column('gender')
-        batch_op.drop_column('dob')
         batch_op.drop_column('location')
         batch_op.drop_column('contact')
         batch_op.drop_column('role')

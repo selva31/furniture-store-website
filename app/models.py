@@ -15,7 +15,6 @@ class User(UserMixin, db.Model):
     contact = db.Column(db.String(20), nullable=False)
     address = db.Column(db.String(200), nullable=False)
     city = db.Column(db.String(100), nullable=False)
-    dob = db.Column(db.Date, nullable=False)
     reset_token = db.Column(db.String(128), nullable=True)
 
     def __repr__(self):
@@ -48,9 +47,7 @@ class Product(db.Model):
     country_of_origin = db.Column(db.String(50), nullable=True)
     avg_rating = db.Column(db.Float, nullable=True)
     discount = db.Column(db.Float, default=0.0, nullable=True)
-    size = db.Column(db.String(20))  # Ensure this line exists
     colour = db.Column(db.String(20), nullable=True)
-    gender = db.Column(db.String(10), nullable=True)  # New field for gender
     # Change backref name to avoid conflict
     images = db.relationship("ProductImage", backref="product", lazy=True)
     ratings = relationship("Rating", back_populates="product")

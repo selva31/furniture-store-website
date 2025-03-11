@@ -12,9 +12,9 @@ body {
 }
 
 .logo img {
-    height: 50px; 
-    width: auto;
-    filter: invert(1);
+    height: 60px; 
+    width: 150px;
+    /* filter: invert(1); */
     mix-blend-mode: screen;
     }
 
@@ -95,7 +95,7 @@ padding: 10px 15px; /* Adjust padding */
 padding-left: 50px; /* Push placeholder text to the right */
 border: 1px solid #0d2357;
 border-radius: 30px;
-width: 500px;
+width: 250px;
 outline: none;
 margin-right: -90px;
 font-size: 14px;

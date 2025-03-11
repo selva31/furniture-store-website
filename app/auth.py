@@ -43,7 +43,6 @@ def register():
                 contact=form.contact.data,
                 address=form.address.data,
                 city=form.city.data,
-                dob=form.dob.data
             )
 
             # Add the new user to the database
@@ -157,7 +156,6 @@ def update_details(id):
         email = request.form.get('email')
         contact = request.form.get('contact')
         city = request.form.get('city')
-        dob = request.form.get('dob')
         role = request.form.get('role') if current_user.role == 'admin' else user.role  # Only admins can update roles
 
         # Validate required fields
@@ -165,13 +163,6 @@ def update_details(id):
             flash("Username and Email are required.", "error")
             return redirect(url_for('auth.update_details', id=id))
         
-        # Validate and process date of birth
-        if dob:
-            try:
-                dob = datetime.strptime(dob, "%Y-%m-%d").date()
-            except ValueError:
-                flash("Invalid date format. Please use YYYY-MM-DD.", "error")
-                return redirect(url_for('auth.update_details', id=id))
         
         
         # Try to update the user details
@@ -181,7 +172,6 @@ def update_details(id):
             user.email = email
             user.contact = contact
             user.city = city
-            user.dob = dob
             user.role = role
 
 

@@ -62,10 +62,6 @@ body::before {
                 {% for image in product.images %}
                     <img src="{{ url_for('static', filename=image.image_url) }}" alt="{{ product.name }}" class="{% if loop.first %}active{% endif %}">
                 {% endfor %}
-                <div class="controls">
-                    <button id="prev-btn">&lt;</button>
-                    <button id="next-btn">&gt;</button>
-                </div>
             </div>
         </div>
 
@@ -73,8 +69,6 @@ body::before {
             <h1>{{ product.name }}</h1>
             <p>{{ product.description }}</p>
             <h3>Product Details</h3>
-            <p><strong>Size:</strong> {{ product.size }}</p>
-            <!-- <p><strong>Gender:</strong> {{ product.gender }}</p> -->
             <p><strong>Category:</strong> {{ product.category }}</p>
             <p><strong>Color:</strong> {{ product.colour }}</p>
             <p><strong>Manufacturer:</strong> {{ product.manufacturer }}</p>

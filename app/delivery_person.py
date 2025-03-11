@@ -24,7 +24,6 @@ def create_delivery_person_user():
             contact="1234567890",
             address="Street-218, Ahmedabad, Gujarat, India, 38006",
             city="Ahmedabad",
-            dob=datetime(1990, 1, 1).date(),
         )
         db.session.add(new_delivery_person)
         db.session.commit()
@@ -149,7 +148,7 @@ def send_order_delivered_email(order: "OrderDetails"):
         <p><a href="{ratings_link}">Rate the product</a></p>
 
         <p>Thank you for shopping with us!</p>
-        <p>Best regards,<br>FusionFits</p>
+        <p>Best regards,<br>SITARA</p>
         """,
     )
     try:

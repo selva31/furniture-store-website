@@ -29,28 +29,6 @@ def product_details(product_id):
 
     return render_template('product_details.html', product=product, related_products=related_products, wishlist=wishlist, cat=cat)
 
-@main.route('/gender/<string:gender>')
-def gender_specific(gender):
-    gender = gender.lower()
-    products = Product.query.filter(Product.gender.ilike(f'%{gender}%')).all()
-
-    wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
-    cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
-
-    video_mapping = {
-        "male": "Mens Video.mp4",
-        "female": "girls banner.mp4",
-       
-    }
-    video_filename = video_mapping.get(gender, "default_video.mp4")
-
-    return render_template('gender_specific.html', 
-                           products=products, 
-                           wishlist=wishlist, 
-                           cart=cart, 
-                           gender=gender.capitalize(),  
-                           video_filename=video_filename)
-
 @main.route('/category/<string:category>')
 def category_specific(category):
     print(f"Category received: {category}")  # Debugging line
@@ -115,14 +93,6 @@ def get_related_products(product, limit=5):
         category_parts = set(product.category.lower().split(','))  #Convert to set for efficient comparison
         query_criteria.append(or_(*[Product.category.ilike(f"%{part}%") for part in category_parts])) #ilike for case-insensitive match
 
-    # 2. If same category (or partially matching), filter by gender (handling partial matches)
-    subquery = db.session.query(db.func.count(Product.id)).filter(
-        or_(*[Product.category.ilike(f"%{part}%") for part in category_parts if product.category]) , Product.id != product.id
-    ).scalar() if product.category else 0
-
-    if subquery > 0 and product.gender:
-        gender_parts = set(product.gender.lower().split(','))
-        query_criteria.append(or_(*[Product.gender.ilike(f"%{part}%") for part in gender_parts]))
 
     # 3. If no match yet, filter by name similarity (least priority)
     name_parts = product.name.lower().split()

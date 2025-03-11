@@ -38,18 +38,13 @@ class RegistrationForm(FlaskForm):
     city = StringField('City', validators=[DataRequired()])
     
     
-    dob = DateField('Date of Birth', validators=[
-        DataRequired(message="Please enter a valid date in the format YYYY-MM-DD.")
-    ])
+    
     
     
     
     submit = SubmitField('Register')
 
-    # Custom validator for the date of birth
-    def validate_dob(self, dob):
-        if dob.data > date.today():
-            raise ValidationError("Date of Birth cannot be in the future.")
+    
 
     # Custom email validation
     def validate_email(self, email):
@@ -63,9 +58,7 @@ class ProductForm(FlaskForm):
     price = FloatField('Price', validators=[DataRequired()])
     description = StringField('Description', validators=[Optional()])
     category = StringField('Category', validators=[DataRequired()])
-    size = StringField('Size', validators=[Optional()])  # New size field
     colour = StringField('Colour', validators=[Optional()])  # New colour field
-    gender = StringField('Gender', validators=[Optional()])  # New gender field
     quantity = IntegerField('Quantity', validators=[DataRequired()])
     manufacturer = StringField('Manufacturer', validators=[Optional()])
     country_of_origin = StringField('Country of Origin', validators=[Optional()])

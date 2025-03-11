@@ -35,7 +35,7 @@
     }
 
     body {
-      background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+      background-image: url('{{ url_for("static", filename="videos/backgrd.jpg") }}');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -55,7 +55,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
+      background: rgb(255, 255, 255,); /* Adjust transparency here */
       z-index: -1;
     }
 
@@ -73,14 +73,14 @@
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-  {% extends "home.html" %} {% block title %}View Products{% endblock %} {%
+  {% extends "home.html" %} {% block title %}View Furnitures{% endblock %} {%
   block content %}
   <div class="products-container">
     <!-- Banner Video -->
     <div class="banner-container">
       <video class="banner-video" autoplay muted loop>
         <source
-          src="{{ url_for('static', filename='videos/banner.mp4') }}"
+          src="{{ url_for('static', filename='videos/homebanner.mp4') }}"
           type="video/mp4"
         />
         Your browser does not support the video tag.

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}FusionFits{% endblock %}</title>
+    <title>{% block title %}SITARA{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
@@ -14,24 +14,24 @@
     <nav class="navbar">
         <div class="logo">
             <a href="/">
-                <img src="{{ url_for('static', filename='videos/FUSIONFITS_LOGO.jpg') }}" alt="FusionFits Logo" ">
+                <img src="{{ url_for('static', filename='videos/sitara logo.png') }}" alt="sitara logo" ">
             </a>
         </div>
     <nav class="categories-nav">
             <ul >
                 <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">HOME</a></li>
-                <li><a href="{{ url_for('main.gender_specific', gender='male') }}" class="{% if request.path.startswith('/gender/male') %}active{% endif %}">MEN</a></li>
-                <li><a href="{{ url_for('main.gender_specific', gender='female') }}" class="{% if request.path.startswith('/gender/female') %}active{% endif %}">WOMEN</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='kids') }}" class="{% if request.path.startswith('/category/kids') %}active{% endif %}">KIDS</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='shoes') }}" class="{% if request.path.startswith('/category/shoes') %}active{% endif %}">SHOES</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='asccessory') }}" class="{% if request.path.startswith('/category/accessory') %}active{% endif %}">ACCESSORIES</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='sofa') }}" class="{% if request.path.startswith('/category/male') %}active{% endif %}">Sofa</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='chair') }}" class="{% if request.path.startswith('/category/female') %}active{% endif %}">Chair</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='bed') }}" class="{% if request.path.startswith('/category/kids') %}active{% endif %}">Bed</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='table') }}" class="{% if request.path.startswith('/category/shoes') %}active{% endif %}">Table</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='cabinet') }}" class="{% if request.path.startswith('/category/accessory') %}active{% endif %}">Cabinet</a></li>
             </ul>
         
         </nav> 
         
             <div class="search-container">
                 <form action="{{ url_for('main.search') }}" method="get">
-                    <input type="text" name="q" placeholder="Search for products, brands and more" value="{{ request.args.get('q', '') }}">
+                    <input type="text" name="q" placeholder="Search for products" value="{{ request.args.get('q', '') }}">
                     <button type="submit"><i class="fa fa-search"></i></button>
                 </form>
             </div>
@@ -109,11 +109,11 @@
         <section id="support">
             <h2 style="text-align: center;">Customer Support</h2>
             <p style="text-align: center; font-size: 1.1em;">FAQ: <a href="{{ url_for('main.faq') }}" style="color: #007bff;">Visit FAQ</a></p>
-            <p style="text-align: center; font-size: 1.1em;">Customer Care Number: <span style="font-weight: bold;">+91 123456789</span></p>
-            <p style="text-align: center; font-size: 1.1em;">Support Email: <span style="font-weight: bold;">fusionfits@gmail.com</span></p>
+            <p style="text-align: center; font-size: 1.1em;">Customer Care Number: <span style="font-weight: bold;">+91 8778459552</span></p>
+            <p style="text-align: center; font-size: 1.1em;">Support Email: <span style="font-weight: bold;">sitarafurniture@gmail.com</span></p>
         </section>
         
-               <p>FusionFits &copy; All Rights Reserved.</p>
+               <p>SITARA &copy; All Rights Reserved.</p>
         </section>
     <script>
         const flashMessages = document.getElementById('flash-messages');
