@@ -10,7 +10,7 @@ from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 from sqlalchemy.exc import IntegrityError
-from app.models import RoleApprovalRequest
+# from app.models import RoleApprovalRequest
 
 
 # Setup logger (If not already set in your __init__.py)
@@ -19,47 +19,26 @@ auth = Blueprint('auth', __name__)
 
 
 
-
-
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
-    form = RegistrationForm()  # Initialize the registration form
-    if form.validate_on_submit():  # Check if form is valid on submit
+    form = RegistrationForm()
+    if form.validate_on_submit():
         try:
-            # Check if the email already exists in the database
             if User.query.filter_by(email=form.email.data).first():
                 flash('This email is already registered.', 'danger')
-                return render_template('register.html', form=form)  # Return form with error
+                return render_template('register.html', form=form)
 
-            # Hash the password using bcrypt before saving it to the database
             hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
 
-            # Always register the user as a 'customer'
             new_user = User(
                 username=form.username.data,
                 email=form.email.data,
                 password=hashed_password,
-                role='customer',
-                contact=form.contact.data,
-                address=form.address.data,
-                city=form.city.data,
+                role='customer'  # Always default to customer
             )
 
-            # Add the new user to the database
             db.session.add(new_user)
-            db.session.commit()  # Commit here to ensure `new_user.id` is available
-
-            # If the user selected 'delivery', create a role approval request
-            if form.role.data == 'delivery':
-                if not new_user.id:  # Sanity check for new_user.id
-                    flash('Error creating user ID. Please try again.', 'danger')
-                    return render_template('register.html', form=form)
-
-                role_request = RoleApprovalRequest(user_id=new_user.id, requested_role='delivery')
-                db.session.add(role_request)
-                db.session.commit()  # Commit the role approval request
-
-                flash('Your request to become a delivery person has been sent for admin approval.', 'info')
+            db.session.commit()
 
             flash('Registration successful! You can now log in as a customer.', 'success')
             return redirect(url_for('auth.login'))
@@ -73,14 +52,14 @@ def register():
             db.session.rollback()
             logger.error(f"Unexpected error during registration: {e}")
             flash('An unexpected error occurred during registration. Please try again.', 'danger')
-
     else:
-        # Flash form validation errors to the user
         for field, errors in form.errors.items():
             for error in errors:
                 flash(f"{field.capitalize()}: {error}", 'danger')
 
     return render_template('register.html', form=form)
+
+
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -154,10 +133,7 @@ def update_details(id):
         # Get form data
         username = request.form.get('username')
         email = request.form.get('email')
-        contact = request.form.get('contact')
-        city = request.form.get('city')
         role = request.form.get('role') if current_user.role == 'admin' else user.role  # Only admins can update roles
-
         # Validate required fields
         if not username or not email:
             flash("Username and Email are required.", "error")
@@ -170,9 +146,8 @@ def update_details(id):
             # Update user details
             user.username = username
             user.email = email
-            user.contact = contact
-            user.city = city
             user.role = role
+
 
 
             # Commit changes to the database
@@ -256,7 +231,7 @@ def send_password_change_email(user):
     s = get_serializer()  # Get the serializer within the app context
     token = s.dumps(user.email, salt='password-reset-salt')
     """Send an email notification after the password has been changed."""
-    msg = Message('Your password has been successfully changed', sender='chamanyadav38113114@gmail.com', 
+    msg = Message('Your password has been successfully changed', sender='selvaqueen333@gmail.com', 
                   recipients=[user.email])
     msg.body = f'''Hello {user.username},
 

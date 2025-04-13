@@ -1,12 +1,16 @@
 from flask_login import login_required, current_user
 import random
-from flask import Blueprint, render_template, redirect, url_for, flash, request,jsonify
-from .models import Product, Cart, db,Wishlist,OrderedProduct,OrderDetails
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
+from .models import Product, Cart, db, Wishlist, OrderedProduct, OrderDetails
 from sqlalchemy.orm import joinedload, subqueryload
 import sqlalchemy
 from datetime import datetime
+import razorpay
 
 main = Blueprint('main', __name__)
+
+# Initialize Razorpay client
+razorpay_client = razorpay.Client(auth=("rzp_test_U3dMvkynq7cV8g", "4TIcywwxgIi5Zycv7Fwl0Inc"))
 
 @main.route('/')
 def home():
@@ -18,16 +22,15 @@ def home():
 
     return render_template('homepage.html', products=random_products, wishlist=wishlist, cart=cart)
 
-
 @main.route('/product/<int:product_id>')
 def product_details(product_id):
     product = Product.query.get_or_404(product_id)
     related_products = get_related_products(product)
 
     wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
-    cat = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
+    cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
 
-    return render_template('product_details.html', product=product, related_products=related_products, wishlist=wishlist, cat=cat)
+    return render_template('product_details.html', product=product, related_products=related_products, wishlist=wishlist, cart=cart)
 
 @main.route('/category/<string:category>')
 def category_specific(category):
@@ -41,10 +44,10 @@ def category_specific(category):
     video_mapping = {
         "kids": "videos/Kids Video.mp4",
         "shoes": "videos/shoes.mp4",
-        "Accessories": "videos/Accesories.mp4" # Check if this is added
+        "accessories": "videos/Accessories.mp4" # Check if this is added
     }
     
-    video_filename = video_mapping.get(category, "videos/Accesories.mp4")  # Default video if category not found
+    video_filename = video_mapping.get(category, "videos/Accessories.mp4")  # Default video if category not found
     
     print(f"Video filename: {video_filename}")  # Debugging line
 
@@ -54,9 +57,6 @@ def category_specific(category):
                            cart=cart, 
                            category=category.capitalize(), 
                            video_filename=video_filename)
-
-
-
 
 @main.route('/your_orders')
 @login_required
@@ -77,7 +77,6 @@ def your_orders():
         flash(f"An error occurred while fetching your orders: {e}", "danger")
         return redirect(url_for('main.home'))
 
-
 import sqlalchemy
 from sqlalchemy import or_
 
@@ -90,21 +89,19 @@ def get_related_products(product, limit=5):
 
     # 1. Prioritize same category (handling partial matches)
     if product.category:
-        category_parts = set(product.category.lower().split(','))  #Convert to set for efficient comparison
-        query_criteria.append(or_(*[Product.category.ilike(f"%{part}%") for part in category_parts])) #ilike for case-insensitive match
-
+        category_parts = set(product.category.lower().split(','))  # Convert to set for efficient comparison
+        query_criteria.append(or_(*[Product.category.ilike(f"%{part}%") for part in category_parts])) # ilike for case-insensitive match
 
     # 3. If no match yet, filter by name similarity (least priority)
     name_parts = product.name.lower().split()
     if not any(isinstance(crit, sqlalchemy.sql.expression.BinaryExpression) for crit in query_criteria):
-        name_query = or_(*[Product.name.ilike(f"%{part}%") for part in name_parts]) #Use or_ for any part match
+        name_query = or_(*[Product.name.ilike(f"%{part}%") for part in name_parts]) # Use or_ for any part match
         query_criteria.append(name_query)
-
 
     related_products = (Product.query
                         .filter(*query_criteria)
                         .order_by(db.func.random())
-                        .limit(limit) #Corrected limit to the input value
+                        .limit(limit) # Corrected limit to the input value
                         .all())
 
     return related_products
@@ -120,33 +117,71 @@ def calculate_tax(total_price):
         return 100
     else:
         return 50
-    
 
 @main.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
-    g = request.form.get('grand_total')
-    print(g)
     cart_items = Cart.query.filter_by(user_id=current_user.id).all()
     if not cart_items:
         flash("Your cart is empty!", "danger")
         return redirect(url_for('main.cart'))
-    # print(item for item in cart_items)
+    
     total_price = sum(item.total_price for item in cart_items)
-    
-   
     tax = calculate_tax(total_price)
-    total_discount= round(total_price - float(g),2)+tax
-    grand_total = total_price - total_discount  + tax
+    grand_total = total_price + tax
     
-    return render_template('checkout.html', cart_items=cart_items, total_price=total_price, 
-                           total_discount=total_discount, tax=tax, grand_total=grand_total)
+    return render_template('checkout.html', cart_items=cart_items, total_price=total_price, tax=tax, grand_total=grand_total)
 
-@main.route('/place_order', methods=['GET', 'POST'])
+@main.route('/create_order', methods=['POST'])
+@login_required
+def create_order():
+    data = request.get_json()
+    amount = data['amount']  # Amount in paise
+
+    order_data = {
+        'amount': amount,
+        'currency': 'INR',
+        'payment_capture': '1'
+    }
+    order = razorpay_client.order.create(data=order_data)
+    
+    return jsonify(order)
+
+@main.route('/verify_payment', methods=['POST'])
+@login_required
+def verify_payment():
+    data = request.get_json()
+    razorpay_payment_id = data['razorpay_payment_id']
+    razorpay_order_id = data['razorpay_order_id']
+    razorpay_signature = data['razorpay_signature']
+
+    # Verify the payment signature
+    try:
+        razorpay_client.utility.verify_payment_signature({
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': razorpay_payment_id,
+            'razorpay_signature': razorpay_signature
+        })
+        # Payment is successful, update the order status in your database
+        flash("Payment successful!")
+        return redirect(url_for('main.order_success'))
+
+    except razorpay.errors.SignatureVerificationError:
+        # Payment verification failed
+        flash("Payment verification failed. Please try again.", "danger")
+        return redirect(url_for('main.checkout'))
+    
+    #     # Payment is successful, update the order status in your database
+    #     return jsonify({'status': 'Payment successful'})
+    #     return redirect(url_for('main.order_success'))
+
+    # except:
+    #     # Payment verification failed
+    #     return jsonify({'status': 'Payment verification failed'})
+
+@main.route('/place_order', methods=['POST'])
 @login_required
 def place_order():
-    g = request.form.get('grand_total')
-    print("lafoot price",g)
     cart_items = Cart.query.filter_by(user_id=current_user.id).all()
     if not cart_items:
         flash("Your cart is empty!", "danger")
@@ -154,22 +189,18 @@ def place_order():
 
     total_price = sum(item.total_price for item in cart_items)
     tax = calculate_tax(total_price)
-    total_discount= round(total_price - float(g[1:]),2) + tax
-    grand_total = total_price - total_discount + tax
-    print(grand_total)
+    grand_total = total_price + tax
 
-    # Get data from GET request (if redirected from checkout), or fallback to user data
+    # Get data from POST request or fallback to user data
     name = request.form.get('name')
     email = request.form.get('email')
     contact = request.form.get('contact')
     city = request.form.get('city')
     address = request.form.get('address')
 
-
     if not city or not address:
         flash("City and address are required.", "danger")
         return redirect(url_for('main.checkout')) # Redirect back to checkout if missing data
-
 
     try:
         # Create OrderDetails first
@@ -188,7 +219,6 @@ def place_order():
         db.session.add(order_details)
         db.session.flush()  # Get the order_details ID
         order_details_id = order_details.id
-
 
         for item in cart_items:
             product = Product.query.get(item.product_id)
@@ -215,7 +245,6 @@ def place_order():
         db.session.rollback()
         flash(f"An error occurred: {e}", "danger")
         return redirect(url_for('main.checkout'))
- 
 
 @main.route('/add_to_cart', methods=['POST'])
 @login_required
@@ -268,22 +297,21 @@ def update_cart_item(cart_item_id):
         if new_quantity > product.quantity: # Check for stock availability
             return jsonify({'success': False, 'error': f'Only {product.quantity} units in stock'}), 400
 
-
         cart_item.quantity = new_quantity
         cart_item.total_price = cart_item.quantity * cart_item.product.price
         db.session.commit()
         return jsonify({'success': True})
 
-    except ValueError as e: #Catch specific errors for more informative messages
+    except ValueError as e: # Catch specific errors for more informative messages
         db.session.rollback()
         return jsonify({'success': False, 'error': f'Invalid quantity: {e}'}), 400
-    except sqlalchemy.exc.IntegrityError as e: #Handle database errors
+    except sqlalchemy.exc.IntegrityError as e: # Handle database errors
         db.session.rollback()
         return jsonify({'success': False, 'error': f'Database error: {e}'}), 500
     except Exception as e:  # Catch any other exception
         db.session.rollback()
         return jsonify({'success': False, 'error': f'An unexpected error occurred: {e}'}), 500
-    
+
 @main.route('/cart')
 @login_required
 def cart():
@@ -295,13 +323,13 @@ def cart():
     # Filter out items where product is None
     valid_cart_items = [item for item in cart_items if item.product]
 
-
     product_stock = {}
     for item in valid_cart_items:
         if item.product:
             product_stock[item.product.id] = item.product.quantity
 
     return render_template('cart.html', cart_items=valid_cart_items, product_stock=product_stock)
+
 @main.route('/remove_from_cart', methods=['POST'])
 @login_required
 def remove_from_cart():
@@ -317,7 +345,6 @@ def remove_from_cart():
     flash("Item removed from cart!", "success")
     return redirect(url_for('main.cart'))
 
-
 @main.route('/wishlist', methods=['GET'])
 @login_required
 def wishlist():
@@ -330,7 +357,6 @@ def wishlist():
             print(f"WARNING: Invalid discount value for product {item.product.id}. Setting to 0.")
 
     return render_template('wishlist.html', wishlist_items=wishlist_items)
-
 
 @main.route('/wishlist', methods=['POST'])
 @login_required
@@ -357,7 +383,6 @@ def add_to_wishlist():
 
     return redirect(request.referrer or url_for('main.home'))
 
-
 @main.route('/remove_from_wishlist', methods=['POST'])
 @login_required
 def remove_from_wishlist():
@@ -379,8 +404,6 @@ def remove_from_wishlist():
         return redirect(referrer)
     return redirect(url_for('main.home'))  # Fallback to home page
 
-
-
 @main.context_processor
 def inject_wishlist():
     """Inject the user's wishlist as a list of product IDs for easier checks in templates."""
@@ -389,8 +412,6 @@ def inject_wishlist():
     else:
         wishlist_ids = []
     return dict(wishlist=wishlist_ids)
-
-
 
 @main.route('/search')
 def search():
@@ -413,3 +434,34 @@ def search():
 @main.route('/faq')
 def faq():
     return render_template('faq.html')
+
+@main.route('/buy_now', methods=['POST'])
+@login_required
+def buy_now():
+    product_id = request.form.get('product_id')
+    product = Product.query.get(product_id)
+
+    if not product:
+        flash("Product not found!", "danger")
+        return redirect(url_for('main.home'))
+
+    # Clear the user's cart first
+    Cart.query.filter_by(user_id=current_user.id).delete()
+
+    # Add the product to the cart
+    cart_item = Cart(
+        user_id=current_user.id,
+        product_id=product.id,
+        quantity=1,
+        total_price=product.price
+    )
+    db.session.add(cart_item)
+    db.session.commit()
+
+    return redirect(url_for('main.checkout'))
+
+# Order success page
+@main.route('/order_success')
+@login_required
+def order_success():
+    return redirect(url_for('main.order_success'))

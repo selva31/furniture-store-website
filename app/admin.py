@@ -7,7 +7,7 @@ from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 from datetime import datetime
-from .models import RoleApprovalRequest, Cart
+# from .models import RoleApprovalRequest, Cart
 from werkzeug.utils import secure_filename
 from app.models import ProductImage
 import os  # Make sure to import this module
@@ -24,9 +24,6 @@ def create_admin_user():
             email='admin@gmail.com',
             password=hashed_password,
             role='admin',
-            contact='1234567890',
-            address="Admin Address", 
-            city='Admin city',
         )
         db.session.add(new_admin)
         db.session.commit()
@@ -53,7 +50,7 @@ def delete_product(product_id):
         # Handle related cart items and wishlist items before deleting the product
             # Handle related cart items and wishlist items before deleting the product
         Cart.query.filter_by(product_id=product.id).delete()
-    
+
     # Delete the wishlist items associated with the product
         Wishlist.query.filter_by(product_id=product.id).delete()
         # Delete related product images
@@ -71,7 +68,6 @@ def delete_product(product_id):
         return redirect(url_for('admin.admin_dashboard'))
 
 
-
 @admin.route('/add_product', methods=['GET', 'POST'])
 @restrict_to_admin()
 def add_product():
@@ -83,7 +79,7 @@ def add_product():
             price=form.price.data,
             description=form.description.data,
             category=form.category.data,
-            colour=form.colour.data,  # New colour field
+            colour=form.colour.data,
             quantity=form.quantity.data,
             manufacturer=form.manufacturer.data,
             country_of_origin=form.country_of_origin.data,
@@ -95,33 +91,87 @@ def add_product():
             db.session.flush()
 
             upload_folder = current_app.config.get('UPLOAD_FOLDER', 'uploads')
-            if not os.path.exists(upload_folder):
-                os.makedirs(upload_folder)
+            os.makedirs(upload_folder, exist_ok=True)
 
-            if form.images.data:
-                for image in form.images.data:
-                    if hasattr(image, 'filename') and image.filename:
-                        filename = secure_filename(image.filename)
-                        relative_path = f'uploads/{filename}'
-                        image_path = os.path.join(upload_folder, filename)
-                        image.save(image_path)
+            if form.image.data:
+                image_filename = secure_filename(form.image.data.filename)
+                image_path = os.path.join(current_app.root_path, "static", "upload")
+                os.makedirs(image_path, exist_ok=True)
+                form.image.data.save(os.path.join(image_path, image_filename))
+                product.image = image_filename
 
-                        new_product_image = ProductImage(
-                            image_url=relative_path,
-                            product_id=new_product.id
-                        )
-                        db.session.add(new_product_image)
+                # Handle 3D model upload (.glb)
+            if form.model_file.data:
+                model_filename = secure_filename(form.model_file.data.filename)
+                model_path = os.path.join(current_app.root_path, "static", "models")
+                os.makedirs(model_path, exist_ok=True)
+                form.model_file.data.save(os.path.join(model_path, model_filename))
+                product.model_file = model_filename
 
+            db.session.add(product)
             db.session.commit()
-            flash(f'Product "{new_product.name}" has been added successfully!', 'success')
+            flash(f'Product "{new_product.name}" added successfully!', 'success')
             return redirect(url_for('admin.admin_dashboard'))
 
         except Exception as e:
             db.session.rollback()
-            flash(f'An error occurred while adding the product: {str(e)}', 'danger')
+            current_app.logger.error(f"Error adding product: {e}")
+            flash(f'An error occurred: {str(e)}', 'danger')
             return redirect(url_for('admin.add_product'))
 
     return render_template('add_product.html', form=form)
+
+
+# @admin.route('/add_product', methods=['GET', 'POST'])
+# @restrict_to_admin()
+# def add_product():
+#     form = ProductForm()
+
+#     if form.validate_on_submit():
+#         new_product = Product(
+#             name=form.name.data,
+#             price=form.price.data,
+#             description=form.description.data,
+#             category=form.category.data,
+#             colour=form.colour.data,  # New colour field
+#             quantity=form.quantity.data,
+#             manufacturer=form.manufacturer.data,
+#             country_of_origin=form.country_of_origin.data,
+#             discount=form.discount.data
+#         )
+
+#         try:
+#             db.session.add(new_product)
+#             db.session.flush()
+
+#             upload_folder = current_app.config.get('UPLOAD_FOLDER', 'uploads')
+#             if not os.path.exists(upload_folder):
+#                 os.makedirs(upload_folder)
+
+#             if form.images.data:
+#                 for image in form.images.data:
+#                     if hasattr(image, 'filename') and image.filename:
+#                         filename = secure_filename(image.filename)
+#                         relative_path = f'uploads/{filename}'
+#                         image_path = os.path.join(upload_folder, filename)
+#                         image.save(image_path)
+
+#                         new_product_image = ProductImage(
+#                             image_url=relative_path,
+#                             product_id=new_product.id
+#                         )
+#                         db.session.add(new_product_image)
+
+#             db.session.commit()
+#             flash(f'Product "{new_product.name}" has been added successfully!', 'success')
+#             return redirect(url_for('admin.admin_dashboard'))
+
+#         except Exception as e:
+#             db.session.rollback()
+#             flash(f'An error occurred while adding the product: {str(e)}', 'danger')
+#             return redirect(url_for('admin.add_product'))
+
+#     return render_template('add_product.html', form=form)
 
 # @admin.route('/admin/update_product/<int:id>', methods=['GET', 'POST'])
 # @login_required
@@ -181,7 +231,7 @@ def add_product():
 def update_product(id):
     # Fetch the product by its ID
     product = Product.query.get_or_404(id)
-    
+
     form = ProductForm()
 
     if form.validate_on_submit():  # Check if form is valid on POST
@@ -304,77 +354,77 @@ def update_product(id):
 
 
 
-def send_role_approval_email(user, action, requested_role=None):
-    """Send an email notification based on the role approval/rejection."""
-    msg_subject = ""
-    msg_body = ""
-
-    if action == 'approve':
-        msg_subject = 'Your Role Approval Request has been Approved'
-        msg_body = f'''Hello {user.username},
-
-Your request to change your role to "{requested_role}" has been approved. You can now access the additional features associated with this role.
-
-If you have any questions, feel free to reach out to our support team.
-
-Thank you,
-Your Application Team
-        '''
-    elif action == 'reject':
-        msg_subject = 'Your Role Approval Request has been Rejected'
-        msg_body = f'''Hello {user.username},
-
-We regret to inform you that your request to change your role to "{requested_role}" has been rejected. If you believe this is a mistake or have questions, please contact support.
-
-Thank you,
-Your Application Team
-        '''
-
-    msg = Message(msg_subject, sender='selvaqueen333@gmail.com', recipients=[user.email])
-    msg.body = msg_body
-
-    try:
-        mail.send(msg)  # Attempt to send the email
-        print(f"Role approval email ({action}) sent successfully to {user.email}!")
-    except Exception as e:
-        print(f"Error sending role approval email: {e}")
-
-
-@admin.route('/role_approval_requests', methods=['GET', 'POST'])
-@restrict_to_admin()
-def role_approval_requests():
-    # Fetch all pending role approval requests
-    requests = RoleApprovalRequest.query.filter_by(status='pending').all()
-
-    if request.method == 'POST':
-        request_id = request.form.get('request_id')
-        action = request.form.get('action')
-
-        if request_id and action:
-            role_request = RoleApprovalRequest.query.get(request_id)
-            if role_request:
-                user = User.query.get(role_request.user_id)
-
-                if action == 'approve':
-                    role_request.status = 'approved'
-                    user.role = role_request.requested_role
-                    db.session.commit()
-
-                    # Send approval email
-                    send_role_approval_email(user, action='approve', requested_role=role_request.requested_role)
-
-                    flash(f"User {user.username}'s role has been updated to {role_request.requested_role}.", 'success')
-
-                elif action == 'reject':
-                    role_request.status = 'rejected'
-                    db.session.commit()
-
-                    # Send rejection email
-                    send_role_approval_email(user, action='reject', requested_role=role_request.requested_role)
-
-                    flash(f"Role request for {user.username} has been rejected.", 'info')
-
-    return render_template('role_approval_requests.html', requests=requests)
+# def send_role_approval_email(user, action, requested_role=None):
+#     """Send an email notification based on the role approval/rejection."""
+#     msg_subject = ""
+#     msg_body = ""
+#
+#     if action == 'approve':
+#         msg_subject = 'Your Role Approval Request has been Approved'
+#         msg_body = f'''Hello {user.username},
+#
+# Your request to change your role to "{requested_role}" has been approved. You can now access the additional features associated with this role.
+#
+# If you have any questions, feel free to reach out to our support team.
+#
+# Thank you,
+# Your Application Team
+#         '''
+#     elif action == 'reject':
+#         msg_subject = 'Your Role Approval Request has been Rejected'
+#         msg_body = f'''Hello {user.username},
+#
+# We regret to inform you that your request to change your role to "{requested_role}" has been rejected. If you believe this is a mistake or have questions, please contact support.
+#
+# Thank you,
+# Your Application Team
+#         '''
+#
+#     msg = Message(msg_subject, sender='selvaqueen333@gmail.com', recipients=[user.email])
+#     msg.body = msg_body
+#
+#     try:
+#         mail.send(msg)  # Attempt to send the email
+#         print(f"Role approval email ({action}) sent successfully to {user.email}!")
+#     except Exception as e:
+#         print(f"Error sending role approval email: {e}")
+#
+#
+# @admin.route('/role_approval_requests', methods=['GET', 'POST'])
+# @restrict_to_admin()
+# def role_approval_requests():
+#     # Fetch all pending role approval requests
+#     requests = RoleApprovalRequest.query.filter_by(status='pending').all()
+#
+#     if request.method == 'POST':
+#         request_id = request.form.get('request_id')
+#         action = request.form.get('action')
+#
+#         if request_id and action:
+#             role_request = RoleApprovalRequest.query.get(request_id)
+#             if role_request:
+#                 user = User.query.get(role_request.user_id)
+#
+#                 if action == 'approve':
+#                     role_request.status = 'approved'
+#                     user.role = role_request.requested_role
+#                     db.session.commit()
+#
+#                     # Send approval email
+#                     send_role_approval_email(user, action='approve', requested_role=role_request.requested_role)
+#
+#                     flash(f"User {user.username}'s role has been updated to {role_request.requested_role}.", 'success')
+#
+#                 elif action == 'reject':
+#                     role_request.status = 'rejected'
+#                     db.session.commit()
+#
+#                     # Send rejection email
+#                     send_role_approval_email(user, action='reject', requested_role=role_request.requested_role)
+#
+#                     flash(f"Role request for {user.username} has been rejected.", 'info')
+#
+#     return render_template('role_approval_requests.html', requests=requests)
 
 
 # @admin.route('/user_details', methods=['GET', 'POST'])
@@ -393,7 +443,7 @@ def role_approval_requests():
 #         query = query.filter_by(role=role_filter)
 #     if city_filter:
 #         query = query.filter(User.city.ilike(f"%{city_filter}%"))
-    
+
 #     users = query.all()
 
 #     return render_template('user_details.html', users=users, role_filter=role_filter, city_filter=city_filter)
@@ -410,8 +460,8 @@ def user_details():
         query = query.filter_by(role=role_filter)
     if location_filter:
         query = query.filter(User.city.ilike(f"%{location_filter}%"))
-    
-    
+
+
     users = query.all()
 
     return render_template('user_details.html', users=users, role_filter=role_filter, location_filter=location_filter)

@@ -3,155 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ product.name }}</title>
+    <title>{{ product.name }} - Product Details</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='product_details.css') }}">
     <style>
-       
         body {
-    font-family: 'Roboto', sans-serif;
-    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: #333;
-    position: relative;
-}
+            font-family: 'Roboto', sans-serif;
+            background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color: #333;
+            position: relative;
+        }
 
-/* Overlay to reduce opacity */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-    z-index: -1;
-}
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: -1;
+        }
 
-        /* Green color for "Add to Cart" */
-.add-btn {
-    background-color: green;
-}
+        .add-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
 
-/* Red color for "Remove from Cart" */
-.remove-btn {
-    background-color: red;
-}
-#support{
-    padding: top 50px;
-}
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
 
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-section {
+            display: flex;
+            gap: 40px;
+        }
+
+        .product-image, .product-details {
+            flex: 1;
+        }
+
+        .product-image img {
+            width: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .product-details h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .product-details p {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .pricet {
+            margin: 20px 0;
+            font-size: 1.2em;
+        }
+
+        .actions {
+            margin-top: 20px;
+        }
+
+        .Related_Prod h2 {
+            margin-top: 50px;
+        }
+
+        .products {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .product {
+            flex: 1 1 calc(25% - 20px);
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+        }
+
+        .product img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .product h2 {
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
-  {% extends "home.html" %}
+    {% extends "home.html" %}
 
-  {% block title %}View Products{% endblock %}
-  
-  {% block content %}
-  <div class="all">
-  <div class="container">
-    <div class="product-section">
-        <div class="product-image">
-            <div class="image-slider">
-                {% for image in product.images %}
-                    <img src="{{ url_for('static', filename=image.image_url) }}" alt="{{ product.name }}" class="{% if loop.first %}active{% endif %}">
-                {% endfor %}
+    {% block title %}View Products{% endblock %}
+
+    {% block content %}
+    <div class="all">
+        <div class="container">
+            <div class="product-section">
+                <div class="product-image">
+                    <div class="image-slider">
+                        {% for image in product.images %}
+                            <img src="{{ url_for('static', filename=image.image_url) }}" alt="{{ product.name }}" class="product-img {% if loop.first %}active{% endif %}">
+                        {% endfor %}
+                        <div class="controls">
+                            <button id="prev-btn">&lt;</button>
+                            <button id="next-btn">&gt;</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-details">
+                    <h1>{{ product.name }}</h1>
+                    <p>{{ product.description }}</p>
+
+                    <h3>Product Details</h3>
+                    <p><strong>Category:</strong> {{ product.category }}</p>
+                    <p><strong>Color:</strong> {{ product.colour }}</p>
+                    <p><strong>Manufacturer:</strong> {{ product.manufacturer }}</p>
+                    <p><strong>Country:</strong> {{ product.country_of_origin }}</p>
+                    <p><strong>Discount:</strong> {{ product.discount }}%</p>
+                    <p><strong>Ratings:</strong> ⭐{{ product.avg_rating if product.avg_rating else 'N/A' }}</p>
+                    <div class="pricet">
+                        <strong>Price:</strong>
+                        <span style="text-decoration: line-through; color: gray;">₹{{ product.price }}</span>
+                        <span style="color: green; font-weight: bold;"> ₹{{ (product.price * (1 - product.discount / 100)) | round(2) }}</span>
+                    </div>
+                    <div class="actions">
+                        <form action="/add_to_cart" method="POST">
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <button type="submit" class="add-to-cart {% if product.id in cart %}remove-btn{% else %}add-btn{% endif %}">
+                                {% if product.id in cart %}
+                                    Remove from Cart
+                                {% else %}
+                                    Add to Cart
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+
+                    {% if product.sketchfab_url %}
+                    <!-- Sketchfab 3D Model Embed -->
+                    <div class="sketchfab-embed-wrapper" style="margin-top: 20px;">
+                        <iframe title="{{ product.name }} 3D View"
+                                src="{{ product.sketchfab_url }}"
+                                frameborder="0"
+                                allow="autoplay; fullscreen; xr-spatial-tracking"
+                                allowfullscreen
+                                mozallowfullscreen="true"
+                                webkitallowfullscreen="true"
+                                style="width: 100%; height: 500px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);">
+                        </iframe>
+                    </div>
+                    {% elif product.model_file %}
+                    <!-- Three.js 3D Model Viewer -->
+                    <div id="viewer" style="width: 100%; height: 500px; margin-top: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);"></div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
-        <div class="product-details">
-            <h1>{{ product.name }}</h1>
-            <p>{{ product.description }}</p>
-            <h3>Product Details</h3>
-            <p><strong>Category:</strong> {{ product.category }}</p>
-            <p><strong>Color:</strong> {{ product.colour }}</p>
-            <p><strong>Manufacturer:</strong> {{ product.manufacturer }}</p>
-            <p><strong>Country:</strong> {{ product.country_of_origin }}</p>
-            <p><strong>Discount:</strong> {{ product.discount }}%</p>
-            <p><strong>Ratings:</strong> ⭐{{ product.avg_rating if product.avg_rating else 'N/A' }}</p>
-            <div class="pricet">
-                <strong>Price:</strong> 
-        <span style="text-decoration: line-through; color: gray;">₹{{ product.price }}</span>
-        <span style="color: green; font-weight: bold;"> ₹{{ (product.price * (1 - product.discount / 100)) | round(2) }}</span>
-            </div>
-            <div class="actions">
-                <form action="/add_to_cart" method="POST" style="display: inline;">
-                    <input type="hidden" name="product_id" value="{{ product.id }}">
-                    <button type="submit" class="add-to-cart {% if product.id in cat %}remove-btn{% else %}add-btn{% endif %}">
-                        {% if product.id in cat %}
-                            Remove from Cart
-                        {% else %}
-                            Add to Cart
-                        {% endif %}
-                    </button>
-                </form>
-                <form action="{% if product.id in wishlist %}/remove_from_wishlist{% else %}/wishlist{% endif %}" method="POST" style="display: inline;">
-                    <input type="hidden" name="product_id" value="{{ product.id }}">
-                    <button type="submit" class="wishlistt-btn ">
-                        {% if product.id in wishlist %}
-                            Remove from Wishlist❤️
-                        {% else %}
-                            Add to Wishlist 🤍
-                        {% endif %}
-                    </button>
-                </form>
-               
-            </div>
-        </div>
-    </div>
-
-  </div>
-  <div class="Related_Prod">
-    <h2>Related Products</h2>
-      <div class="products">  <!-- Use the same class as in homepage.html -->
-          {% for related_product in related_products %}
-              <div class="product">  <!-- Same class as in homepage.html -->
-                  <form action="{% if related_product.id in wishlist %}/remove_from_wishlist{% else %}/wishlist{% endif %}" method="POST" style="display: inline;">
-                      <input type="hidden" name="product_id" value="{{ related_product.id }}">
-                      <button type="submit" class="heart-icon " name="wishlist-btn">
-                          {% if related_product.id in wishlist %}
-                              ❤️
-                          {% else %}
-                              🤍
-                          {% endif %}
-                      </button>
-                  </form>
-                  
-                      <img src="{{ url_for('static', filename=related_product.images[0].image_url if related_product.images else 'default_image.jpg') }}" alt="{{ related_product.name }}">
-                      <h2>{{ related_product.name }}</h2>
-                      <p><strong>Discount:</strong> {{ related_product.discount }}%</p>
-                      <div class="pricet">
-                          <p><strong>Price:</strong> ₹{{ related_product.price }}</p>
-                      </div>
-                      <p><strong>Rating:</strong> ⭐ {{ related_product.avg_rating if related_product.avg_rating else 'N/A' }}</p>
-
-                      <div class="relatedbuttons">
-
-                      <a href="{{ url_for('main.product_details', product_id=related_product.id) }}"><button class="view-btn">View</button> </a>
-                      <form action="/add_to_cart" method="POST" style="display: inline;">
+        <div class="Related_Prod container">
+            <h2>Related Products</h2>
+            <div class="products">
+                {% for related_product in related_products %}
+                <div class="product" onclick="window.location.href='/product/{{ related_product.id }}'">
+                    <img src="{{ url_for('static', filename=related_product.images[0].image_url if related_product.images else 'default_image.jpg') }}" alt="{{ related_product.name }}"/>
+                    <h2>{{ related_product.name }}</h2>
+                    <p><strong>Discount:</strong> {{ related_product.discount }}%</p>
+                    <div class="pricet">
+                        <p><strong>Price:</strong> ₹{{ related_product.price }}</p>
+                    </div>
+                    <p><strong>Rating:</strong> ⭐ {{ related_product.avg_rating if related_product.avg_rating else 'N/A' }}</p>
+                    <form action="/add_to_cart" method="POST">
                         <input type="hidden" name="product_id" value="{{ related_product.id }}">
-                        <button type="submit" class="add-to-cart {% if related_product.id in cat %}remove-btn-related{% else %}add-btn{% endif %}">
-                            {% if related_product.id in cat %}
+                        <button type="submit" class="add-to-cart {% if related_product.id in cart %}remove-btn{% else %}add-btn{% endif %}">
+                            {% if related_product.id in cart %}
                                 Remove from Cart
                             {% else %}
                                 Add to Cart
                             {% endif %}
                         </button>
                     </form>
-                    
-              </div>
+                </div>
+                {% endfor %}
             </div>
-          {% endfor %}
-      </div>
-  </div>
-  <script src="{{ url_for('static', filename='product_details.js') }}"></script>
+        </div>
+    </div>
 
-  {% endblock %}
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='product_details.js') }}"></script>
+
+    {% if product.model_file %}
+    <!-- Load Three.js only if needed -->
+    <script type="module">
+  <!-- Three.js core -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+
+<!-- GLTFLoader for loading .glb/.gltf -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/loaders/GLTFLoader.js"></script>
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.getElementById("viewer").appendChild(renderer.domElement);
+
+  const loader = new GLTFLoader();
+  loader.load("/static/model/{{ product.model_file }}", function (gltf) {
+    scene.add(gltf.scene);
+  });
+
+  camera.position.z = 5;
+  function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+  }
+  animate();
+</script>
+
+    {% endif %}
+    {% endblock %}
 </body>
 </html>

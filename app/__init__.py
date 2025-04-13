@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import os
 import logging
 
+
 # Initialize extensions
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -39,7 +40,8 @@ def create_app():
     app.config["MAIL_PASSWORD"] = "secret password"  # Add your email password or app-specific password
     app.config["MAIL_DEFAULT_SENDER"] = "selvaqueen333@gmail.com"
     app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads")  # Directory to store images
-    app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # Max file size (16 MB)
+    app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "models") # store 3d
+    app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # Max file size (100 MB)
 
     # Initialize extensions with the app
     db.init_app(app)
@@ -47,6 +49,7 @@ def create_app():
     login_manager.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
+
 
     # Login settings
     login_manager.login_view = "auth.login"

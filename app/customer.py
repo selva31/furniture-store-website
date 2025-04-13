@@ -11,10 +11,6 @@ def create_customer_user():
             email="customer@gmail.com",
             password=hashed_password,
             role="customer",
-            contact="1234567890",
-            address="Street-218, Ahmedabad, Gujarat, India, 38006",
-            city="Ahmedabad",
-            dob=datetime(1990, 1, 1).date(),
         )
         db.session.add(new_customer)
         db.session.commit()

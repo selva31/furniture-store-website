@@ -12,27 +12,25 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), nullable=False)
-    contact = db.Column(db.String(20), nullable=False)
-    address = db.Column(db.String(200), nullable=False)
-    city = db.Column(db.String(100), nullable=False)
+    # contact = db.Column(db.String(15), nullable=True)
     reset_token = db.Column(db.String(128), nullable=True)
 
     def __repr__(self):
         return f"<User {self.username}>"
 
 
-class RoleApprovalRequest(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    requested_role = db.Column(db.String(20), nullable=False)
-    status = db.Column(db.String(20), default="pending")  # 'pending', 'approved', 'rejected'
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    user = db.relationship("User", backref="role_requests")
-
-    def __repr__(self):
-        return f"<RoleApprovalRequest {self.id} - {self.requested_role}>"
+# class RoleApprovalRequest(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+#     requested_role = db.Column(db.String(20), nullable=False)
+#     status = db.Column(db.String(20), default="pending")  # 'pending', 'approved', 'rejected'
+#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+#     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+#
+#     user = db.relationship("User", backref="role_requests")
+#
+#     def __repr__(self):
+#         return f"<RoleApprovalRequest {self.id} - {self.requested_role}>"
 
 
 class Product(db.Model):
@@ -50,6 +48,8 @@ class Product(db.Model):
     colour = db.Column(db.String(20), nullable=True)
     # Change backref name to avoid conflict
     images = db.relationship("ProductImage", backref="product", lazy=True)
+    sketchfab_url = db.Column(db.String(512))
+    model_file = db.Column(db.String(255))
     ratings = relationship("Rating", back_populates="product")
 
     def __repr__(self):
@@ -131,16 +131,19 @@ class OrderDetails(db.Model):
     subtotal = db.Column(db.Float, nullable=False)
     delivery_charges = db.Column(db.Float, nullable=False)
     grand_total = db.Column(db.Float, nullable=False)
-    order_date = db.Column(db.DateTime, nullable=False)
-    delivered_date = db.Column(db.DateTime, nullable=True)  # Added Delivered_Date
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id",name="u_id"), nullable=False)  # Added user_id
-    assigned_delivery_person_id = Column(Integer, ForeignKey("user.id",name="d_id"), nullable=True)
+    order_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    delivered_date = db.Column(db.DateTime, nullable=True)
+    
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id", name="u_id"), nullable=False)
+    assigned_delivery_person_id = db.Column(db.Integer, db.ForeignKey("user.id", name="d_id"), nullable=True)
 
-    status_options = Enum("Pending", "In Transit", "Delivered", "Failed")
-    status = db.Column(status_options, default="Pending", nullable=False)  # Corrected Enum usage
+    status_options = db.Enum("Pending", "In Transit", "Delivered", "Failed", name="status_enum")
+    status = db.Column(status_options, default="Pending", nullable=False)
+
     user = relationship("User", foreign_keys=[user_id])
     assigned_delivery_person = relationship("User", foreign_keys=[assigned_delivery_person_id])
     products = relationship("Product", secondary="ordered_product", viewonly=True)
 
     def __repr__(self):
         return f"<OrderDetails {self.id}>"
+   

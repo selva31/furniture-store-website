@@ -6,39 +6,155 @@
     <title>My Cart</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='cart.css') }}">
     <style>
-        
-        body {
-    font-family: 'Roboto', sans-serif;
-    background-image: url('{{ url_for("static", filename="videos/cart.mp4") }}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+        /* Global Styles */
+/* body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f8f9fa;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
     color: #333;
-    position: relative;
 }
 
-/* Overlay to reduce opacity */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-    z-index: -1;
+h1, h2, h3 {
+    color: #212529;
 }
 
-        .low-stock {
-            color: red;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-    </style>
+main {
+    padding: 40px 5%;
+}
+
+/* Cart Page Layout */
+.cart-page {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.product-header, .product {
+    display: grid;
+    grid-template-columns: 150px 1fr 150px 150px 150px;
+    gap: 20px;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.product-header {
+    font-weight: bold;
+    background-color: #e9ecef;
+    border-radius: 12px;
+}
+
+.product img {
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.low-stock {
+    color: #d9534f;
+    font-weight: bold;
+}
+
+/* Buttons and Links */
+button, .buy-button, .remove-btn {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+button:hover, .buy-button:hover, .remove-btn:hover {
+    background-color: #0056b3;
+}
+
+.remove-btn {
+    background-color: #dc3545;
+}
+
+.remove-btn:hover {
+    background-color: #c82333;
+}
+
+/* Cart Summary Section */
+.cart-summary {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.invoice-details {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.invoice-details:last-child {
+    border-bottom: none;
+    font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+    .product-header, .product {
+        grid-template-columns: 100px 1fr 80px 100px 100px;
+    }
+}
+
+@media (max-width: 600px) {
+    .product-header, .product {
+        grid-template-columns: 80px 1fr;
+        gap: 10px;
+        text-align: left;
+    }
+
+    .product img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .cart-summary {
+        padding: 20px;
+    }
+}
+
+/* Subtle Animations */
+button, .buy-button, .remove-btn {
+    transform: scale(1);
+    transition: transform 0.2s;
+}
+
+button:hover, .buy-button:hover, .remove-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Accessibility */
+button:focus, .buy-button:focus, .remove-btn:focus {
+    outline: 2px solid #0056b3;
+    outline-offset: 2px;
+}
+
+/* Additional Enhancements */
+#buythis {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+    color: white;
+}
+
+h2 {
+    text-align: center;
+}
+    </style> */
 </head>
 <body>
 {% extends "home.html" %}
@@ -61,9 +177,8 @@ body::before {
         <div class="product-header">
             <div>Image</div>
             <div>Name</div>
-            <div>Brand</div>
+            <!-- <div>Brand</div> -->
             <div>Price</div>
-            <div>Rating</div>
             <div>Quantity</div>
             <div>Sub Total</div>
             <!-- <div>Discount</div> -->
@@ -73,18 +188,17 @@ body::before {
             {% for item in cart_items %}
             <div class="product">
                 {% if item.product.images %}
-            {% if item.product.images|length > 0 %}
-                <img src="{{ url_for('static', filename=item.product.images[0].image_url) }}" alt="{{ item.product.name }}">
+                {% if item.product.images|length > 0 %}
+                    <img src="{{ url_for('static', filename=item.product.images[0].image_url) }}" alt="{{ item.product.name }}" class="product-image" data-product-id="{{ item.product.id }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='default_image.jpg') }}" alt="{{ item.product.name }}" class="product-image" data-product-id="{{ item.product.id }}">
+                {% endif %}
             {% else %}
-                <img src="{{ url_for('static', filename='default_image.jpg') }}" alt="{{ item.product.name }}">
+                <img src="{{ url_for('static', filename='default_image.jpg') }}" alt="{{ item.product.name }}" class="product-image" data-product-id="{{ item.product.id }}">
             {% endif %}
-        {% else %}
-            <img src="{{ url_for('static', filename='default_image.jpg') }}" alt="{{ item.product.name }}">
-        {% endif %}
                 <h2>{{ item.product.name }}</h2>
-                <p>{{ item.product.manufacturer }}</p>
+                <!-- <p>{{ item.product.manufacturer }}</p> -->
                 <p>₹<span class="product-price">{{ item.product.price }}</span></p>
-                <p>⭐ {{ item.product.avg_rating }}</p>
                 <div>
                     <label for="quantity-{{ item.id }}">Quantity:</label>
                     <select id="quantity-{{ item.id }}" class="quantity-dropdown" data-price="{{ item.product.price }}" discount1="{{item.product.discount}}" data-cart-item-id="{{ item.id }}" data-stock="{{ product_stock[item.product.id] }}">
@@ -103,17 +217,14 @@ body::before {
                         <input type="hidden" name="cart_item_id" value="{{ item.id }}">
                         <button type="submit" class="remove-btn">Remove from Cart</button>
                     </form>
-                    <form action="{{ url_for('main.product_details', product_id=item.product.id) }}" method="GET" style="display: inline;">
-                        <input type="hidden" name="product_id" value="{{ item.product.id }}">
-                        <button type="submit" class="view-btn">View</button>
-                    </form>
+                    
                 </div>
             </div>
             {% endfor %}
         </div>
 
         <div class="cart-summary" style="margin-top: 20px;">
-            <h2>Free delivery on purchase over ₹3000.</h2>
+            <h2>Free delivery all over India..!</h2>
             <div class="invoice">
                 <h3>Invoice</h3>
                 <div class="invoice-details">
@@ -133,13 +244,13 @@ body::before {
                     <span>Grand Total:</span>
                     <span>₹<span id="invoice-grand-total">0</span></span>
                 </div>
-                <div class="coupon-section" style="margin-bottom: 20px;">
+                <!-- <div class="coupon-section" style="margin-bottom: 20px;">
                     <input type="text" id="coupon-code" placeholder="Enter Coupon Code" style="width: 70%; padding: 5px; margin-top: 10px;">
                     <button id="apply-coupon" class="appl">Apply</button>
                     <p id="coupon-message" style="color: green; margin-top: 10px; display: none;">Coupon applied successfully!</p>
-                </div>
+                </div> -->
                 <a href="{{ url_for('main.checkout') }}" id = "buythis">
-                    <button class="buy-button">Buy Now</button>
+                    <button class="buy-button"> Place Order</button>
                 </a>
 
                 <form id="checkout-form" action="{{ url_for('main.checkout') }}" method="POST" style="display: none;">
@@ -160,7 +271,7 @@ const quantityDropdowns = document.querySelectorAll('.quantity-dropdown');
 const invoiceSubtotal = document.getElementById('invoice-subtotal');
 const invoiceTax = document.getElementById('invoice-tax');
 const invoiceGrandTotal = document.getElementById('invoice-grand-total');
-const applyCouponButton = document.getElementById('apply-coupon');
+// const applyCouponButton = document.getElementById('apply-coupon');
 const couponCodeInput = document.getElementById('coupon-code');
 const couponMessage = document.getElementById('coupon-message');
 const dm = document.getElementById('d-message');
@@ -231,27 +342,27 @@ quantityDropdowns.forEach(dropdown => {
     });
 });
 
-applyCouponButton.addEventListener('click', () => {
-    const couponCode = couponCodeInput.value.trim();
+// applyCouponButton.addEventListener('click', () => {
+//     const couponCode = couponCodeInput.value.trim();
 
-    if (couponCode === 'DISCOUNT10') {
-        discount = 0.1; 
-        couponMessage.style.display = 'block';
-        couponMessage.textContent = 'Coupon applied successfully!';
-        couponMessage.style.color = 'green';
-    } else if (couponCode === 'DISCOUNT50') {
-        discount = 0.5; 
-        couponMessage.style.display = 'block';
-        couponMessage.textContent = 'Coupon applied successfully!';
-        couponMessage.style.color = 'green';
-    } else {
-        discount = 0; 
-        couponMessage.style.display = 'block';
-        couponMessage.style.color = 'red';
-        couponMessage.textContent = 'Invalid coupon code.';
-    }
-    updateCartTotal();
-});
+//     if (couponCode === 'DISCOUNT10') {
+//         discount = 0.1; 
+//         couponMessage.style.display = 'block';
+//         couponMessage.textContent = 'Coupon applied successfully!';
+//         couponMessage.style.color = 'green';
+//     } else if (couponCode === 'DISCOUNT50') {
+//         discount = 0.5; 
+//         couponMessage.style.display = 'block';
+//         couponMessage.textContent = 'Coupon applied successfully!';
+//         couponMessage.style.color = 'green';
+//     } else {
+//         discount = 0; 
+//         couponMessage.style.display = 'block';
+//         couponMessage.style.color = 'red';
+//         couponMessage.textContent = 'Invalid coupon code.';
+//     }
+//     updateCartTotal();
+// });
 
 function updateCartTotal() {
     // var d = parseFloat(document.getElementById("temp").textContent);
@@ -296,6 +407,13 @@ function updateCartTotal() {
 }
 
 updateCartTotal();
+
+document.querySelectorAll('.product-image').forEach(image => {
+    image.addEventListener('click', function() {
+        const productId = this.getAttribute('data-product-id');
+        window.location.href = `/product/${productId}`;
+    });
+});
 
 </script>
 {% endblock %}

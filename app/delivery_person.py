@@ -11,23 +11,19 @@ import logging
 delivery_person = Blueprint("delivery_person", __name__, url_prefix="/delivery_person")
 UNASSIGNED_ORDER_STATUS = "Unassigned"
 
-onfigure logging
-logging.basicConfig(level=logging.DEBUG)
+
 
 
 # Function to create the delivery person account
 def create_delivery_person_user():
-    delivery_person = db.session.query(User).filter_by(email="selvaranisubbaiya@gmail.com").first()
+    delivery_person = db.session.query(User).filter_by(email="delivery@gmail.com").first()
     if not delivery_person:
         hashed_password = bcrypt.generate_password_hash("hariharan").decode("utf-8")
         new_delivery_person = User(
-            username="Giorno",
-            email="selvaranisubbaiya@gmail.com",
+            username="delivery",
+            email="delivery@gmail.com",
             password=hashed_password,
             role="delivery",
-            contact="1234567890",
-            address="Street-218, Ahmedabad, Gujarat, India, 38006",
-            city="Ahmedabad",
         )
         db.session.add(new_delivery_person)
         db.session.commit()
@@ -52,7 +48,7 @@ def filtered_orders_table():
             db.session.query(OrderDetails)
             .filter(
                 and_(
-                    OrderDetails.user_city == current_user.city,
+                    # OrderDetails.user_city == current_user.city,
                     OrderDetails.assigned_delivery_person == None,
                 )
             )
@@ -63,7 +59,7 @@ def filtered_orders_table():
             db.session.query(OrderDetails)
             .filter(
                 and_(
-                    OrderDetails.user_city == current_user.city,
+                    # OrderDetails.user_city == current_user.city,
                     OrderDetails.assigned_delivery_person == current_user,
                     OrderDetails.status == filtered_order_status,
                 )
@@ -84,8 +80,8 @@ def assign_order():
     if order == None:
         return "Order Does Not Exist", 404
 
-    if order.user_city != current_user.city:
-        return "You Cannot Take Orders At This Location", 403
+    # if order.user_city != current_user.city:
+    #     return "You Cannot Take Orders At This Location", 403
 
     if order.assigned_delivery_person != None:
         return "This order has already been assigned to another delivery person.", 403

@@ -91,21 +91,10 @@
     <div class="products">
       {% for product in products %}
       <div class="product">
-        <form
-          action="{% if product.id in wishlist %}/remove_from_wishlist{% else %}/wishlist{% endif %}"
-          method="POST"
-          style="display: inline"
-        >
-          <input type="hidden" name="product_id" value="{{ product.id }}" />
-          <button type="submit" class="heart-icon" name="wishlist-btn">
-            {% if product.id in wishlist %} ❤️ {% else %} 🤍 {% endif %}
-          </button>
-        </form>
-        <img
-          src="{{ url_for('static', filename=product.images[0].image_url if product.images else 'default_image.jpg') }}"
-          alt="{{ product.name }}"
-        />
-        <h2>{{ product.name }}</h2>
+      
+        <img src="{{ url_for('static', filename=product.images[0].image_url if product.images else 'default_image.jpg') }}" alt="{{ product.name }}" class="product-click" data-product-id="{{ product.id }}">
+        <h2 class="product-click" data-product-id="{{ product.id }}">{{ product.name }}</h2>
+
         <p><strong>Price:</strong> ₹{{ product.price }}</p>
         <p>
           <strong>Rating:</strong> ⭐ {{ product.avg_rating if
@@ -122,15 +111,23 @@
               Cart {% endif %}
             </button>
           </form>
-          <a
-            href="{{ url_for('main.product_details', product_id=product.id) }}"
-          >
-            <button class="view-btn">View</button>
-          </a>
         </div>
       </div>
       {% endfor %}
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productElements = document.querySelectorAll('.product-click');
+        productElements.forEach(element => {
+            element.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                window.location.href = `/product/${productId}`;
+            });
+        });
+    });
+</script>
+
   {% endblock %}
 </body>

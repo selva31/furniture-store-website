@@ -20,11 +20,11 @@
     <nav class="categories-nav">
             <ul >
                 <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">HOME</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='sofa') }}" class="{% if request.path.startswith('/category/male') %}active{% endif %}">Sofa</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='chair') }}" class="{% if request.path.startswith('/category/female') %}active{% endif %}">Chair</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='bed') }}" class="{% if request.path.startswith('/category/kids') %}active{% endif %}">Bed</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='table') }}" class="{% if request.path.startswith('/category/shoes') %}active{% endif %}">Table</a></li>
-                <li><a href="{{ url_for('main.category_specific', category='cabinet') }}" class="{% if request.path.startswith('/category/accessory') %}active{% endif %}">Cabinet</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='sofa') }}" class="{% if request.path.startswith('/category/sofa') %}active{% endif %}">Sofa</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='chair') }}" class="{% if request.path.startswith('/category/chair') %}active{% endif %}">Chair</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='bed') }}" class="{% if request.path.startswith('/category/bed') %}active{% endif %}">Bed</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='table') }}" class="{% if request.path.startswith('/category/table') %}active{% endif %}">Table</a></li>
+                <li><a href="{{ url_for('main.category_specific', category='cabinet') }}" class="{% if request.path.startswith('/category/cabinet') %}active{% endif %}">Cabinet</a></li>
             </ul>
         
         </nav> 
@@ -46,10 +46,6 @@
                     <span>Cart</span>
                 </a>
 
-                <a href="{{ url_for('main.wishlist') }}" class="wishlist-btn">
-                    <i class="fa fa-heart"></i>
-                    <span>Wishlist</span>
-                </a>
 
                 <div class="dropdown navbar-right">
                     <button class="dropbtn">

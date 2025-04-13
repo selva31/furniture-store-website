@@ -24,24 +24,6 @@ class RegistrationForm(FlaskForm):
         EqualTo('password', message="Passwords must match.")
     ])
     
-    role = SelectField('Role', choices=[
-        ('customer', 'Customer'),
-        ('delivery', 'Delivery')
-    ], validators=[DataRequired()])
-    
-    contact = StringField('Contact', validators=[
-        DataRequired(),
-        Regexp(r'^\d{10}$', message="Contact number must be 10 digits.")
-    ])
-    
-    address = StringField('Address (Door No, Street, Area)', validators=[DataRequired()])
-    city = StringField('City', validators=[DataRequired()])
-    
-    
-    
-    
-    
-    
     submit = SubmitField('Register')
 
     
@@ -66,6 +48,7 @@ class ProductForm(FlaskForm):
     images = MultipleFileField('Product Images', validators=[
         FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')
     ])
+    sketchfab_url = StringField('Sketchfab URL')
     submit = SubmitField('Add Product')
 
 class LoginForm(FlaskForm):

@@ -1,146 +1,184 @@
-<style>
-/* Add any necessary styles for the checkout page */
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout</title>
+    <style>
         body {
-    font-family: 'Roboto', sans-serif;
-    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: #333;
-    position: relative;
-}
+            font-family: 'Roboto', sans-serif;
+            background-image: url('{{ url_for("static", filename="images/admin_image.jpg") }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color: #333;
+        }
 
-/* Overlay to reduce opacity */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-    z-index: -1;
-}
+        .container {
+            max-width: 900px;
+            margin: 5% auto;
+            margin-top: -80px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
 
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-        background: rgba(227, 228, 235, 0.9); 
-        border-radius:30px;
-    }
-    
-    .product-form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .product-form label {
-        font-weight: bold;
-    }
-    
-    .product-form input {
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-    
-    .product-form button {
-        padding: 10px;
-        background-color:rgb(11, 16, 63);
-        color: white;
-        border: none;
-        border-radius: 20px;
-        cursor: pointer;
-    }
-    
-    .product-form button:hover {
-        background:linear-gradient(30deg,rgb(11, 16, 63), rgb(50, 59, 123));
-    }
-    
+        .product-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .product-form label {
+            font-weight: bold;
+        }
+
+        .product-form input,
+        .product-form select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .product-form button {
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .product-form button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
     </style>
+</head>
+{% extends "home.html" %}
     
-    {% extends "home.html" %}
-    
-    {% block content %}
-    <main>
-        
-        <div class="container">
-            
-            <form action="{{ url_for('main.place_order') }}" method="POST" class="product-form">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" value="{{ current_user.username }}" required>
-    
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
-    
-                <label for="contact">Contact:</label>
-                <input type="tel" id="contact" name="contact" value="{{ current_user.contact }}" required>
-    
-                <input name = "grand_total" id = "lafoot" value="{{data}}" type="hidden">
-                
-    
-    
-                <label for="address">Address:</label>
-                <input type="text" id="address" name="address" value="{{ current_user.address }}" required>
-    
-                <label for="city">City:</label>
-                <select name="city" id="city" class="form-control" required>
-                    <option value="" disabled>Select your city</option>
-                    {% for city_option in ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Surat', 'Pune', 'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Vadodara', 'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan', 'Vasai-Virar', 'Varanasi', 'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai', 'Allahabad', 'Howrah', 'Ranchi', 'Coimbatore', 'Jabalpur', 'Gwalior', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli-Dharwad'] %}
-                        <option value="{{ city_option }}" {% if city_option == current_user.city %}selected{% endif %}>{{ city_option }}</option>
+{% block content %}
+<main>
+    <div class="container">
+        <form id="order-form" action="{{ url_for('main.place_order') }}" method="POST" class="product-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{ current_user.username }}" required />
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{ current_user.email }}" required />
+
+            <label for="contact">Contact:</label>
+            <input type="tel" id="contact" name="contact" value="{{ current_user.contact }}" required />
+
+            <input name="grand_total" id="grand_total_input" value="{{ grand_total }}" type="hidden" />
+
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" value="{{ current_user.address }}" required />
+
+            <label for="city">City:</label>
+            <select name="city" id="city" required>
+                <option value="" disabled>Select your city</option>
+                {% for city_option in ["Select your city", "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Ahmedabad", "Chennai", "Coimbatore", "Kolkata", "Pune", "Jaipur", "Lucknow", "Kanpur", "Trichy", "Madurai", "Nagpur", "Indore", "Thane", "Bhopal", "Visakhapatnam", "Patna", "Vadodara", "Ghaziabad", "Ludhiana", "Agra", "Nashik", "Faridabad", "Meerut", "Rajkot"] %}
+                    <option value="{{ city_option }}" {% if city_option == current_user.city %}selected{% endif %}>{{ city_option }}</option>
+                {% endfor %}
+            </select>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Item Price</th>
+                        <th>Item Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>₹{{ item.product.price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₹{{ item.total_price }}</td>
+                    </tr>
                     {% endfor %}
-                </select>
-    
-    
-                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                    <thead>
-                        <tr style="background-color: #f2f2f2;">
-                            <th style="border: 1px solid #ccc; padding: 10px;">Item Name</th>
-                            <th style="border: 1px solid #ccc; padding: 10px;">Item Price</th>
-                            <th style="border: 1px solid #ccc; padding: 10px;">Item Quantity</th>
-                            <th style="border: 1px solid #ccc; padding: 10px;">Item Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in cart_items %}
-                        <tr>
-                            <td style="border: 1px solid #ccc; padding: 10px;">{{ item.product.name }}</td>
-                            <td style="border: 1px solid #ccc; padding: 10px;">₹{{ item.product.price }}</td>
-                            <td style="border: 1px solid #ccc; padding: 10px;">{{ item.quantity }}</td>
-                            <td style="border: 1px solid #ccc; padding: 10px;">₹{{ item.total_price }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-    
-                <label for="price">Sub Total</label>
-                <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ total_price }}</label>
-    
-                <label for="price">Delivery Charges</label>
-                <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ tax }}</label>
-    
-                <label for="price">Discount</label>
-                <label for="item-name" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ total_discount }}</label>
-    
-                <label for="price">Grand Total Amount</label>
-                <label for="item-name" id="grand_total" data="{{ grand_total }}" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">₹{{ grand_total }}</label>
-    
-                <button type="submit">Place Your Order</button>
-            </form>
-        </div>
+                </tbody>
+            </table>
+
+            <p>Sub Total: ₹{{ total_price }}</p>
+            <p>Delivery Charges: ₹{{ tax }}</p>
+            <p>Discount: ₹{{ total_discount }}</p>
+            <p>Grand Total Amount: ₹{{ grand_total }}</p>
+
+            <button type="button" id="rzp-button">PAY NOW</button>
+        </form>
+    </div>
     </main>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-        const g = document.getElementById("grand_total").textContent
-        document.getElementById("lafoot").value = g;
-    
-        
-        console.log(g);
+        const grandTotal = document.getElementById("grand_total_input").value;
+        fetch('/create_order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: grandTotal * 100 })
+        })
+        .then(res => res.json())
+        .then(order => {
+            const options = {
+                key: "rzp_test_U3dMvkynq7cV8g",
+                amount: order.amount,
+                currency: order.currency,
+                name: "SITARA FURNITURES",
+                description: "Test Transaction",
+                order_id: order.id,
+                handler: function (response) {
+                    fetch('/verify_payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(response)
+                    })
+                    .then(res => res.json())
+                    .then(data => alert(data.status))
+                    .catch(error => console.error(error));
+                },
+                prefill: {
+                    name: "{{ current_user.username }}",
+                    email: "{{ current_user.email }}",
+                    contact: "{{ current_user.contact }}"
+                },
+                notes: { address: "{{ current_user.address }}" },
+                theme: { color: "#007bff" }
+            };
+            const rzp1 = new Razorpay(options);
+            document.getElementById('rzp-button').onclick = function (e) {
+                rzp1.open();
+                e.preventDefault();
+            };
+        })
+        .catch(error => console.error(error));
     </script>
     {% endblock %}
+</html>
