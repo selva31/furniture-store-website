@@ -32,6 +32,33 @@
             z-index: -1;
         }
 
+        /* 3D Viewer Styles */
+        #viewer {
+            width: 100%;
+            height: 500px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+
+        #viewer .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+            font-size: 16px;
+        }
+
+        #viewer canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         /* Button styles */
         .add-btn, .remove-btn {
             padding: 10px 20px;
@@ -90,32 +117,6 @@
             font-size: 1.2em;
         }
 
-        #viewer {
-    width: 100%;
-    height: 500px;
-    margin-top: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    background-color: #f8f9fa;
-    position: relative;
-    overflow: hidden;
-}
-
-#viewer canvas {
-    display: block;
-    width: 100% !important;
-    height: 100% !important;
-}
-
-.loading-message {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #666;
-    font-size: 16px;
-}
-
         .actions {
             margin-top: 20px;
         }
@@ -162,7 +163,7 @@
                 <div class="product-image">
                     <div class="image-slider">
                         {% for image in product.images %}
-                            <img src="{{ url_for('static', filename='uploads/' + image.image_url) }}"
+                            <img src="{{ url_for('static', filename='uploads/' + image.image_url.split('/')[-1]) }}"
                                  alt="{{ product.name }}"
                                  class="product-img {% if loop.first %}active{% endif %}">
                         {% endfor %}
@@ -215,127 +216,141 @@
                         </iframe>
                     </div>
                     {% elif product.model_file %}
-                    <div id="viewer" style="width: 100%; height: 500px; margin-top: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);"></div>
+                    <div id="viewer">
+                        <div class="loading">Loading 3D model...</div>
+                    </div>
                     {% endif %}
                 </div>
             </div>
         </div>
 
         <div class="Related_Prod container">
-    <h2>Related Products</h2>
-    <div class="products">
-        {% for related_product in related_products %}
-        <div class="product" onclick="window.location.href='/product/{{ related_product.id }}'">
-            <!-- Check if related product has images, else fallback to a default image -->
-            <img src="{{ url_for('static', filename='uploads/' + (related_product.images[0].image_url if related_product.images else 'default_image.jpg')) }}"
-                 alt="{{ related_product.name }}"/>
-            <h2>{{ related_product.name }}</h2>
-            <p><strong>Discount:</strong> {{ related_product.discount }}%</p>
-            <div class="pricet">
-                <p><strong>Price:</strong> ₹{{ related_product.price }}</p>
+            <h2>Related Products</h2>
+            <div class="products">
+                {% for related_product in related_products %}
+                <div class="product" onclick="window.location.href='/product/{{ related_product.id }}'">
+                    <img src="{{ url_for('static', filename='uploads/' + (related_product.images[0].image_url.split('/')[-1] if related_product.images else 'default_image.jpg')) }}"
+                         alt="{{ related_product.name }}"/>
+                    <h2>{{ related_product.name }}</h2>
+                    <p><strong>Discount:</strong> {{ related_product.discount }}%</p>
+                    <div class="pricet">
+                        <p><strong>Price:</strong> ₹{{ related_product.price }}</p>
+                    </div>
+                    <p><strong>Rating:</strong> ⭐ {{ related_product.avg_rating if related_product.avg_rating else 'N/A' }}</p>
+                    <form action="/add_to_cart" method="POST">
+                        <input type="hidden" name="product_id" value="{{ related_product.id }}">
+                        <button type="submit" class="add-to-cart {% if related_product.id in cart %}remove-btn{% else %}add-btn{% endif %}">
+                            {% if related_product.id in cart %}
+                                Remove from Cart
+                            {% else %}
+                                Add to Cart
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
             </div>
-            <p><strong>Rating:</strong> ⭐ {{ related_product.avg_rating if related_product.avg_rating else 'N/A' }}</p>
-            <form action="/add_to_cart" method="POST">
-                <input type="hidden" name="product_id" value="{{ related_product.id }}">
-                <button type="submit" class="add-to-cart {% if related_product.id in cart %}remove-btn{% else %}add-btn{% endif %}">
-                    {% if related_product.id in cart %}
-                        Remove from Cart
-                    {% else %}
-                        Add to Cart
-                    {% endif %}
-                </button>
-            </form>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-
         </div>
     </div>
 
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='product_details.js') }}"></script>
 
-{% if product.model_file %}
-<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/loaders/GLTFLoader.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/controls/OrbitControls.min.js"></script>
-
-<script>
-    // Initialize the scene
-    const viewer = document.getElementById('viewer');
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, viewer.clientWidth / viewer.clientHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-
-    renderer.setSize(viewer.clientWidth, viewer.clientHeight);
-    renderer.setClearColor(0x000000, 0); // Transparent background
-    viewer.appendChild(renderer.domElement);
-
-    // Add lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(1, 1, 1);
-    scene.add(directionalLight);
-
-    // Add orbit controls
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.25;
-
-    // Position camera
-    camera.position.z = 5;
-
-    // Load the model
-    const loader = new THREE.GLTFLoader();
-    const modelPath = "{{ url_for('static', filename='models/' + product.model_file) }}";
-
-    loader.load(
-        modelPath,
-        function(gltf) {
-            scene.add(gltf.scene);
-
-            // Center the model
-            const box = new THREE.Box3().setFromObject(gltf.scene);
-            const center = box.getCenter(new THREE.Vector3());
-            gltf.scene.position.sub(center);
-
-            // Auto-zoom to fit
-            const size = box.getSize(new THREE.Vector3()).length();
-            camera.near = size / 100;
-            camera.far = size * 100;
-            camera.updateProjectionMatrix();
-            camera.position.copy(center);
-            camera.position.z += size * 1.5;
-            controls.target.copy(center);
-            controls.update();
-        },
-        undefined,
-        function(error) {
-            console.error('Error loading model:', error);
-            viewer.innerHTML = `<div class="error-message" style="padding: 20px; color: red;">
-                Failed to load 3D model: ${error.message}
-            </div>`;
+    {% if product.model_file %}
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"
+            }
         }
-    );
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    // Handle window resize
-    window.addEventListener('resize', function() {
-        camera.aspect = viewer.clientWidth / viewer.clientHeight;
-        camera.updateProjectionMatrix();
+        const viewer = document.getElementById('viewer');
+        const loadingElement = viewer.querySelector('.loading');
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf0f0f0);
+        const camera = new THREE.PerspectiveCamera(75, viewer.clientWidth / viewer.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(viewer.clientWidth, viewer.clientHeight);
-    });
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        viewer.replaceChildren(renderer.domElement);
 
-    // Animation loop
-    function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-    }
-    animate();
-</script>
-{% endif %}
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        camera.position.z = 5;
+
+        // Model loading
+        const loader = new GLTFLoader();
+        const modelPath = "{{ url_for('static', filename='model/' + product.model_file) }}";
+
+        loader.load(modelPath,
+            (gltf) => {
+                const model = gltf.scene;
+                scene.add(model);
+
+                // Center and scale model
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                model.position.sub(center);
+
+                const size = box.getSize(new THREE.Vector3()).length();
+                const maxDim = Math.max(size, 1);
+                camera.near = maxDim / 100;
+                camera.far = maxDim * 100;
+                camera.updateProjectionMatrix();
+
+                camera.position.copy(center);
+                camera.position.z += maxDim * 1.5;
+                controls.target.copy(center);
+                controls.update();
+
+                loadingElement.remove();
+            },
+            undefined,
+            (error) => {
+                console.error('Error loading model:', error);
+                loadingElement.innerHTML = `
+                    <div style="color:red; text-align:center;">
+                        <h4>3D Model Failed to Load</h4>
+                        <p>${error.message}</p>
+                        <p>Path: ${modelPath}</p>
+                    </div>
+                `;
+            }
+        );
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = viewer.clientWidth / viewer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+    {% endif %}
     {% endblock %}
 </body>
 </html>
