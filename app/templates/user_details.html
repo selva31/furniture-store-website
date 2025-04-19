@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Details</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
-    <style>
-        body {
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Details</title>
+<!--  <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">-->
+  <style>
+  /* ===== Define Color Variables ===== */
+  :root {
+    --primary-color: #0d2357;
+    --accent-color: #091234;
+    --white: #ffffff;
+    --light-bg: #f0f4f8;
+    --medium-bg: #d9e2ec;
+    --text-color: #333;
+  }
+
+  /* ===== Background and Basic Styles ===== */
+  body {
     background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
     background-size: cover;
     background-position: center;
@@ -14,133 +25,189 @@
     background-attachment: fixed;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    color: #333;
+    font-family: Arial, sans-serif;
+    color: var(--text-color);
     position: relative;
-}
+  }
 
-/* Overlay to reduce opacity */
-body::before {
+  /* Overlay to Control Transparency */
+  body::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
+    background: rgba(255, 255, 255, 0.9);
     z-index: -1;
-}
+  }
+
+  /* ===== Container Styling ===== */
+  .container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background: var(--white);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+
+  /* Heading Styling */
+  .container h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: var(--primary-color);
+  }
+
+  /* ===== Form Styling ===== */
+  .filter-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-form label {
+    font-weight: bold;
+    color: var(--accent-color);
+  }
+
+  .filter-form select,
+  .filter-form button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .filter-form select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+  }
+
+  .filter-form button {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .filter-form button:hover {
+    background-color: var(--accent-color);
+  }
+
+  /* ===== Table Styling ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+
+  table thead {
+    background-color: var(--primary-color);
+    color: var(--white);
+  }
+
+  table thead tr th {
+    padding: 0.75rem;
+    text-align: left;
+    font-size: 1rem;
+  }
+
+  table tbody tr {
+    border-bottom: 1px solid #ddd;
+    transition: background-color 0.3s ease;
+  }
+
+  table tbody tr:hover {
+    background-color: var(--medium-bg);
+  }
+
+  table tbody tr td {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  /* ===== Delete Button Styling ===== */
+  .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .btn-danger {
+    background-color: #e74c3c; /* You can change this to any other color if you want to use a variation of your brand */
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-danger:hover {
+    background-color: #c0392b;
+  }
+
+  /* ===== Responsive Adjustments ===== */
+  @media (max-width: 768px) {
+    .filter-form {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
 </style>
+
 </head>
 <body>
 
-    {% extends "home.html" %}
+  {% extends "home.html" %}
+  {% block title %}Admin Dashboard{% endblock %}
 
-    {% block title %}Admin Dashboard{% endblock %}
-    
-    {% block content %}
-    
+  {% block content %}
     <div class="container">
-        <h1>User Details</h1>
-    <form method="GET" action="{{ url_for('admin.user_details') }}" class= "filter-form">
+      <h1>User Details</h1>
+      <form method="GET" action="{{ url_for('admin.user_details') }}" class="filter-form">
         <label for="role">Role:</label>
         <select name="role" id="role">
-            <option value="">All</option>
-            <option value="customer" {% if role_filter == 'customer' %}selected{% endif %}>Customer</option>
-            <option value="delivery" {% if role_filter == 'delivery' %}selected{% endif %}>Delivery Person</option>
+          <option value="">All</option>
+          <option value="customer" {% if role_filter == 'customer' %}selected{% endif %}>Customer</option>
+          <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admin</option>
         </select>
-
-        <!-- Location Field -->
-<div class="form-group">
-  <label for="location">Location:</label>
-  <select name="location" id="location" class="form-control">
-      <option value="">All</option>
-      <option value="Mumbai" {% if location_filter == 'Mumbai' %}selected{% endif %}>Mumbai</option>
-      <option value="Delhi" {% if location_filter == 'Delhi' %}selected{% endif %}>Delhi</option>
-      <option value="Bangalore" {% if location_filter == 'Bangalore' %}selected{% endif %}>Bangalore</option>
-      <option value="Hyderabad" {% if location_filter == 'Hyderabad' %}selected{% endif %}>Hyderabad</option>
-      <option value="Ahmedabad" {% if location_filter == 'Ahmedabad' %}selected{% endif %}>Ahmedabad</option>
-      <option value="Chennai" {% if location_filter == 'Chennai' %}selected{% endif %}>Chennai</option>
-      <option value="Kolkata" {% if location_filter == 'Kolkata' %}selected{% endif %}>Kolkata</option>
-      <option value="Surat" {% if location_filter == 'Surat' %}selected{% endif %}>Surat</option>
-      <option value="Pune" {% if location_filter == 'Pune' %}selected{% endif %}>Pune</option>
-      <option value="Jaipur" {% if location_filter == 'Jaipur' %}selected{% endif %}>Jaipur</option>
-      <option value="Lucknow" {% if location_filter == 'Lucknow' %}selected{% endif %}>Lucknow</option>
-      <option value="Kanpur" {% if location_filter == 'Kanpur' %}selected{% endif %}>Kanpur</option>
-      <option value="Nagpur" {% if location_filter == 'Nagpur' %}selected{% endif %}>Nagpur</option>
-      <option value="Indore" {% if location_filter == 'Indore' %}selected{% endif %}>Indore</option>
-      <option value="Thane" {% if location_filter == 'Thane' %}selected{% endif %}>Thane</option>
-      <option value="Bhopal" {% if location_filter == 'Bhopal' %}selected{% endif %}>Bhopal</option>
-      <option value="Visakhapatnam" {% if location_filter == 'Visakhapatnam' %}selected{% endif %}>Visakhapatnam</option>
-      <option value="Vadodara" {% if location_filter == 'Vadodara' %}selected{% endif %}>Vadodara</option>
-      <option value="Ghaziabad" {% if location_filter == 'Ghaziabad' %}selected{% endif %}>Ghaziabad</option>
-      <option value="Ludhiana" {% if location_filter == 'Ludhiana' %}selected{% endif %}>Ludhiana</option>
-      <option value="Agra" {% if location_filter == 'Agra' %}selected{% endif %}>Agra</option>
-      <option value="Nashik" {% if location_filter == 'Nashik' %}selected{% endif %}>Nashik</option>
-      <option value="Faridabad" {% if location_filter == 'Faridabad' %}selected{% endif %}>Faridabad</option>
-      <option value="Meerut" {% if location_filter == 'Meerut' %}selected{% endif %}>Meerut</option>
-      <option value="Rajkot" {% if location_filter == 'Rajkot' %}selected{% endif %}>Rajkot</option>
-      <option value="Kalyan" {% if location_filter == 'Kalyan' %}selected{% endif %}>Kalyan</option>
-      <option value="Vasai-Virar" {% if location_filter == 'Vasai-Virar' %}selected{% endif %}>Vasai-Virar</option>
-      <option value="Varanasi" {% if location_filter == 'Varanasi' %}selected{% endif %}>Varanasi</option>
-      <option value="Srinagar" {% if location_filter == 'Srinagar' %}selected{% endif %}>Srinagar</option>
-      <option value="Aurangabad" {% if location_filter == 'Aurangabad' %}selected{% endif %}>Aurangabad</option>
-      <option value="Dhanbad" {% if location_filter == 'Dhanbad' %}selected{% endif %}>Dhanbad</option>
-      <option value="Amritsar" {% if location_filter == 'Amritsar' %}selected{% endif %}>Amritsar</option>
-      <option value="Navi Mumbai" {% if location_filter == 'Navi Mumbai' %}selected{% endif %}>Navi Mumbai</option>
-      <option value="Allahabad" {% if location_filter == 'Allahabad' %}selected{% endif %}>Allahabad</option>
-      <option value="Howrah" {% if location_filter == 'Howrah' %}selected{% endif %}>Howrah</option>
-      <option value="Ranchi" {% if location_filter == 'Ranchi' %}selected{% endif %}>Ranchi</option>
-      <option value="Coimbatore" {% if location_filter == 'Coimbatore' %}selected{% endif %}>Coimbatore</option>
-      <option value="Jabalpur" {% if location_filter == 'Jabalpur' %}selected{% endif %}>Jabalpur</option>
-      <option value="Gwalior" {% if location_filter == 'Gwalior' %}selected{% endif %}>Gwalior</option>
-      <option value="Vijayawada" {% if location_filter == 'Vijayawada' %}selected{% endif %}>Vijayawada</option>
-      <option value="Jodhpur" {% if location_filter == 'Jodhpur' %}selected{% endif %}>Jodhpur</option>
-      <option value="Madurai" {% if location_filter == 'Madurai' %}selected{% endif %}>Madurai</option>
-      <option value="Raipur" {% if location_filter == 'Raipur' %}selected{% endif %}>Raipur</option>
-      <option value="Kota" {% if location_filter == 'Kota' %}selected{% endif %}>Kota</option>
-      <option value="Guwahati" {% if location_filter == 'Guwahati' %}selected{% endif %}>Guwahati</option>
-      <option value="Chandigarh" {% if location_filter == 'Chandigarh' %}selected{% endif %}>Chandigarh</option>
-      <option value="Solapur" {% if location_filter == 'Solapur' %}selected{% endif %}>Solapur</option>
-      <option value="Hubli-Dharwad" {% if location_filter == 'Hubli-Dharwad' %}selected{% endif %}>Hubli-Dharwad</option>
-  </select>
-</div>
-
-
-        <!-- <label for="gender">Gender:</label>
-        <select name="gender" id="gender">
-            <option value="">All</option>
-            <option value="male" {% if gender_filter =='male' %}selected{% endif %}>Male</option>
-            <option value="female" {% if gender_filter =='female' %}selected{% endif %}>Female</option>
-        </select> -->
-
         <button type="submit">Filter</button>
-    </form>
+      </form>
 
-    <table>
+      <table>
         <thead>
-            <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Contact</th>
-                <th>Location</th>
-            </tr>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Action</th>
+          </tr>
         </thead>
         <tbody>
-            {% for user in users %}
-                <tr>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.role }}</td>
-                    <td>{{ user.contact }}</td>
-                    <td>{{ user.city }}</td>
-                    <!-- <td>{{ user.gender }}</td> -->
-                </tr>
-            {% endfor %}
+          {% for user in users %}
+            <tr>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.role }}</td>
+              <td>
+                <form action="{{ url_for('admin.delete_user', email=user.email) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                  <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
         </tbody>
-    </table>
-</div>
-    {% endblock %}
+      </table>
+    </div>
+  {% endblock %}
+
 </body>
 </html>

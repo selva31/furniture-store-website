@@ -22,15 +22,26 @@ def home():
 
     return render_template('homepage.html', products=random_products, wishlist=wishlist, cart=cart)
 
+
 @main.route('/product/<int:product_id>')
 def product_details(product_id):
     product = Product.query.get_or_404(product_id)
     related_products = get_related_products(product)
 
-    wishlist = [item.product_id for item in Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
-    cart = [item.product_id for item in Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
+    # Ensure model path is properly constructed
+    if product.model_file:
+        product.model_path = url_for('static', filename=f'models/{product.model_file}')
 
-    return render_template('product_details.html', product=product, related_products=related_products, wishlist=wishlist, cart=cart)
+    wishlist = [item.product_id for item in
+                Wishlist.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
+    cart = [item.product_id for item in
+            Cart.query.filter_by(user_id=current_user.id).all()] if current_user.is_authenticated else []
+
+    return render_template('product_details.html',
+                           product=product,
+                           related_products=related_products,
+                           wishlist=wishlist,
+                           cart=cart)
 
 @main.route('/category/<string:category>')
 def category_specific(category):
@@ -464,4 +475,5 @@ def buy_now():
 @main.route('/order_success')
 @login_required
 def order_success():
-    return redirect(url_for('main.order_success'))
+    return render_template('order_success.html')
+

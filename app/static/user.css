@@ -1,117 +1,151 @@
-/* General Styles */
-body {
-  background: linear-gradient(to bottom, #f0f4f8, #d9e2ec);
-  margin: 0;
-  padding: 20px;
-  color: #db1111;
+/* ===== Global Styles ===== */
+:root {
+  --primary-color: #0d2357;
+  --accent-color: #091234;
+  --light-bg: #f0f4f8;
+  --medium-bg: #d9e2ec;
+  --white: #ffffff;
+  --text-color: #333333;
+  --highlight: #1c2e4a;
+  --error-color: #db1111;
 }
 
-/* Header Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(to bottom, var(--light-bg), var(--medium-bg));
+  margin: 0;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-color);
+}
+
+/* ===== Header Styles ===== */
 h1 {
   text-align: center;
   font-size: 2.5rem;
-  color: #1c2e4a;
+  color: var(--highlight);
   margin-bottom: 20px;
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* Form Styles */
+/* ===== Form Styles ===== */
 form {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 15px;
-  padding: 10px;
-  background-color: #091234;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px;
+  background-color: var(--accent-color);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
   border-radius: 50px;
+  margin-bottom: 30px;
 }
+
 form label {
-  font-weight: bold;
-  color: #ffffff;
+  font-weight: 600;
+  color: var(--white);
 }
 
 form select,
 form input {
-  padding: 8px 8px;
+  padding: 10px 12px;
   border: 2px solid #bfc7d5;
-  border-radius: 20px;
+  border-radius: 25px;
   font-size: 1rem;
-  background-color: #ffffff;
-  transition: border-color 0.3s ease;
+  background-color: var(--white);
+  transition: border-color 0.3s ease, transform 0.2s ease;
+}
+
+form select:focus,
+form input:focus {
+  border-color: var(--primary-color);
+  transform: scale(1.02);
+  outline: none;
 }
 
 form button {
-  background: #ffffff;
-  color: #091234;
-  padding: 10px 15px;
+  background: var(--white);
+  color: var(--accent-color);
+  padding: 10px 20px;
   border: none;
-  border-radius: 20px;
+  border-radius: 25px;
   cursor: pointer;
   font-size: 1rem;
-  transition: all 0.3s ease;
+  font-weight: bold;
+  transition: background-color 0.3s ease, color 0.3s ease,
+              box-shadow 0.3s ease;
 }
 
-/* Hover Effect for Button */
 form button:hover {
-  background-color: #091234; /* Dark background on hover */
-  color: #ffffff; /* Change text color to white on hover */
+  background-color: var(--accent-color);
+  color: var(--white);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Table Styles */
+/* ===== Table Styles ===== */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  background-color: #fff;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 30px;
+  background-color: var(--white);
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
   overflow: hidden;
   text-align: center;
+  font-family: inherit;
 }
 
 table thead {
-  background-color: #0d2357;
-  color: #fff;
+  background-color: var(--primary-color);
+  color: var(--white);
 }
 
 table thead th {
   padding: 15px;
   font-size: 1.2rem;
+  letter-spacing: 0.5px;
 }
 
 table tbody tr:nth-child(even) {
-  background-color: #f4f7fa;
+  background-color: #f7f9fc;
 }
 
 table tbody tr:nth-child(odd) {
-  background-color: #fff;
+  background-color: var(--white);
 }
 
 table tbody td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #ddd;
+  padding: 15px 10px;
+  border-bottom: 1px solid #e0e0e0;
   font-size: 1rem;
-  color: #555;
+  color: var(--text-color);
 }
 
 table tbody tr:hover {
-  background-color: #e9eff5;
+  background-color: #e8eff7;
 }
 
+/* ===== Container Styles ===== */
 .container {
   flex-grow: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-/* Responsiveness */
+/* ===== Responsive Styles ===== */
 @media screen and (max-width: 768px) {
   form {
     flex-direction: column;
-    gap: 5px;
+    gap: 10px;
   }
 
-  table thead {
+  table thead th {
     font-size: 1rem;
+    padding: 10px;
   }
 
   table tbody td {

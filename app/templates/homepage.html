@@ -90,7 +90,7 @@
     <div class="products">
       {% for product in products %}
       <div class="product">
-    
+
         <!-- Product details form -->
         <img src="{{ url_for('static', filename=product.images[0].image_url if product.images else 'default_image.jpg') }}" alt="{{ product.name }}" class="product-click" data-product-id="{{ product.id }}">
         <h2 class="product-click" data-product-id="{{ product.id }}">{{ product.name }}</h2>

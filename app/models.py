@@ -48,8 +48,7 @@ class Product(db.Model):
     colour = db.Column(db.String(20), nullable=True)
     # Change backref name to avoid conflict
     images = db.relationship("ProductImage", backref="product", lazy=True)
-    sketchfab_url = db.Column(db.String(512))
-    model_file = db.Column(db.String(255))
+    model_file = db.Column(db.String(255), nullable=True)
     ratings = relationship("Rating", back_populates="product")
 
     def __repr__(self):

@@ -1,18 +1,27 @@
 <head>
   <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
   <style>
-    
-      .form-container {
-width: 600px; /* Increased width for a larger form */
-height: 700px;
-background: linear-gradient(145deg, #ffffff, #e6e6e6); /* Soft gradient background */
-padding: 30px;
-border-radius: 12px;
-box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Elevated shadow for a polished look */
-border: 1px solid #ddd;
-}
+    .form-container {
+      width: 600px;
+      height: auto; /* Changed from fixed 700px to auto for dynamic height */
+      background: linear-gradient(145deg, #ffffff, #e6e6e6);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      border: 1px solid #ddd;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .errors {
+      color: red;
+      margin-top: 5px;
+      list-style-type: none;
+      padding-left: 0;
+    }
   </style>
 </head>
+
 {% extends "home.html" %}
 
 {% block title %}Add Product{% endblock %}
@@ -25,75 +34,73 @@ border: 1px solid #ddd;
     <h2>ADD PRODUCT</h2>
 
     <div class="form-group">
-        <label for="name">Product Name:</label>
-        {{ form.name(class="form-control", id="name") }}
-        {% if form.name.errors %}
-          <ul class="errors">
-            {% for error in form.name.errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
+      <label for="name">Product Name:</label>
+      {{ form.name(class="form-control", id="name") }}
+      {% if form.name.errors %}
+        <ul class="errors">
+          {% for error in form.name.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     </div>
 
     <div class="form-group">
-        <label for="price">Price:</label>
-        {{ form.price(class="form-control", id="price") }}
-        {% if form.price.errors %}
-          <ul class="errors">
-            {% for error in form.price.errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
+      <label for="price">Price:</label>
+      {{ form.price(class="form-control", id="price") }}
+      {% if form.price.errors %}
+        <ul class="errors">
+          {% for error in form.price.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     </div>
 
     <div class="form-group">
-        <label for="description">Description:</label>
-        {{ form.description(class="form-control", id="description") }}
+      <label for="description">Description:</label>
+      {{ form.description(class="form-control", id="description") }}
     </div>
 
     <div class="form-group">
-        <label for="category">Category:</label>
-        {{ form.category(class="form-control", id="category") }}
+      <label for="category">Category:</label>
+      {{ form.category(class="form-control", id="category") }}
     </div>
 
     <div class="form-group">
-        <label for="colour">Colour:</label>
-        {{ form.colour(class="form-control", id="colour") }}
-    </div>
-  
-  
-    <div class="form-group">
-        <label for="quantity">Quantity:</label>
-        {{ form.quantity(class="form-control", id="quantity") }}
+      <label for="colour">Colour:</label>
+      {{ form.colour(class="form-control", id="colour") }}
     </div>
 
     <div class="form-group">
-        <label for="manufacturer">Manufacturer:</label>
-        {{ form.manufacturer(class="form-control", id="manufacturer") }}
+      <label for="quantity">Quantity:</label>
+      {{ form.quantity(class="form-control", id="quantity") }}
     </div>
 
     <div class="form-group">
-        <label for="country_of_origin">Country of Origin:</label>
-        {{ form.country_of_origin(class="form-control", id="country_of_origin") }}
+      <label for="manufacturer">Manufacturer:</label>
+      {{ form.manufacturer(class="form-control", id="manufacturer") }}
     </div>
 
     <div class="form-group">
-        <label for="discount">Discount:</label>
-        {{ form.discount(class="form-control", id="discount") }}
+      <label for="country_of_origin">Country of Origin:</label>
+      {{ form.country_of_origin(class="form-control", id="country_of_origin") }}
     </div>
 
-    <div class="form-group" style="padding-bottom: 10px; padding-top: 10px;">
-        <label for="images">Images:</label>
-        {{ form.images(class="form-control", id="images", multiple=True) }}
+    <div class="form-group">
+      <label for="discount">Discount:</label>
+      {{ form.discount(class="form-control", id="discount") }}
     </div>
 
-     <div class="form-group">
-    <label for="model_file">3D Model (.glb):</label>
-    <input type="file" class="form-control" id="model_file" name="model_file" accept=".glb">
+    <div class="form-group">
+      <label for="images">Images:</label>
+      {{ form.images(class="form-control", id="images", multiple=True) }}
+    </div>
+
+    <div class="form-group">
+    <label for="model">3D Model :</label>
+    {{ form.model(class="form-control") }}
 </div>
-
 
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>

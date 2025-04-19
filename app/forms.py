@@ -48,7 +48,7 @@ class ProductForm(FlaskForm):
     images = MultipleFileField('Product Images', validators=[
         FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')
     ])
-    sketchfab_url = StringField('Sketchfab URL')
+    model = FileField('3D Model ', validators=[FileAllowed(['glb'])])
     submit = SubmitField('Add Product')
 
 class LoginForm(FlaskForm):
