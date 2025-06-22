@@ -1,4 +1,4 @@
-from core import create_app
+from app import create_app
 
 # Create Flask app from your factory
 app = create_app()
