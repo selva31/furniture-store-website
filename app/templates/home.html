@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SITARA{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
@@ -26,19 +25,19 @@
                 <li><a href="{{ url_for('main.category_specific', category='table') }}" class="{% if request.path.startswith('/category/table') %}active{% endif %}">Table</a></li>
                 <li><a href="{{ url_for('main.category_specific', category='cabinet') }}" class="{% if request.path.startswith('/category/cabinet') %}active{% endif %}">Cabinet</a></li>
             </ul>
-        
-        </nav> 
-        
+
+        </nav>
+
             <div class="search-container">
                 <form action="{{ url_for('main.search') }}" method="get">
                     <input type="text" name="q" placeholder="Search for products" value="{{ request.args.get('q', '') }}">
                     <button type="submit"><i class="fa fa-search"></i></button>
                 </form>
             </div>
-           
-       
-        
-            
+
+
+
+
             <!-- Add this div to group the buttons together for centering -->
             <div class="navbar-buttons">
                 <a href="{{ url_for('main.cart') }}" class="cart-btn">
@@ -72,12 +71,12 @@
             </div>
         </div>
     </nav>
-    
+
 
     <header>
-        
+
     </header>
-    
+
     <div id="flash-messages">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -89,26 +88,26 @@
             {% endif %}
         {% endwith %}
     </div>
-    
+
 
     <main>
         {% block content %}
         <!-- Content will be injected here -->
-         
+
         {% endblock %}
     </main>
-      
+
 
 
     <footer>
-        
+
         <section id="support">
             <h2 style="text-align: center;">Customer Support</h2>
-            <p style="text-align: center; font-size: 1.1em;">FAQ: <a href="{{ url_for('main.faq') }}" style="color: #007bff;">Visit FAQ</a></p>
+<!--            <p style="text-align: center; font-size: 1.1em;">FAQ: <a href="{{ url_for('main.faq') }}" style="color: #007bff;">Visit FAQ</a></p>-->
             <p style="text-align: center; font-size: 1.1em;">Customer Care Number: <span style="font-weight: bold;">+91 8778459552</span></p>
             <p style="text-align: center; font-size: 1.1em;">Support Email: <span style="font-weight: bold;">sitarafurniture@gmail.com</span></p>
         </section>
-        
+
                <p>SITARA &copy; All Rights Reserved.</p>
         </section>
     <script>

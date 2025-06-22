@@ -1,46 +1,45 @@
-<!-- This page will always be embedded in delivery_dashboard.html -->
-<div class="order-list">
+<!-- delivery_dashboard_orders_table.html -->
+<div class="orders-table-container">
     {% if orders %}
-    <table>
+    <table class="orders-table">
         <thead>
             <tr>
-                <th> Order Id </th>
-                <th> Customer Name </th>
-                <th> Customer Contact </th>
-                <th> Customer Address </th>
-                <th> Order Date</th>
-                <th> Order Amount</th>
-                <th> Order Status </th>
+                <th>Order ID</th>
+                <th>Customer Name</th>
+                <th>Customer Contact</th>
+                <th>Customer Address</th>
+                <th>Order Date</th>
+                <th>Order Amount</th>
+                <th>Order Status</th>
             </tr>
         </thead>
         <tbody>
             {% for order in orders %}
             <tr>
-                <td>{{ order.id }}</td>
+                <td>#{{ order.id }}</td>
                 <td>{{ order.user_name }}</td>
                 <td>{{ order.user_contact }}</td>
                 <td>{{ order.user_address }}</td>
-                <td>{{ order.order_date.strftime('%Y-%m-%d') }}
+                <td>{{ order.order_date.strftime('%Y-%m-%d') }}</td>
                 <td>₹{{ order.grand_total }}</td>
                 <td>
                     {% if order.assigned_delivery_person_id == None %}
-                    <button class="status-filter-button" onclick="assign_order('{{ order.id }}')">
-                        Take This Order
+                    <button class="action-btn" onclick="assign_order('{{ order.id }}')">
+                        <i class="fas fa-user-check"></i> Take This Order
                     </button>
                     {% elif order.delivered_date == None %}
-                    <select class="status-select" onchange="updateStatus('{{order.id}}' , this.value)">
+                    <select class="status-select" onchange="updateStatus('{{order.id}}', this.value)">
                         {% for status_option in order.status_options.enums %}
-
                         <option value="{{status_option}}" {% if order.status==status_option %}selected{% endif %}>
                             {{status_option}}
                         </option>
-
                         {% endfor %}
                     </select>
                     {% else %}
-                    <div style="padding: 15px 25px;">
-                    {{ order.status }}
-                    </div>
+                    <span class="status-badge status-{{ order.status.lower() }}">
+                        <i class="fas fa-{% if order.status == 'Delivered' %}check-circle{% elif order.status == 'Cancelled' %}times-circle{% else %}circle{% endif %}"></i>
+                        {{ order.status }}
+                    </span>
                     {% endif %}
                 </td>
             </tr>
@@ -48,6 +47,183 @@
         </tbody>
     </table>
     {% else %}
-    <p class="default-message">No orders available.</p>
+    <div class="no-orders-message">
+        <i class="fas fa-box-open"></i>
+        <h3>No Orders Available</h3>
+        <p>There are currently no orders matching your selected criteria.</p>
+    </div>
     {% endif %}
 </div>
+
+<style>
+    /* Additional styles to match the delivery_person.html */
+    .orders-table-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        overflow-x: auto;
+    }
+
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    .orders-table th {
+        background-color: var(--taupe);
+        color: var(--charcoal);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 500;
+        border-bottom: 2px solid var(--gold);
+    }
+
+    .orders-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--taupe);
+        vertical-align: middle;
+    }
+
+    .orders-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .orders-table tr:hover td {
+        background-color: rgba(192, 160, 98, 0.1);
+    }
+
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--gold);
+        background: var(--gold);
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        border-radius: 4px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .action-btn:hover {
+        background: transparent;
+        color: var(--gold);
+    }
+
+    .action-btn i {
+        font-size: 0.8rem;
+    }
+
+    .status-select {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--taupe);
+        border-radius: 4px;
+        background-color: white;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.85rem;
+        color: var(--charcoal);
+        cursor: pointer;
+        transition: var(--transition);
+        appearance: none;
+        padding-right: 2rem;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23C0A062'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.7rem top 50%;
+        background-size: 0.65rem auto;
+    }
+
+    .status-select:hover {
+        border-color: var(--gold);
+    }
+
+    .status-select:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 2px rgba(192, 160, 98, 0.2);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        gap: 0.5rem;
+    }
+
+    .status-badge i {
+        font-size: 0.7rem;
+    }
+
+    .status-pending {
+        background-color: #FFF3CD;
+        color: #856404;
+    }
+
+    .status-processing {
+        background-color: #CCE5FF;
+        color: #004085;
+    }
+
+    .status-shipped {
+        background-color: #D4EDDA;
+        color: #155724;
+    }
+
+    .status-delivered {
+        background-color: #D1ECF1;
+        color: #0C5460;
+    }
+
+    .status-cancelled {
+        background-color: #F8D7DA;
+        color: #721C24;
+    }
+
+    .no-orders-message {
+        text-align: center;
+        padding: 2rem;
+        color: var(--charcoal);
+    }
+
+    .no-orders-message i {
+        font-size: 2rem;
+        color: var(--gold);
+        margin-bottom: 1rem;
+    }
+
+    .no-orders-message h3 {
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 0.5rem;
+    }
+
+    .no-orders-message p {
+        opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+        .orders-table th,
+        .orders-table td {
+            padding: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 0.8rem;
+            font-size: 0.7rem;
+        }
+
+        .status-select {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+    }
+</style>

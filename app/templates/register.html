@@ -3,79 +3,566 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
- 
-    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}"> 
+    <title>Register | Sitara Furnishings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --cream: #F7F5F0;
+        --taupe: #E8E1D5;
+        --charcoal: #2A2A2A;
+        --gold: #C0A062;
+        --stone: #D4CDC3;
+        --gold-light: rgba(192, 160, 98, 0.1);
+        --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      body {
+        font-family: 'Montserrat', sans-serif;
+        background-color: var(--cream);
+        color: var(--charcoal);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      /* Video Background */
+      .video-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        opacity: 0.4;
+      }
+
+      /* Main Container */
+      .container {
+        display: flex;
+        width: 100%;
+        max-width: 1200px;
+        margin: 2rem;
+        box-shadow: 0 15px 40px rgba(42, 42, 42, 0.15);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      /* Brand Panel */
+      .brand-panel {
+        flex: 1;
+        background: linear-gradient(135deg, var(--charcoal) 0%, #1a1a1a 100%);
+        color: white;
+        padding: 4rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .brand-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover no-repeat;
+        opacity: 0.2;
+      }
+
+      .brand-logo {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        position: relative;
+        color: var(--gold);
+      }
+
+      .brand-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        position: relative;
+        line-height: 1.3;
+      }
+
+      .brand-text {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+        max-width: 400px;
+      }
+
+      .brand-features {
+        list-style: none;
+        padding: 0;
+        margin: 2rem 0;
+      }
+
+      .brand-features li {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .brand-features li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: var(--gold);
+      }
+
+      /* Form Panel */
+      .form-panel {
+        flex: 1;
+        background: rgba(247, 245, 240, 0.98);
+        padding: 4rem 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .form-header {
+        margin-bottom: 2.5rem;
+      }
+
+      .form-header h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--charcoal);
+        margin-bottom: 0.5rem;
+      }
+
+      .form-header p {
+        color: var(--charcoal);
+        opacity: 0.7;
+        font-size: 0.95rem;
+      }
+
+      /* Form Elements */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--charcoal);
+        font-size: 0.95rem;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        border: 1px solid var(--taupe);
+        border-radius: 4px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background-color: white;
+        box-sizing: border-box;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px var(--gold-light);
+      }
+
+      .password-container {
+        position: relative;
+      }
+
+      .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--charcoal);
+        opacity: 0.5;
+        transition: var(--transition);
+        font-size: 1.1rem;
+      }
+
+      .password-toggle:hover {
+        opacity: 0.8;
+        color: var(--gold);
+      }
+
+      /* Password Strength Meter */
+      .password-strength {
+        height: 4px;
+        background: var(--taupe);
+        margin-top: 0.5rem;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .password-strength-bar {
+        height: 100%;
+        width: 0;
+        transition: var(--transition);
+      }
+
+      /* Terms Checkbox */
+      .terms-group {
+        display: flex;
+        align-items: flex-start;
+        margin: 1.5rem 0;
+      }
+
+      .terms-group input {
+        margin-right: 12px;
+        margin-top: 3px;
+        accent-color: var(--gold);
+      }
+
+      .terms-group label {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--charcoal);
+        opacity: 0.8;
+      }
+
+      .terms-group a {
+        color: var(--gold);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .terms-group a:hover {
+        text-decoration: underline;
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 1rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: center;
+        font-size: 0.95rem;
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+
+      .btn-primary {
+        background: var(--gold);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--charcoal);
+        transform: translateY(-2px);
+      }
+
+      /* Additional Links */
+      .form-footer {
+        margin-top: 1.5rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--charcoal);
+        opacity: 0.7;
+      }
+
+      .form-footer a {
+        color: var(--gold);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .form-footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* Error Messages */
+      .error {
+        color: #d32f2f;
+        font-size: 0.8rem;
+        margin-top: 0.3rem;
+        display: block;
+      }
+
+      .flash-messages {
+        margin-bottom: 1.5rem;
+      }
+
+      .alert {
+        padding: 0.8rem 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        border-left: 4px solid transparent;
+      }
+
+      .alert-error {
+        background: rgba(211, 47, 47, 0.1);
+        border-left-color: #d32f2f;
+        color: #d32f2f;
+      }
+
+      .alert-success {
+        background: rgba(56, 142, 60, 0.1);
+        border-left-color: #388e3c;
+        color: #388e3c;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 992px) {
+        .container {
+          flex-direction: column;
+        }
+
+        .brand-panel {
+          padding: 2.5rem;
+          text-align: center;
+        }
+
+        .form-panel {
+          padding: 3rem 2rem;
+        }
+
+        .brand-text, .brand-features {
+          max-width: 100%;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .container {
+          margin: 1rem;
+        }
+
+        .brand-panel {
+          padding: 2rem 1.5rem;
+        }
+
+        .form-panel {
+          padding: 2.5rem 1.5rem;
+        }
+
+        .brand-title {
+          font-size: 1.8rem;
+        }
+
+        .form-header h2 {
+          font-size: 1.6rem;
+        }
+      }
+    </style>
 </head>
 <body>
-    {% extends "home.html" %}
+    <video class="video-background" autoplay muted loop playsinline>
+        <source src="{{ url_for('static', filename='videos/Loginvid.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
-    {% block title %}Admin Dashboard{% endblock %}
-    
-    {% block content %}
-    
-    <div class="form-container">
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=True) %}
-        {% if messages %}
-        <div class="flash-messages">
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
+    <div class="container">
+        <!-- Brand Panel -->
+        <div class="brand-panel">
+            <div class="brand-logo">SITARA FURNISHINGS</div>
+            <h1 class="brand-title">Create Your Account</h1>
+            <p class="brand-text">Join our community of interior design enthusiasts and professionals to access exclusive content and features.</p>
+
+            <ul class="brand-features">
+                <li>Access to exclusive product lines</li>
+                <li>Save your favorite designs</li>
+                <li>Personalized recommendations</li>
+                <li>Priority customer support</li>
+            </ul>
         </div>
-        {% endif %}
-        {% endwith %}
 
-        <h2>Sign-up</h2>
-
-        <form id="registerForm" action="{{ url_for('auth.register') }}" method="POST">
-            {{ form.hidden_tag() }} <!-- Adds CSRF token -->
-
-            <!-- Username Field -->
-            <div class="form-group">
-                <label for="username">Name:</label>
-                {{ form.username(class="form-control") }}
-                {% if form.username.errors %}
-                <small class="error">{{ form.username.errors[0] }}</small>
-                {% endif %}
+        <!-- Form Panel -->
+        <div class="form-panel">
+            <div class="form-header">
+                <h2>Register</h2>
+                <p>Please fill in your details to create an account</p>
             </div>
 
-            <!-- Email Field -->
-            <div class="form-group">
-                <label for="email">Email:</label>
-                {{ form.email(class="form-control") }}
-                {% if form.email.errors %}
-                <small class="error">{{ form.email.errors[0] }}</small>
-                {% endif %}
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
             </div>
+            {% endif %}
+            {% endwith %}
 
-            <!-- Password Field -->
-            <div class="form-group">
-                <label for="password">Password:</label>
-                {{ form.password(class="form-control") }}
-                {% if form.password.errors %}
-                <small class="error">{{ form.password.errors[0] }}</small>
-                {% endif %}
-            </div>
+            <form id="registerForm" action="{{ url_for('auth.register') }}" method="POST">
+                {{ form.hidden_tag() }}
 
-            <!-- Confirm Password Field -->
-            <div class="form-group">
-                <label for="confirm_password">Confirm Password:</label>
-                {{ form.confirm_password(class="form-control") }}
-                {% if form.confirm_password.errors %}
-                <small class="error">{{ form.confirm_password.errors[0] }}</small>
-                {% endif %}
-            </div>
+                <!-- Name Field -->
+                <div class="form-group">
+                    <label for="username">Full Name</label>
+                    {{ form.username(class="form-control", placeholder="John Smith") }}
+                    {% if form.username.errors %}
+                    <small class="error">{{ form.username.errors[0] }}</small>
+                    {% endif %}
+                </div>
 
-            <!-- Buttons -->
-            <div class="buttons">
-                <button type="submit" class="btn btn-primary">Submit</button>
-                <button type="reset" class="btn btn-secondary">Reset</button>
-            </div>
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    {{ form.email(class="form-control", placeholder="your@email.com") }}
+                    {% if form.email.errors %}
+                    <small class="error">{{ form.email.errors[0] }}</small>
+                    {% endif %}
+                </div>
 
-            <p>If you are already registered, <a href="{{ url_for('auth.login') }}">Login</a></p>
-        </form>
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-container">
+                        {{ form.password(class="form-control", placeholder="Create a password", id="password") }}
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="passwordStrength"></div>
+                    </div>
+                    <small class="hint">Use 8+ characters with a mix of letters, numbers & symbols</small>
+                    {% if form.password.errors %}
+                    <small class="error">{{ form.password.errors[0] }}</small>
+                    {% endif %}
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <div class="password-container">
+                        {{ form.confirm_password(class="form-control", placeholder="Confirm your password", id="confirm_password") }}
+                        <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                    {% if form.confirm_password.errors %}
+                    <small class="error">{{ form.confirm_password.errors[0] }}</small>
+                    {% endif %}
+                </div>
+
+                <!-- Terms Agreement -->
+                <div class="terms-group">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Create Account</button>
+
+                <div class="form-footer">
+                    Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+                </div>
+            </form>
+        </div>
     </div>
-    {% endblock %}
+
+    <script>
+        // Toggle password visibility
+        const togglePassword = (inputId, toggleId) => {
+            const input = document.getElementById(inputId);
+            const toggle = document.getElementById(toggleId);
+
+            if (input.type === "password") {
+                input.type = "text";
+                toggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>`;
+            } else {
+                input.type = "password";
+                toggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>`;
+            }
+        };
+
+        document.getElementById("togglePassword").addEventListener("click", () => togglePassword("password", "togglePassword"));
+        document.getElementById("toggleConfirmPassword").addEventListener("click", () => togglePassword("confirm_password", "toggleConfirmPassword"));
+
+        // Password strength meter
+        document.getElementById("password").addEventListener("input", function() {
+            const strengthBar = document.getElementById("passwordStrength");
+            const password = this.value;
+            let strength = 0;
+
+            // Length check
+            if (password.length >= 8) strength += 1;
+            if (password.length >= 12) strength += 1;
+
+            // Character variety checks
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+            // Update strength meter
+            const width = (strength / 5) * 100;
+            strengthBar.style.width = width + '%';
+
+            // Update color based on strength
+            if (strength <= 2) {
+                strengthBar.style.backgroundColor = '#e74c3c'; // Red
+            } else if (strength <= 4) {
+                strengthBar.style.backgroundColor = '#f39c12'; // Orange
+            } else {
+                strengthBar.style.backgroundColor = '#2ecc71'; // Green
+            }
+        });
+
+        // Form validation
+        document.getElementById("registerForm").addEventListener("submit", function(e) {
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirm_password").value;
+
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert("Passwords do not match");
+                return false;
+            }
+
+            if (!document.getElementById("terms").checked) {
+                e.preventDefault();
+                alert("You must agree to the terms and conditions");
+                return false;
+            }
+        });
+
+        // Add focus styles programmatically for better accessibility
+        const inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.parentElement.querySelector('label').style.opacity = '1';
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.parentElement.querySelector('label').style.opacity = '0.8';
+            });
+        });
+    </script>
 </body>
 </html>

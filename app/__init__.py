@@ -40,7 +40,7 @@ def create_app():
     app.config["MAIL_USE_TLS"] = True
     app.config["MAIL_USE_SSL"] = False
     app.config["MAIL_USERNAME"] = "selvaqueen333@gmail.com"
-    app.config["MAIL_PASSWORD"] = "secret password"
+    app.config["MAIL_PASSWORD"] = "neme rovd accl zxge"
     app.config["MAIL_DEFAULT_SENDER"] = "selvaqueen333@gmail.com"
 
     # Upload paths
@@ -54,12 +54,14 @@ def create_app():
     os.makedirs(app.config["IMAGE_UPLOAD_FOLDER"], exist_ok=True)
     os.makedirs(app.config["MODEL_UPLOAD_FOLDER"], exist_ok=True)
 
+
     # Initialize extensions
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
+
 
     # Login manager settings
     login_manager.login_view = "auth.login"

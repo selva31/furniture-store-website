@@ -1,133 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='homepage.css') }}"
-  />
-  <link
-    href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ category }} | Sitara Furnishings</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
+    :root {
+      --cream: #F7F5F0;
+      --taupe: #E8E1D5;
+      --charcoal: #2A2A2A;
+      --gold: #C0A062;
+      --stone: #D4CDC3;
+      --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     body {
-      font-family: "Roboto", sans-serif;
-      background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--cream);
+      color: var(--charcoal);
+      line-height: 1.7;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-      color: #333;
-      position: relative;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Overlay to reduce opacity */
-    body::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
+    /* Category Banner */
+    .category-banner {
+      width: 100%;
+      height: 50vh;
+      min-height: 400px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-banner video {
       width: 100%;
       height: 100%;
-      background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-      z-index: -1;
-    }
-    /* Ensure the banner video sits right after the navbar */
-    .banner-container {
-      width: 100%;
-      display: flex;
-      justify-content: center; /* Center align the video */
-      align-items: center;
-      margin: 30px 0; /* Ensures spacing between the header and product grid */
-      padding: 20px 0; /* Padding for spacing inside the container */
-      position: relative;
-    }
-
-    .banner-video {
-      width: 80%; /* Adjust width of the video */
-      max-width: 1200px; /* Max width for larger screens */
-      height: 100vh;
-      max-height: 430px; /* Constrain height for smaller screens */
-      border-radius: 15px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
       object-fit: cover;
-      position: relative;
+      object-position: center;
     }
 
-    /* Adjust product grid margin */
-    .products {
+    .banner-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 4rem;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      color: white;
+      text-align: center;
+    }
+
+    .banner-overlay h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 500;
+      margin: 0 0 1rem;
+    }
+
+    /* Category Content */
+    .category-container {
+      max-width: 1400px;
+      margin: 0 auto 6rem;
+      padding: 0 2rem;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 500;
+      color: var(--charcoal);
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .section-header h2:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 2px;
+      background: var(--gold);
+    }
+
+    /* Luxury Product Grid */
+    .luxury-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 50px;
-      padding: 30px;
-      margin-top: 30px; /* Ensures the grid starts right below the video */
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2.5rem;
+    }
+
+    .luxury-product {
+      background: white;
+      position: relative;
+      transition: var(--transition);
+      box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    }
+
+    .luxury-product:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .product-image-container {
+      position: relative;
+      overflow: hidden;
+      height: 300px;
+    }
+
+    .luxury-product img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: var(--cream);
+      padding: 20px;
+      transition: var(--transition);
+    }
+
+    .luxury-product:hover img {
+      transform: scale(1.03);
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--gold);
+      color: white;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .product-info {
+      padding: 1.8rem;
+      border: 1px solid var(--taupe);
+      border-top: none;
+    }
+
+    .product-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      margin: 0 0 0.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .product-title:hover {
+      color: var(--gold);
+    }
+
+    .product-price {
+      font-size: 1.2rem;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+    }
+
+    .product-rating {
+      color: var(--gold);
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .luxury-btn {
+      flex: 1;
+      padding: 0.8rem;
+      border: 1px solid var(--charcoal);
+      background: transparent;
+      color: var(--charcoal);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+
+    .luxury-btn:hover {
+      background: var(--charcoal);
+      color: white;
+    }
+
+    .luxury-btn.accent {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: white;
+    }
+
+    .luxury-btn.accent:hover {
+      background: transparent;
+      color: var(--gold);
+    }
+
+    /* Discount Pricing */
+    .discounted-price {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .original-price {
+      text-decoration: line-through;
+      color: var(--stone);
+      font-size: 0.9rem;
+    }
+
+    .discount-badge {
+      background: var(--gold);
+      color: white;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.7rem;
+      border-radius: 3px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .category-banner {
+        height: 40vh;
+      }
+
+      .banner-overlay h1 {
+        font-size: 3rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .category-banner {
+        height: 35vh;
+        min-height: 300px;
+      }
+
+      .banner-overlay {
+        padding: 2rem;
+      }
+
+      .banner-overlay h1 {
+        font-size: 2.2rem;
+      }
+
+      .luxury-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+    }
+
+    @media (max-width: 576px) {
+      .category-banner {
+        height: 30vh;
+      }
+
+      .product-actions {
+        flex-direction: column;
+      }
+
+      .luxury-btn {
+        width: 100%;
+      }
+
+      .product-image-container {
+        height: 250px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <!-- Bootstrap JS and dependencies (jQuery and Popper.js) -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  {% extends "home.html" %}
+  {% block title %}{{ category }} | Sitara Furnishings{% endblock %}
+  {% block content %}
+<!--  <div class="luxury-container">-->
+<!--    &lt;!&ndash; Category Banner &ndash;&gt;-->
+<!--    <div class="category-banner">-->
+<!--      <video autoplay muted loop playsinline>-->
+<!--        <source src="{{ url_for('static', filename=video_filename) }}" type="video/mp4">-->
+<!--      </video>-->
+<!--      <div class="banner-overlay">-->
+<!--        <h1>{{ category }} Collection</h1>-->
+<!--      </div>-->
+<!--    </div>-->
 
-  {% extends "home.html" %} {% block title %} {{ category }} Products {%
-  endblock %} {% block content %}
-  <div class="boxed">
-    <!-- Banner Video Section -->
-    <div class="banner-container">
-      <video class="banner-video" autoplay loop muted>
-        <source
-          src="{{ url_for('static', filename=video_filename) }}"
-          type="video/mp4"
-        />
-        Your browser does not support the video tag.
-      </video>
-    </div>
-
-    <!-- Products Grid -->
-    <div class="products">
-      {% for product in products %}
-      <div class="product">
-      
-        <img src="{{ url_for('static', filename=product.images[0].image_url if product.images else 'default_image.jpg') }}" alt="{{ product.name }}" class="product-click" data-product-id="{{ product.id }}">
-        <h2 class="product-click" data-product-id="{{ product.id }}">{{ product.name }}</h2>
-
-        <p><strong>Price:</strong> ₹{{ product.price }}</p>
-        <p>
-          <strong>Rating:</strong> ⭐ {{ product.avg_rating if
-          product.avg_rating else 'N/A' }}
-        </p>
-        <div class="bb">
-          <form action="/add_to_cart" method="POST" style="display: inline">
-            <input type="hidden" name="product_id" value="{{ product.id }}" />
-            <button
-              type="submit"
-              class="add-to-cart {% if product.id in cart %}remove-btn{% else %}add-btn{% endif %}"
-            >
-              {% if product.id in cart %} Remove from Cart {% else %} Add to
-              Cart {% endif %}
-            </button>
-          </form>
-        </div>
+    <!-- Category Content -->
+    <div class="category-container">
+      <div class="section-header">
+        <h2>{{ category }}</h2>
       </div>
-      {% endfor %}
+
+      <div class="luxury-grid">
+        {% for product in products %}
+        <div class="luxury-product">
+          <div class="product-image-container">
+            <img
+              src="{{ url_for('static', filename='uploads/' + product.images[0].image_url.split('/')[-1]) }}"
+              alt="{{ product.name }}"
+              loading="lazy"
+              class="product-click"
+              data-product-id="{{ product.id }}"
+            >
+            {% if product.id in cart %}
+              <div class="product-badge">In Cart</div>
+            {% endif %}
+            {% if product.discount > 0 %}
+              <div class="product-badge" style="top: 60px; background: var(--charcoal);">
+                {{ product.discount }}% OFF
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="product-info">
+            <h3 class="product-title product-click" data-product-id="{{ product.id }}">
+              {{ product.name }}
+            </h3>
+
+            {% if product.avg_rating %}
+            <div class="product-rating">
+              {% for i in range(5) %}
+                {% if i < (product.avg_rating or 0) %}
+                  <i class="fas fa-star"></i>
+                {% else %}
+                  <i class="far fa-star"></i>
+                {% endif %}
+              {% endfor %}
+              <span>({{ product.review_count or 0 }})</span>
+            </div>
+            {% endif %}
+
+            <div class="product-price">
+              {% if product.discount > 0 %}
+                <div class="discounted-price">
+                  <span>₹{{ (product.price * (1 - product.discount / 100)) | round(2) }}</span>
+                  <span class="original-price">₹{{ product.price }}</span>
+                  <span class="discount-badge">SAVE {{ product.discount }}%</span>
+                </div>
+              {% else %}
+                ₹{{ product.price }}
+              {% endif %}
+            </div>
+
+            <div class="product-actions">
+              <form action="/add_to_cart" method="POST">
+                <input type="hidden" name="product_id" value="{{ product.id }}" />
+                <button type="submit" class="luxury-btn {% if product.id in cart %}accent{% endif %}">
+                  {% if product.id in cart %}
+                    <i class="fas fa-shopping-cart"></i> Remove
+                  {% else %}
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                  {% endif %}
+                </button>
+              </form>
+
+              <form action="{{ url_for('main.buy_now', product_id=product.id) }}" method="POST">
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <button type="submit" class="luxury-btn">BUY NOW</button>
+  </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const productElements = document.querySelectorAll('.product-click');
-        productElements.forEach(element => {
-            element.addEventListener('click', function() {
-                const productId = this.getAttribute('data-product-id');
-                window.location.href = `/product/${productId}`;
-            });
+      // Product click handler for both image and title
+      document.querySelectorAll('.product-click').forEach(element => {
+        element.addEventListener('click', function() {
+          const productId = this.getAttribute('data-product-id');
+          window.location.href = `/product/${productId}`;
         });
+      });
+
+      // Product hover effects
+      document.querySelectorAll('.luxury-product').forEach(product => {
+        product.addEventListener('mouseenter', function() {
+          this.querySelector('img').style.transform = 'scale(1.03)';
+        });
+        product.addEventListener('mouseleave', function() {
+          this.querySelector('img').style.transform = 'scale(1)';
+        });
+      });
     });
-</script>
+  </script>
 
   {% endblock %}
 </body>
+</html>

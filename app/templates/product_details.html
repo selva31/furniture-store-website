@@ -1,356 +1,824 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ product.name }} - Product Details</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='product_details.css') }}">
-    <style>
-        /* Body and general styles */
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            color: #333;
-            position: relative;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ product.name }} | Sitara Furnishings</title>
 
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            z-index: -1;
-        }
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        /* 3D Viewer Styles */
-        #viewer {
-            width: 100%;
-            height: 500px;
-            margin-top: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-            background-color: #f8f9fa;
-        }
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        #viewer .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #666;
-            font-size: 16px;
-        }
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"
+      }
+    }
+  </script>
 
-        #viewer canvas {
-            display: block;
-            width: 100% !important;
-            height: 100% !important;
-        }
+  <style>
+    :root {
+      --cream: #F7F5F0;
+      --taupe: #E8E1D5;
+      --charcoal: #2A2A2A;
+      --gold: #C0A062;
+      --stone: #D4CDC3;
+      --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
 
-        /* Button styles */
-        .add-btn, .remove-btn {
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--cream);
+      color: var(--charcoal);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        .add-btn {
-            background-color: #28a745;
-            color: white;
-        }
+    h1, h2, h3, h4 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 500;
+    }
 
-        .remove-btn {
-            background-color: #dc3545;
-            color: white;
-        }
+    .swiper-button-next, .swiper-button-prev {
+      color: var(--gold) !important;
+      background: rgba(247, 245, 240, 0.9);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      backdrop-filter: blur(4px);
+      transition: var(--transition);
+      border: 1px solid var(--taupe);
+    }
 
-        /* Container for the product section */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        }
+    .swiper-button-next:hover, .swiper-button-prev:hover {
+      background: rgba(247, 245, 240, 0.95);
+      transform: translateY(-1px);
+    }
 
-        .product-section {
-            display: flex;
-            gap: 40px;
-        }
+    .swiper-button-next::after, .swiper-button-prev::after {
+      font-size: 1.2rem;
+    }
 
-        .product-image, .product-details {
-            flex: 1;
-        }
+    .thumb-active {
+      border-color: var(--gold) !important;
+      transform: translateY(-2px);
+    }
 
-        .product-image img {
-            width: 100%;
-            border-radius: 10px;
-            cursor: pointer;
-        }
+    .product-image {
+      aspect-ratio: 1/1;
+      object-fit: contain;
+      background-color: var(--cream);
+      transition: var(--transition);
+    }
 
-        .product-details h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
+    .luxury-btn {
+      padding: 0.8rem;
+      border: 1px solid var(--charcoal);
+      background: transparent;
+      color: var(--charcoal);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      width: 100%;
+    }
 
-        .product-details p {
-            font-size: 1em;
-            margin-bottom: 10px;
-        }
+    .luxury-btn:hover {
+      background: var(--charcoal);
+      color: white;
+    }
 
-        .pricet {
-            margin: 20px 0;
-            font-size: 1.2em;
-        }
+    .luxury-btn.accent {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: white;
+    }
 
-        .actions {
-            margin-top: 20px;
-        }
+    .luxury-btn.accent:hover {
+      background: transparent;
+      color: var(--gold);
+    }
 
-        .Related_Prod h2 {
-            margin-top: 50px;
-        }
+    .btn-danger {
+      background: transparent;
+      color: #b91c1c;
+      border: 1px solid #b91c1c;
+      transition: var(--transition);
+    }
 
-        .products {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
+    .btn-danger:hover {
+      background: #b91c1c;
+      color: white;
+    }
 
-        .product {
-            flex: 1 1 calc(25% - 20px);
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            cursor: pointer;
-        }
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-        .product img {
-            width: 100%;
-            border-radius: 10px;
-        }
+    .accordion-content.show {
+      max-height: 1000px;
+    }
 
-        .product h2 {
-            font-size: 1.1em;
-            margin: 10px 0;
-        }
-    </style>
+    .feature-badge {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      background-color: var(--taupe);
+      color: var(--charcoal);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      transition: var(--transition);
+    }
+
+    /* Enhanced Features */
+    .image-zoom {
+      transition: var(--transition);
+      cursor: zoom-in;
+    }
+
+    .image-zoom.zoomed {
+      transform: scale(1.8);
+      cursor: zoom-out;
+      z-index: 10;
+    }
+
+    .color-swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 10px;
+      border: 1px solid var(--taupe);
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .color-swatch.active {
+      border: 2px solid var(--gold);
+      transform: scale(1.1);
+    }
+
+    .color-swatch.active::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Premium Enhancements */
+    .product-card {
+      transition: var(--transition);
+      background: white;
+      border: 1px solid var(--taupe);
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Elegant divider */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--taupe), transparent);
+      border: 0;
+    }
+
+    /* AR Button Enhancement */
+    .ar-button {
+      background: linear-gradient(135deg, var(--gold) 0%, #D4B87A 100%);
+      position: relative;
+      overflow: hidden;
+      color: white;
+    }
+
+    .ar-button:hover {
+      color: var(--gold);
+    }
+
+    /* Floating labels */
+    .floating-label {
+      position: relative;
+      display: inline-block;
+    }
+
+    .floating-label::after {
+      content: attr(data-label);
+      position: absolute;
+      top: -8px;
+      left: 12px;
+      background: white;
+      padding: 0 6px;
+      font-size: 0.75rem;
+      color: var(--gold);
+      border-radius: 4px;
+      border: 1px solid var(--taupe);
+    }
+
+    /* 3D viewer enhancements */
+    #viewer {
+      box-shadow: inset 0 0 0 1px var(--taupe);
+    }
+
+    /* Buy Now Button */
+    .buy-now-btn {
+      background: var(--charcoal);
+      color: white;
+      border: 1px solid var(--charcoal);
+    }
+
+    .buy-now-btn:hover {
+      background: transparent;
+      color: var(--charcoal);
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 768px) {
+      .product-image {
+        max-height: 400px;
+      }
+
+      .swiper-button-next, .swiper-button-prev {
+        width: 36px;
+        height: 36px;
+      }
+    }
+  </style>
 </head>
-<body>
-    {% extends "home.html" %}
 
-    {% block title %}{{ product.name }} - Product Details{% endblock %}
+<body class="min-h-screen">
+  {% extends "home.html" %}
+  {% block title %}{{ product.name }} | Sitara Furnishings{% endblock %}
+  {% block content %}
 
-    {% block content %}
-    <div class="all">
-        <div class="container">
-            <div class="product-section">
-                <div class="product-image">
-                    <div class="image-slider">
-                        {% for image in product.images %}
-                            <img src="{{ url_for('static', filename='uploads/' + image.image_url.split('/')[-1]) }}"
-                                 alt="{{ product.name }}"
-                                 class="product-img {% if loop.first %}active{% endif %}">
-                        {% endfor %}
-                        <div class="controls">
-                            <button id="prev-btn">&lt;</button>
-                            <button id="next-btn">&gt;</button>
-                        </div>
-                    </div>
+  <!-- Breadcrumb Navigation -->
+  <nav class="bg-white py-3 px-6 border-b border-taupe">
+    <div class="max-w-7xl mx-auto">
+      <ol class="flex items-center space-x-2 text-sm">
+        <li><a href="/" class="text-gold hover:text-charcoal transition-colors">Home</a></li>
+        <li class="text-stone">/</li>
+        <li><a href="#" class="text-gold hover:text-charcoal transition-colors">{{ product.category }}</a></li>
+        <li class="text-stone">/</li>
+        <li class="text-charcoal truncate max-w-xs">{{ product.name }}</li>
+      </ol>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-lg overflow-hidden border border-taupe">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+        <!-- Image Gallery -->
+        <div class="relative">
+          <div class="swiper mainSwiper rounded-lg overflow-hidden border border-taupe">
+            <div class="swiper-wrapper">
+              {% for image in product.images %}
+              <div class="swiper-slide flex items-center justify-center bg-cream">
+                <img
+                  src="{{ url_for('static', filename='uploads/' + image.image_url.split('/')[-1]) }}"
+                  alt="{{ product.name }} - Image {{ loop.index }}"
+                  class="product-image w-full h-auto max-h-[500px] p-8 image-zoom"
+                  loading="lazy"
+                  onclick="this.classList.toggle('zoomed')"
+                />
+              </div>
+              {% endfor %}
+              {% if product.model_file or product.sketchfab_url %}
+              <div class="swiper-slide bg-cream flex justify-center items-center">
+                {% if product.model_file %}
+                <div id="viewer" class="w-full h-[500px] rounded-lg flex items-center justify-center relative">
+                  <div class="absolute inset-0 flex flex-col items-center justify-center space-y-2">
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold"></div>
+                    <p class="text-stone">Loading 3D model...</p>
+                  </div>
                 </div>
-
-                <div class="product-details">
-                    <h1>{{ product.name }}</h1>
-                    <p>{{ product.description }}</p>
-
-                    <h3>Product Details</h3>
-                    <p><strong>Category:</strong> {{ product.category }}</p>
-                    <p><strong>Color:</strong> {{ product.colour }}</p>
-                    <p><strong>Manufacturer:</strong> {{ product.manufacturer }}</p>
-                    <p><strong>Country:</strong> {{ product.country_of_origin }}</p>
-                    <p><strong>Discount:</strong> {{ product.discount }}%</p>
-                    <p><strong>Ratings:</strong> ⭐{{ product.avg_rating if product.avg_rating else 'N/A' }}</p>
-
-                    <div class="pricet">
-                        <strong>Price:</strong>
-                        <span style="text-decoration: line-through; color: gray;">₹{{ product.price }}</span>
-                        <span style="color: green; font-weight: bold;"> ₹{{ (product.price * (1 - product.discount / 100)) | round(2) }}</span>
-                    </div>
-
-                    <div class="actions">
-                        <form action="/add_to_cart" method="POST">
-                            <input type="hidden" name="product_id" value="{{ product.id }}">
-                            <button type="submit" class="add-to-cart {% if product.id in cart %}remove-btn{% else %}add-btn{% endif %}">
-                                {% if product.id in cart %}
-                                    Remove from Cart
-                                {% else %}
-                                    Add to Cart
-                                {% endif %}
-                            </button>
-                        </form>
-                    </div>
-
-                    {% if product.sketchfab_url %}
-                    <div class="sketchfab-embed-wrapper" style="margin-top: 20px;">
-                        <iframe title="{{ product.name }} 3D View"
-                                src="{{ product.sketchfab_url }}"
-                                frameborder="0"
-                                allow="autoplay; fullscreen; xr-spatial-tracking"
-                                allowfullscreen
-                                style="width: 100%; height: 500px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);">
-                        </iframe>
-                    </div>
-                    {% elif product.model_file %}
-                    <div id="viewer">
-                        <div class="loading">Loading 3D model...</div>
-                    </div>
-                    {% endif %}
-                </div>
+                {% else %}
+                <iframe title="{{ product.name }} 3D View" src="{{ product.sketchfab_url }}" frameborder="0" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen class="w-full h-[500px] rounded-lg"></iframe>
+                {% endif %}
+              </div>
+              {% endif %}
             </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+          </div>
+
+          <div class="swiper thumbsSwiper mt-6">
+            <div class="swiper-wrapper">
+              {% for image in product.images %}
+              <div class="swiper-slide w-24 h-24 overflow-hidden rounded border border-taupe cursor-pointer transition-all duration-300">
+                <img
+                  src="{{ url_for('static', filename='uploads/' + image.image_url.split('/')[-1]) }}"
+                  class="object-cover w-full h-full transition-opacity duration-300 hover:opacity-80"
+                  loading="lazy"
+                />
+              </div>
+              {% endfor %}
+              {% if product.model_file or product.sketchfab_url %}
+              <div class="swiper-slide w-24 h-24 bg-cream flex items-center justify-center rounded border border-taupe cursor-pointer transition-all duration-300">
+                <i class="fas fa-cube text-stone text-2xl"></i>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Share Buttons -->
+          <div class="mt-8">
+            <p class="text-sm text-stone mb-3">Share this product:</p>
+            <div class="flex space-x-3">
+              <button class="luxury-btn px-4 py-2">
+                <i class="fab fa-facebook-f mr-2"></i> Facebook
+              </button>
+              <button class="luxury-btn px-4 py-2">
+                <i class="fab fa-twitter mr-2"></i> Twitter
+              </button>
+              <button class="luxury-btn px-4 py-2">
+                <i class="fab fa-pinterest-p mr-2"></i> Pinterest
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="Related_Prod container">
-            <h2>Related Products</h2>
-            <div class="products">
-                {% for related_product in related_products %}
-                <div class="product" onclick="window.location.href='/product/{{ related_product.id }}'">
-                    <img src="{{ url_for('static', filename='uploads/' + (related_product.images[0].image_url.split('/')[-1] if related_product.images else 'default_image.jpg')) }}"
-                         alt="{{ related_product.name }}"/>
-                    <h2>{{ related_product.name }}</h2>
-                    <p><strong>Discount:</strong> {{ related_product.discount }}%</p>
-                    <div class="pricet">
-                        <p><strong>Price:</strong> ₹{{ related_product.price }}</p>
-                    </div>
-                    <p><strong>Rating:</strong> ⭐ {{ related_product.avg_rating if related_product.avg_rating else 'N/A' }}</p>
-                    <form action="/add_to_cart" method="POST">
-                        <input type="hidden" name="product_id" value="{{ related_product.id }}">
-                        <button type="submit" class="add-to-cart {% if related_product.id in cart %}remove-btn{% else %}add-btn{% endif %}">
-                            {% if related_product.id in cart %}
-                                Remove from Cart
-                            {% else %}
-                                Add to Cart
-                            {% endif %}
-                        </button>
-                    </form>
-                </div>
+        <!-- Product Info -->
+        <div class="space-y-8">
+          <div class="space-y-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-charcoal">{{ product.name }}</h1>
+                <p class="text-sm text-stone mt-1">SKU: {{ product.id }}</p>
+              </div>
+            </div>
+
+            <!-- Product Badges -->
+            <div class="flex flex-wrap">
+              {% if product.discount > 0 %}
+              <span class="feature-badge bg-gold text-white">{{ product.discount }}% OFF</span>
+              {% endif %}
+              <span class="feature-badge">Premium Quality</span>
+              <span class="feature-badge">Handcrafted</span>
+              <span class="feature-badge">1 Year Warranty</span>
+            </div>
+
+            {% if product.avg_rating %}
+            <div class="flex items-center">
+              <div class="flex text-gold mr-2">
+                {% for i in range(5) %}
+                  {% if i < (product.avg_rating or 0) %}
+                    <i class="fas fa-star"></i>
+                  {% else %}
+                    <i class="far fa-star"></i>
+                  {% endif %}
                 {% endfor %}
+              </div>
+              <span class="text-sm text-stone">({{ product.review_count or 0 }} reviews)</span>
+              <a href="#reviews" class="text-sm text-gold ml-3 hover:underline">Write a review</a>
             </div>
+            {% endif %}
+          </div>
+
+          <p class="text-charcoal leading-relaxed">{{ product.description }}</p>
+
+          <hr class="divider my-6">
+
+          <!-- Price Section -->
+          <div class="space-y-2">
+            {% if product.discount > 0 %}
+            <div class="flex items-center">
+              <span class="text-3xl font-bold text-charcoal">₹{{ (product.price * (1 - product.discount / 100)) | round(2) }}</span>
+              <span class="ml-4 px-3 py-1 bg-cream text-gold text-sm font-medium rounded-full border border-taupe">
+                Save {{ product.discount }}%
+              </span>
+            </div>
+            <div class="flex items-center text-stone">
+              <span class="line-through mr-2">₹{{ product.price }}</span>
+              <span class="text-sm">(Inclusive of all taxes)</span>
+            </div>
+            {% else %}
+            <span class="text-3xl font-bold text-charcoal">₹{{ product.price }}</span>
+            <span class="text-sm text-stone">(Inclusive of all taxes)</span>
+            {% endif %}
+          </div>
+
+          <!-- Color Swatches -->
+          <div class="pt-4">
+            <p class="text-sm font-medium text-stone mb-3 floating-label" data-label="Color">Available in {{ product.colour }}</p>
+            <div>
+              <span class="color-swatch active" style="background-color: #{{ product.colour }}"></span>
+              <span class="color-swatch" style="background-color: #000000" title="Black"></span>
+              <span class="color-swatch" style="background-color: #ffffff; border: 1px solid var(--taupe)" title="White"></span>
+              <span class="color-swatch" style="background-color: #E8E1D5" title="Taupe"></span>
+            </div>
+          </div>
+
+          <!-- Key Features -->
+          <div class="grid grid-cols-2 gap-4 pt-4">
+            <div class="flex items-start space-x-3">
+              <i class="fas fa-tag text-gold mt-1"></i>
+              <div>
+                <p class="text-xs text-stone">Category</p>
+                <p class="text-sm font-medium">{{ product.category }}</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <i class="fas fa-industry text-gold mt-1"></i>
+              <div>
+                <p class="text-xs text-stone">Brand</p>
+                <p class="text-sm font-medium">{{ product.manufacturer }}</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <i class="fas fa-globe text-gold mt-1"></i>
+              <div>
+                <p class="text-xs text-stone">Origin</p>
+                <p class="text-sm font-medium">{{ product.country_of_origin }}</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <i class="fas fa-box text-gold mt-1"></i>
+              <div>
+                <p class="text-xs text-stone">Dimensions</p>
+                <p class="text-sm font-medium">H 12" × W 8" × D 6"</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider my-6">
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4">
+            <form action="/add_to_cart" method="POST" class="flex-1">
+              <input type="hidden" name="product_id" value="{{ product.id }}">
+              <button
+                type="submit"
+                class="luxury-btn {% if product.id in cart %}accent{% endif %}"
+              >
+                {% if product.id in cart %}
+                  <i class="fas fa-shopping-cart mr-2"></i>Remove from Cart
+                {% else %}
+                  <i class="fas fa-cart-plus mr-2"></i>Add to Cart
+                {% endif %}
+              </button>
+            </form>
+
+            <form action="{{ url_for('main.buy_now', product_id=product.id) }}" method="POST" class="flex-1">
+  <input type="hidden" name="product_id" value="{{ product.id }}">
+  <button type="submit" class="luxury-btn buy-now-btn">
+    <i class="fas fa-bolt mr-2"></i>Buy Now
+  </button>
+</form>
+
+          </div>
+
+          <!-- View in AR Section -->
+          {% if product.model_file %}
+          <div class="pt-4">
+            <a href="{{ url_for('main.ar_viewer', product_id=product.id) }}"
+               class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition w-full ar-button"
+               id="view-ar-button">
+              <i class="fas fa-mobile-alt mr-3"></i>View in Augmented Reality
+            </a>
+
+            {% if product.qr_code_image %}
+            <div class="mt-6 text-center border border-taupe rounded-lg p-4 bg-cream">
+              <p class="text-sm text-stone mb-3">Scan QR code to view in AR on mobile:</p>
+              <img src="{{ url_for('static', filename='qr_codes/' + product.qr_code_image.split('/')[-1]) }}"
+                   alt="QR Code to view AR"
+                   class="w-32 h-32 mx-auto cursor-pointer border border-taupe rounded-lg p-2 bg-white"
+                   id="ar-qr-code"
+                   loading="lazy">
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
         </div>
+      </div>
+
+      <!-- Accordion Section -->
+      <div class="border-t border-taupe">
+        {% set sections = [
+          ("Shipping & Delivery", [
+      ("fas fa-truck", "Standard Shipping", "5-7 business days<br><small>Free shipping on orders over ₹5000</small>"),
+      ("fas fa-bolt", "Express Shipping", "2-3 business days<br><small>Additional charges apply</small>"),
+      ("fas fa-globe", "International Shipping", "Available to select countries<br><small>Customs duties may apply</small>"),
+      ("fas fa-box-open", "Packaging", "Eco-friendly protective packaging")
+    ]),
+    ("Returns & Warranty", [
+      ("fas fa-undo", "Return Policy", "30-day return policy<br><small>Item must be unused and in original packaging</small>"),
+      ("fas fa-shield-alt", "Warranty", "1-year manufacturer warranty<br><small>Covers manufacturing defects</small>"),
+      ("fas fa-exchange-alt", "Exchanges", "Free exchanges within 14 days<br><small>For items of equal or greater value</small>"),
+      ("fas fa-headset", "Customer Support", "Available 24/7<br><small>Email: support@sitara.com</small>")
+    ])
+        ] %}
+
+        {% for title, specs in sections %}
+        <div class="border-b border-taupe last:border-b-0">
+          <button type="button" class="accordion-header w-full flex justify-between items-center px-8 py-5 bg-cream hover:bg-taupe transition font-medium text-left">
+            <span class="text-lg font-serif">{{ title }}</span>
+            <svg class="accordion-icon w-5 h-5 transition-transform transform text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="accordion-content px-8 bg-white">
+            <div class="pb-8">
+              {% for icon, label, value in specs %}
+              <div class="flex items-start mb-6 last:mb-0">
+                <i class="{{ icon }} text-gold mt-1 mr-4 text-lg"></i>
+                <div>
+                  <h4 class="font-medium text-charcoal mb-1">{{ label }}</h4>
+                  <p class="text-stone text-sm">{{ value | safe }}</p>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="{{ url_for('static', filename='product_details.js') }}"></script>
+    <!-- Related Products -->
+    <div class="mt-16">
+      <h2 class="text-2xl font-semibold mb-8 text-center">Complete Your Collection</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {% for related_product in related_products %}
+          <div class="product-card rounded-lg overflow-hidden transition-all duration-300">
+            <a href="{{ url_for('main.product_details', product_id=related_product.id) }}" class="block">
+              <div class="relative pb-[100%] overflow-hidden bg-cream">
+                <img src="{{ url_for('static', filename='uploads/' + related_product.images[0].image_url.split('/')[-1]) }}"
+                     alt="{{ related_product.name }}"
+                     class="product-image absolute inset-0 w-full h-full p-6 hover:p-4 transition-all duration-300"
+                     loading="lazy">
+                {% if related_product.discount > 0 %}
+                <span class="absolute top-3 right-3 bg-gold text-white text-xs font-bold px-2 py-1 rounded-full">
+                  -{{ related_product.discount }}%
+                </span>
+                {% endif %}
+              </div>
+              <div class="p-5 border-t border-taupe">
+                <h3 class="text-lg font-semibold mb-1 text-charcoal">{{ related_product.name }}</h3>
+                <div class="flex items-center mb-3">
+                  <div class="flex text-gold mr-1">
+                    {% for i in range(5) %}
+                      {% if i < (related_product.avg_rating or 0) %}
+                        <i class="fas fa-star text-xs"></i>
+                      {% else %}
+                        <i class="far fa-star text-xs"></i>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <span class="text-xs text-stone">({{ related_product.review_count or 0 }})</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  {% if related_product.discount > 0 %}
+                  <div>
+                    <span class="text-lg font-bold text-charcoal">₹{{ (related_product.price * (1 - related_product.discount / 100)) | round(2) }}</span>
+                    <span class="ml-2 text-sm text-stone line-through">₹{{ related_product.price }}</span>
+                  </div>
+                  {% else %}
+                  <span class="text-lg font-bold text-charcoal">₹{{ related_product.price }}</span>
+                  {% endif %}
+<!--                  <button class="p-2 rounded-full border border-taupe hover:bg-cream text-gold">-->
+<!--                    <i class="far fa-heart"></i>-->
+<!--                  </button>-->
+                </div>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 
-    {% if product.model_file %}
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"
-            }
+  <script>
+    // Initialize Swipers
+    const thumbsSwiper = new Swiper(".thumbsSwiper", {
+      spaceBetween: 12,
+      slidesPerView: 4,
+      freeMode: true,
+      watchSlidesProgress: true,
+      breakpoints: {
+        640: {
+          slidesPerView: 5,
+        },
+        1024: {
+          slidesPerView: 6,
         }
-    </script>
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+      }
+    });
 
-        const viewer = document.getElementById('viewer');
-        const loadingElement = viewer.querySelector('.loading');
+    const mainSwiper = new Swiper(".mainSwiper", {
+      spaceBetween: 0,
+      effect: 'fade',
+      fadeEffect: {
+        crossFade: true
+      },
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      thumbs: {
+        swiper: thumbsSwiper,
+      },
+    });
 
-        // Scene setup
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xf0f0f0);
-        const camera = new THREE.PerspectiveCamera(75, viewer.clientWidth / viewer.clientHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(viewer.clientWidth, viewer.clientHeight);
-        renderer.outputEncoding = THREE.sRGBEncoding;
-        viewer.replaceChildren(renderer.domElement);
+    // Accordion functionality
+    document.querySelectorAll('.accordion-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const content = header.parentElement.querySelector('.accordion-content');
+        const icon = header.querySelector('.accordion-icon');
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(1, 1, 1);
-        scene.add(directionalLight);
-
-        // Controls
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        camera.position.z = 5;
-
-        // Model loading
-        const loader = new GLTFLoader();
-        const modelPath = "{{ url_for('static', filename='model/' + product.model_file) }}";
-
-        loader.load(modelPath,
-            (gltf) => {
-                const model = gltf.scene;
-                scene.add(model);
-
-                // Center and scale model
-                const box = new THREE.Box3().setFromObject(model);
-                const center = box.getCenter(new THREE.Vector3());
-                model.position.sub(center);
-
-                const size = box.getSize(new THREE.Vector3()).length();
-                const maxDim = Math.max(size, 1);
-                camera.near = maxDim / 100;
-                camera.far = maxDim * 100;
-                camera.updateProjectionMatrix();
-
-                camera.position.copy(center);
-                camera.position.z += maxDim * 1.5;
-                controls.target.copy(center);
-                controls.update();
-
-                loadingElement.remove();
-            },
-            undefined,
-            (error) => {
-                console.error('Error loading model:', error);
-                loadingElement.innerHTML = `
-                    <div style="color:red; text-align:center;">
-                        <h4>3D Model Failed to Load</h4>
-                        <p>${error.message}</p>
-                        <p>Path: ${modelPath}</p>
-                    </div>
-                `;
-            }
-        );
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = viewer.clientWidth / viewer.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+        // Close all other accordion items
+        document.querySelectorAll('.accordion-content').forEach(item => {
+          if (item !== content) {
+            item.classList.remove('show');
+            item.previousElementSibling.querySelector('.accordion-icon').classList.remove('rotate-180');
+          }
         });
 
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
+        // Toggle current item
+        content.classList.toggle('show');
+        icon.classList.toggle('rotate-180');
+      });
+    });
+
+    // Thumbnail active state
+    thumbsSwiper.on('slideChange', function() {
+      document.querySelectorAll('.thumbsSwiper .swiper-slide').forEach(slide => {
+        slide.classList.remove('thumb-active');
+        slide.style.borderColor = 'transparent';
+      });
+      thumbsSwiper.slides[thumbsSwiper.activeIndex].classList.add('thumb-active');
+    });
+
+    // Initialize first thumbnail as active
+    document.querySelector('.thumbsSwiper .swiper-slide').classList.add('thumb-active');
+
+    // Color swatch selection
+    document.querySelectorAll('.color-swatch').forEach(swatch => {
+      swatch.addEventListener('click', function() {
+        document.querySelectorAll('.color-swatch').forEach(s => {
+          s.classList.remove('active');
+          s.style.transform = '';
+        });
+        this.classList.add('active');
+        this.style.transform = 'scale(1.1)';
+
+        // Update color name in label
+        const colorName = this.getAttribute('title') || '{{ product.colour }}';
+        document.querySelector('.floating-label[data-label]').setAttribute('data-label', `Color: ${colorName}`);
+      });
+    });
+
+    // Image zoom functionality
+    document.querySelectorAll('.image-zoom').forEach(img => {
+      img.addEventListener('click', function() {
+        const isZoomed = this.classList.contains('zoomed');
+
+        // Close all other zoomed images
+        document.querySelectorAll('.image-zoom.zoomed').forEach(zoomedImg => {
+          if (zoomedImg !== this) {
+            zoomedImg.classList.remove('zoomed');
+          }
+        });
+
+        // Toggle current image
+        if (!isZoomed) {
+          this.classList.add('zoomed');
+        } else {
+          this.classList.remove('zoomed');
         }
-        animate();
-    </script>
-    {% endif %}
-    {% endblock %}
+      });
+    });
+  </script>
+
+  {% if product.model_file %}
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+
+    const viewer = document.getElementById('viewer');
+    if (viewer) {
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xf7f5f0);
+
+      const camera = new THREE.PerspectiveCamera(75, viewer.clientWidth / viewer.clientHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1;
+      viewer.innerHTML = '';
+      viewer.appendChild(renderer.domElement);
+
+      // Add environment lighting
+      new RGBELoader()
+        .load('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/peppermint_powerplant_1k.hdr', function(texture) {
+          texture.mapping = THREE.EquirectangularReflectionMapping;
+          scene.environment = texture;
+
+          // Add subtle directional light
+          const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+          directionalLight.position.set(1, 1, 1);
+          scene.add(directionalLight);
+
+          const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+          directionalLight2.position.set(-1, 0.5, -1);
+          scene.add(directionalLight2);
+        });
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      camera.position.z = 5;
+
+      const loader = new GLTFLoader();
+      loader.load(
+        "{{ url_for('static', filename='model/' + product.model_file) }}",
+        (gltf) => {
+          const model = gltf.scene;
+
+          // Traverse the model and improve materials
+          model.traverse((child) => {
+            if (child.isMesh) {
+              child.material.envMapIntensity = 1;
+              if (child.material.metalness) {
+                child.material.roughness = 0.3;
+              }
+            }
+          });
+
+          scene.add(model);
+
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3()).length();
+          const maxDim = Math.max(size, 1);
+
+          model.position.sub(center);
+          camera.near = maxDim / 100;
+          camera.far = maxDim * 100;
+          camera.updateProjectionMatrix();
+
+          camera.position.copy(center);
+          camera.position.z += maxDim * 1.5;
+          controls.target.copy(center);
+          controls.update();
+        },
+        undefined,
+        (error) => {
+          console.error('Error loading 3D model:', error);
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-cream';
+          errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle text-3xl text-gold"></i>
+            <p class="text-charcoal font-medium">Failed to load 3D model</p>
+            <p class="text-stone text-sm">Please try refreshing the page</p>
+          `;
+          viewer.appendChild(errorDiv);
+        }
+      );
+
+      window.addEventListener('resize', () => {
+        camera.aspect = viewer.clientWidth / viewer.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+  </script>
+  {% endif %}
+
+{% endblock %}
 </body>
 </html>

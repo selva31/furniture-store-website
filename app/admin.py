@@ -1,16 +1,32 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, abort, current_app
-from flask_login import login_user, logout_user, login_required, current_user
+import os
+from werkzeug.utils import secure_filename
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
+from flask_login import login_required, current_user
 from .models import User, Product, Wishlist, OrderDetails, Cart, ProductImage
 from . import db, bcrypt, mail
 from .forms import ProductForm
+from app import db # Add this line to import app
+import qrcode  # Add this line for the QR code module
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 from datetime import datetime
-from werkzeug.utils import secure_filename
-import os  # Make sure to import this module
 from .utils import restrict_to_admin
 
 admin = Blueprint('admin', __name__, url_prefix="/admin")
+
+# Ensure upload folders exist
+def ensure_upload_folders():
+    if not os.path.exists(current_app.config['IMAGE_UPLOAD_FOLDER']):
+        os.makedirs(current_app.config['IMAGE_UPLOAD_FOLDER'])
+    if not os.path.exists(current_app.config['MODEL_UPLOAD_FOLDER']):
+        os.makedirs(current_app.config['MODEL_UPLOAD_FOLDER'])
+
+# Helper function to check allowed file types
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_MODEL_EXTENSIONS = {'glb', 'gltf'}
+
+def allowed_file(filename, allowed_extensions):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 def create_admin_user():
     admin = User.query.filter_by(email='admin@gmail.com').first()
@@ -48,8 +64,10 @@ def delete_product(product_id):
 
         # Delete the wishlist items associated with the product
         Wishlist.query.filter_by(product_id=product.id).delete()
+
         # Delete related product images
         ProductImage.query.filter_by(product_id=product.id).delete()
+
         # Delete the product
         db.session.delete(product)
         db.session.commit()
@@ -62,12 +80,13 @@ def delete_product(product_id):
         flash(f'An error occurred while deleting the product: {str(e)}', 'danger')
         return redirect(url_for('admin.view_products'))
 
-from werkzeug.utils import secure_filename
-import os
-
 @admin.route('/admin/add_product', methods=['GET', 'POST'])
+@restrict_to_admin()
 def add_product():
     form = ProductForm()
+
+    # Ensure upload folders exist
+    ensure_upload_folders()
 
     if form.validate_on_submit():
         # 1. Create the product object
@@ -89,7 +108,7 @@ def add_product():
         # 2. Handle image saving
         if form.images.data:
             for image_file in form.images.data:
-                if image_file:
+                if image_file and allowed_file(image_file.filename, ALLOWED_IMAGE_EXTENSIONS):
                     filename = secure_filename(image_file.filename)
                     save_path = os.path.join(current_app.config['IMAGE_UPLOAD_FOLDER'], filename)
                     image_file.save(save_path)
@@ -100,18 +119,28 @@ def add_product():
         # 3. Handle 3D model saving
         if form.model.data:
             model_file = form.model.data
-            model_filename = secure_filename(model_file.filename)
-            model_path = os.path.join(current_app.config['MODEL_UPLOAD_FOLDER'], model_filename)
-            model_file.save(model_path)
-            product.model_file = model_filename
+            if allowed_file(model_file.filename, ALLOWED_MODEL_EXTENSIONS):
+                model_filename = secure_filename(model_file.filename)
+                model_path = os.path.join(current_app.config['MODEL_UPLOAD_FOLDER'], model_filename)
+                model_file.save(model_path)
+                product.model_file = model_filename  # Store model filename
 
         db.session.commit()
+
+        # ✅ Generate QR Code for AR if model is present
+        if product.model_file:
+            ar_url = f"http://127.0.0.1:5000/ar/{product.id}"  # Adjust the URL in production
+            qr = qrcode.make(ar_url)
+            qr_filename = f"qr_{product.id}.png"
+            qr_path = os.path.join(current_app.static_folder, 'qr_codes', qr_filename)
+            qr.save(qr_path)
+
+            product.qr_code_image = f"qr_codes/{qr_filename}"
+
         flash('Product added successfully!', 'success')
         return redirect(url_for('admin.view_products'))
 
     return render_template('add_product.html', form=form)
-
-
 
 @admin.route('/update_product/<int:id>', methods=['GET', 'POST'])
 @restrict_to_admin()
@@ -122,7 +151,7 @@ def update_product(id):
     form = ProductForm()
 
     if form.validate_on_submit():  # Check if form is valid on POST
-        # Update the product details
+        # Update the product details from the form
         product.name = form.name.data
         product.price = form.price.data
         product.description = form.description.data
@@ -134,27 +163,33 @@ def update_product(id):
         product.discount = form.discount.data
 
         try:
-            if form.image.data:
-                image_filename = secure_filename(form.image.data.filename)
-                image_path = os.path.join(current_app.root_path, "static", "upload")
-                os.makedirs(image_path, exist_ok=True)
-                form.image.data.save(os.path.join(image_path, image_filename))
-                product.image = image_filename  # Update the image
+            # Handle image file upload if any
+            if form.images.data:
+                # Check if any new images are uploaded
+                for image_file in form.images.data:
+                    if image_file and allowed_file(image_file.filename, ALLOWED_IMAGE_EXTENSIONS):
+                        filename = secure_filename(image_file.filename)
+                        image_path = os.path.join(current_app.config['IMAGE_UPLOAD_FOLDER'], filename)
+                        image_file.save(image_path)
+                        # Update the product's images (You may have a related ProductImage model)
+                        new_image = ProductImage(image_url=filename, product_id=product.id)
+                        db.session.add(new_image)
 
-            # Handle 3D model upload (.glb)
-            if form.model.data:  # Assuming the form has a 'model' field
-                model_filename = secure_filename(form.model.data.filename)
-                model_path = os.path.join(current_app.root_path, "static", "models")
-                os.makedirs(model_path, exist_ok=True)
-                form.model.data.save(os.path.join(model_path, model_filename))
-                product.model_path = f"static/models/{model_filename}"  # Update model path
+            # Handle 3D model upload if any
+            if form.model.data:
+                model_file = form.model.data
+                if allowed_file(model_file.filename, ALLOWED_MODEL_EXTENSIONS):
+                    model_filename = secure_filename(model_file.filename)
+                    model_path = os.path.join(current_app.config['MODEL_UPLOAD_FOLDER'], model_filename)
+                    model_file.save(model_path)
+                    product.model_file = model_filename  # Update model filename
 
-            db.session.commit()
+            db.session.commit()  # Commit the updates to the database
             flash(f'Product "{product.name}" has been updated successfully!', 'success')
-            return redirect(url_for('admin.view_products'))
+            return redirect(url_for('admin.view_products'))  # Redirect to product list after successful update
 
         except Exception as e:
-            db.session.rollback()
+            db.session.rollback()  # Rollback in case of error
             flash(f'An error occurred while updating the product: {str(e)}', 'danger')
             return redirect(url_for('admin.update_product', id=id))  # Redirect to update page on error
 
@@ -205,3 +240,69 @@ def delete_user(email):
     else:
         flash('User not found.', 'danger')
     return redirect(url_for('admin.user_details'))
+
+
+@admin.route('/delete_order/<int:order_id>', methods=['POST'])
+@restrict_to_admin()
+def delete_order(order_id):
+    try:
+        # Find the order by its ID
+        order = OrderDetails.query.get_or_404(order_id)
+
+        # Delete the order
+        db.session.delete(order)
+        db.session.commit()
+
+        flash(f'Order {order.id} has been deleted successfully!', 'success')
+        return redirect(url_for('admin.order_details'))
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'An error occurred while deleting the order: {str(e)}', 'danger')
+        return redirect(url_for('admin.order_details'))
+
+
+from flask import make_response
+import csv
+from io import StringIO
+
+
+@admin.route('/generate-inventory-report')
+def generate_inventory_report():
+    try:
+        # Query all products
+        products = Product.query.all()
+
+        # Create CSV in memory
+        output = StringIO()
+        writer = csv.writer(output)
+
+        # Write header
+        writer.writerow(['ID', 'Name', 'Category', 'Price', 'Quantity', 'Status'])
+
+        # Write data
+        for product in products:
+            status = "Out of Stock" if product.quantity == 0 else \
+                "Critical" if product.quantity <= 5 else \
+                    "Low" if product.quantity <= 10 else "In Stock"
+            writer.writerow([
+                product.id,
+                product.name,
+                product.category,
+                product.price,
+                product.quantity,
+                status
+            ])
+
+        # Prepare response
+        output.seek(0)
+        response = make_response(output.getvalue())
+        response.headers['Content-Disposition'] = 'attachment; filename=inventory_report.csv'
+        response.headers['Content-type'] = 'text/csv'
+        return response
+
+    except Exception as e:
+        flash('Error generating report', 'error')
+        return redirect(url_for('admin.inventory'))
+
+

@@ -4,97 +4,191 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --cream: #F7F5F0;
+        --taupe: #E8E1D5;
+        --charcoal: #2A2A2A;
+        --gold: #C0A062;
+        --stone: #D4CDC3;
+        --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
       body {
-        font-family: "Roboto", sans-serif;
-        background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+        font-family: 'Montserrat', sans-serif;
+        background-color: var(--cream);
+        color: var(--charcoal);
+        line-height: 1.7;
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
-        color: #333;
-        position: relative;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
       }
 
-      /* Overlay to reduce opacity */
-      body::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
+      /* Admin Header */
+      .admin-header {
         width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-        z-index: -1;
-      }
-
-      /* Centered header */
-      h1 {
+        height: 50vh;
+        min-height: 400px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 4rem;
+        background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+                    url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
-        margin-bottom: 40px;
-        font-size: 36px;
-        color: #333;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-weight: bold;
       }
 
-      /* Dashboard container */
-      .dashboard {
+      .admin-header-content {
+        color: white;
+        padding: 2rem;
+        max-width: 800px;
+      }
+
+      .admin-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 3rem;
+        font-weight: 500;
+        margin: 0 0 1.5rem;
+        text-transform: none;
+        letter-spacing: normal;
+      }
+
+      .admin-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      /* Dashboard Container */
+      .admin-container {
+        max-width: 1200px;
+        margin: 0 auto 6rem;
+        padding: 0 2rem;
+      }
+
+      .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .section-header h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 500;
+        color: var(--charcoal);
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+      }
+
+      .section-header h2:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 2px;
+        background: var(--gold);
+      }
+
+      /* Dashboard Grid */
+      .dashboard-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 30px;
-        padding: 30px;
-        max-width: 1000px;
-        margin: 0 auto;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2.5rem;
       }
 
-      /* Button styles */
-      .dashboard button {
-        background-color: rgb(27, 36, 83);
-        color: rgba(228, 210, 173, 0.803);
-        border: none;
-        padding: 20px;
-        font-size: 18px;
-        font-weight: bold;
-        border-radius: 30px;
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-        box-shadow: 0 6px 20px rgba(62, 66, 71, 0.8);
-        text-transform: uppercase;
+      .dashboard-card {
+        background: white;
+        border: 1px solid var(--taupe);
+        padding: 2.5rem;
         text-align: center;
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
       }
 
-      /* Hover effect */
-      .dashboard button:hover {
-        background: linear-gradient(145deg, #88b2dc, #334a5a);
+      .dashboard-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
       }
 
-      /* Button focus */
-      .dashboard button:focus {
-        outline: none;
+      .dashboard-card h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        margin: 0 0 1.5rem;
+        font-weight: 500;
+        color: var(--charcoal);
       }
 
-      /* Button active state */
-      .dashboard button:active {
-        transform: translateY(1px);
+      .luxury-btn {
+        padding: 0.8rem 2rem;
+        border: 1px solid var(--gold);
+        background: var(--gold);
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: center;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        width: 100%;
+        max-width: 200px;
+      }
+
+      .luxury-btn:hover {
+        background: transparent;
+        color: var(--gold);
       }
 
       /* Responsive Design */
-      @media (max-width: 768px) {
-        h1 {
-          font-size: 28px;
+      @media (max-width: 1200px) {
+        .admin-header {
+          height: 40vh;
         }
 
-        .dashboard button {
-          width: 100%;
-          font-size: 16px;
-          padding: 15px;
+        .admin-header h1 {
+          font-size: 2.5rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .admin-header {
+          height: 35vh;
+          min-height: 350px;
+        }
+
+        .admin-header h1 {
+          font-size: 2rem;
+        }
+
+        .dashboard-grid {
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+      }
+
+      @media (max-width: 576px) {
+        .admin-header {
+          height: 30vh;
+        }
+
+        .admin-header h1 {
+          font-size: 1.8rem;
+        }
+
+        .section-header h2 {
+          font-size: 2rem;
         }
       }
     </style>
@@ -102,23 +196,55 @@
   <body>
     {% extends "home.html" %} {% block title %}Admin Dashboard{% endblock %} {%
     block content %}
-    <div class="form-container">
-      <h1>Admin Dashboard</h1>
-      <div class="dashboard">
-        <button onclick="location.href='{{ url_for('admin.user_details') }}'">
-          View User Details
-        </button>
-        <button onclick="location.href='{{ url_for('admin.add_product') }}'">
-          Add New Product
-        </button>
-        <button onclick="location.href='{{ url_for('admin.view_products') }}'">
-          Manage Products
-        </button>
-        <button onclick="location.href='{{ url_for('admin.order_details') }}'">
-          View Order Details
-        </button>
-        <button onclick="location.href='{{ url_for('visualization.home') }}'">
-          Visualization
+    <div class="admin-container">
+      <!-- Admin Header -->
+      <div class="admin-header">
+        <div class="admin-header-content">
+          <h1>Admin Dashboard</h1>
+          <p>Manage your store with precision and elegance</p>
+        </div>
+      </div>
+
+      <!-- Dashboard Section -->
+      <div class="section-header">
+        <h2>Management Tools</h2>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="dashboard-card">
+          <h3>User Management</h3>
+          <button class="luxury-btn" onclick="location.href='{{ url_for('admin.user_details') }}'">
+            View Users
+          </button>
+        </div>
+
+        <div class="dashboard-card">
+          <h3>Product Catalog</h3>
+          <button class="luxury-btn" onclick="location.href='{{ url_for('admin.add_product') }}'">
+            Add Product
+          </button>
+        </div>
+
+        <div class="dashboard-card">
+          <h3>Inventory</h3>
+          <button class="luxury-btn" onclick="location.href='{{ url_for('admin.view_products') }}'">
+            Manage Products
+          </button>
+        </div>
+
+        <div class="dashboard-card">
+          <h3>Order Tracking</h3>
+          <button class="luxury-btn" onclick="location.href='{{ url_for('admin.order_details') }}'">
+            View Orders
+          </button>
+        </div>
+
+        <div class="dashboard-card">
+          <h3>Analytics</h3>
+          <button class="luxury-btn" onclick="location.href='{{ url_for('visualization.home') }}'">
+            Visualizations
+          </button>
+        </div>
       </div>
     </div>
     {% endblock %}

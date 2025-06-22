@@ -3,160 +3,523 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>visulaization | Sitara Furnishings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-    font-family: 'Roboto', sans-serif;
-    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: #333;
-    position: relative;
-}
-
-/* Overlay to reduce opacity */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-    z-index: -1;
-}
-
-/* Ensuring content appears above the overlay */
-.form-container, .dashboard {
-    position: relative;
-    z-index: 1;
-}
-        /* Centered header */
-        h1 {
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 36px;
-            color: #333;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: bold;
+        :root {
+            --cream: #F7F5F0;
+            --taupe: #E8E1D5;
+            --charcoal: #2A2A2A;
+            --gold: #C0A062;
+            --stone: #D4CDC3;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Dashboard container */
-        .dashboard {
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--cream);
+            color: var(--charcoal);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .admin-header {
+            background-color: var(--charcoal);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(42, 42, 42, 0.9), rgba(42, 42, 42, 0.7)),
+                        url('{{ url_for("static", filename="images/admin-pattern.jpg") }}');
+            background-size: cover;
+            z-index: -1;
+        }
+
+        .admin-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin: 0;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .admin-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto 6rem;
+            padding: 0 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 500;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-header h2:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            border: 1px solid var(--taupe);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background: var(--gold);
+            color: white;
+            padding: 1.5rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 1.8rem;
+            text-align: center;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: var(--charcoal);
+        }
+
+        .card-description {
+            color: var(--charcoal);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .dashboard-actions {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 30px;
-            padding: 40px;
-            max-width: 1000px;
-            margin: 0 auto;
+            gap: 1.5rem;
+            margin-top: 2rem;
         }
 
-        /* Button styles */
-        .dashboard button {
-            background: linear-gradient(145deg, #6a11cb, #2575fc);
-            color: white;
-            border: none;
-            padding: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 10px;
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid var(--taupe);
+            padding: 2rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: var(--transition);
             cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--charcoal);
+        }
+
+        .action-btn:hover {
+            background: var(--gold);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .action-btn:hover .action-icon {
+            color: white;
+        }
+
+        .action-icon {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--gold);
+            transition: var(--transition);
+        }
+
+        .action-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-desc {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        /* Quick Stats Section */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--taupe);
             text-align: center;
         }
 
-        /* Hover effect */
-        .dashboard button:hover {
-            background: linear-gradient(145deg, #2575fc, #6a11cb);
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
         }
 
-        /* Button focus */
-        .dashboard button:focus {
-            outline: none;
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--charcoal);
+            opacity: 0.8;
         }
 
-        /* Button active state */
-        .dashboard button:active {
-            transform: translateY(1px);
+        /* Recent Activity Section */
+        .activity-list {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--taupe);
+            padding: 1.5rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--taupe);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--taupe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--gold);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--charcoal);
+            opacity: 0.6;
         }
 
         /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
         @media (max-width: 768px) {
-            h1 {
-                font-size: 28px;
+            .admin-header h1 {
+                font-size: 2rem;
             }
 
-            .dashboard button {
-                width: 100%;
-                font-size: 16px;
-                padding: 15px;
+            .quick-stats {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
         }
 
-        /* Container for Form */
-        .form-container {
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom: 40px;
-        }
-        .button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            margin: 20px 0;
-        }
-        
-        .button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 18px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            text-decoration: none; /* Remove underline */
-        }
-        
-        .button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-            text-decoration: none; /* Remove underline */
+        @media (max-width: 576px) {
+            .admin-header {
+                padding: 1.5rem 0;
+            }
+
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 </head>
 <body>
     {% extends "home.html" %}
 
-    
-
     {% block content %}
-    <div class="form-container">
-        <div class="button-container">
-            <a href="/visualization/roles_chart" class="button">View Users by Roles</a>
-            <a href="/visualization/sales_by_city" class="button">Sales Based on City</a>
-            <a href="/visualization/revenue_trends" class="button">Revenue Trends</a>
-            <a href="/visualization/delivery_chart" class="button">Delivery Chart</a>
-            <a href="/visualization/inventory_status" class="button">Inventory Status</a>
-            <a href="/visualization/financial_health" class="button">Financial status</a>
-            <a href="/visualization/customer_trends" class="button">Customer Trends</a>
+    <div class="admin-header">
+        <h1>Admin Dashboard</h1>
+        <p>Manage your Sitara Furnishings operations with elegance</p>
+    </div>
+
+    <div class="admin-container">
+        <!-- Quick Stats Section -->
+        <div class="quick-stats">
+            <div class="stat-item">
+                <div class="stat-value">1,248</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">₹3.2M</div>
+                <div class="stat-label">Revenue</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">892</div>
+                <div class="stat-label">Active Customers</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">56</div>
+                <div class="stat-label">New Today</div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Cards -->
+        <div class="section-header">
+            <h2>Business Overview</h2>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-header">Sales Performance</div>
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-value">₹1.4M</div>
+                    <div class="card-description">Last 30 Days Revenue</div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">Customer Growth</div>
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-value">+18%</div>
+                    <div class="card-description">Quarterly Growth Rate</div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">Inventory Status</div>
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="card-value">42</div>
+                    <div class="card-description">Low Stock Items</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualization Actions -->
+        <div class="section-header">
+            <h2>Data Visualizations</h2>
+        </div>
+
+        <div class="dashboard-actions">
+            <a href="/visualization/roles_chart" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div class="action-title">User Roles</div>
+                <div class="action-desc">View distribution of user roles</div>
+            </a>
+
+            <a href="/visualization/sales_by_city" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-city"></i>
+                </div>
+                <div class="action-title">Sales by City</div>
+                <div class="action-desc">Geographical sales distribution</div>
+            </a>
+
+            <a href="/visualization/revenue_trends" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="action-title">Revenue Trends</div>
+                <div class="action-desc">Historical revenue analysis</div>
+            </a>
+
+            <a href="/visualization/delivery_chart" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="action-title">Delivery Status</div>
+                <div class="action-desc">Order fulfillment metrics</div>
+            </a>
+
+            <a href="/visualization/inventory_status" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="action-title">Inventory Status</div>
+                <div class="action-desc">Stock levels and alerts</div>
+            </a>
+
+            <a href="/visualization/financial_health" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="action-title">Financial Health</div>
+                <div class="action-desc">Key financial metrics</div>
+            </a>
+
+            <a href="/visualization/customer_trends" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-user-chart"></i>
+                </div>
+                <div class="action-title">Customer Trends</div>
+                <div class="action-desc">Customer behavior analysis</div>
+            </a>
+
+            <a href="/visualization/product_performance" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-couch"></i>
+                </div>
+                <div class="action-title">Product Performance</div>
+                <div class="action-desc">Top selling items analysis</div>
+            </a>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div class="section-header">
+            <h2>Recent Activity</h2>
+        </div>
+
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-text">New order #1042 placed by Rohan Sharma</div>
+                    <div class="activity-time">10 minutes ago</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-text">Product "Velvet Chesterfield Sofa" restocked</div>
+                    <div class="activity-time">1 hour ago</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-text">New customer registered: Priya Patel</div>
+                    <div class="activity-time">3 hours ago</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-text">Order #1038 marked as delivered</div>
+                    <div class="activity-time">5 hours ago</div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate cards on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.dashboard-card, .action-btn').forEach(card => {
+                card.style.opacity = 0;
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        });
+    </script>
     {% endblock %}
 </body>
 </html>

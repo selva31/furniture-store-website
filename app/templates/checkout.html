@@ -3,182 +3,411 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Checkout</title>
+    <title>Checkout | Sitara Furnishings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --cream: #F7F5F0;
+            --taupe: #E8E1D5;
+            --charcoal: #2A2A2A;
+            --gold: #C0A062;
+            --stone: #D4CDC3;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+
         body {
-            font-family: 'Roboto', sans-serif;
-            background-image: url('{{ url_for("static", filename="images/admin_image.jpg") }}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--cream);
+            color: var(--charcoal);
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            color: #333;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 5% auto;
-            margin-top: -80px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 500;
         }
 
-        .product-form {
+        .checkout-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+        }
+
+        .checkout-form-container, .checkout-summary {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--taupe);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .checkout-summary {
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--charcoal);
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--taupe);
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--charcoal);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--charcoal);
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--taupe);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: var(--transition);
+            background-color: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(192, 160, 98, 0.2);
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .cart-table th {
+            text-align: left;
+            padding: 1rem;
+            background-color: var(--taupe);
+            color: var(--charcoal);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .cart-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--taupe);
+            vertical-align: top;
+        }
+
+        .product-name {
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+
+        .product-price {
+            color: var(--gold);
+            font-weight: 500;
+        }
+
+        .price-summary {
+            margin-top: 2rem;
+            border-top: 1px solid var(--taupe);
+            padding-top: 1.5rem;
+        }
+
+        .price-row {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
         }
 
-        .product-form label {
-            font-weight: bold;
+        .grand-total {
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-top: 1px solid var(--taupe);
+            padding-top: 1rem;
+            margin-top: 1rem;
         }
 
-        .product-form input,
-        .product-form select {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .product-form button {
-            padding: 12px;
-            background-color: #007bff;
+        .luxury-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--charcoal);
             color: white;
             border: none;
-            border-radius: 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
+            transition: var(--transition);
+            margin-top: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Montserrat', sans-serif;
         }
 
-        .product-form button:hover {
-            background-color: #0056b3;
+        .luxury-btn:hover {
+            background-color: transparent;
+            color: var(--gold);
+            border: 1px solid var(--gold);
         }
 
-        table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
+        .free-delivery {
+            color: var(--gold);
+            font-weight: 500;
             text-align: center;
+            margin: 1rem 0;
+            font-size: 0.9rem;
         }
 
-        th {
-            background-color: #f8f9fa;
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border-radius: 6px;
+            background-color: var(--cream);
+            padding: 5px;
+        }
+
+        .discount-badge {
+            background-color: var(--gold);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: var(--stone);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 480px) {
+            .cart-table th, .cart-table td {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .product-image {
+                width: 40px;
+                height: 40px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
+<body>
 {% extends "home.html" %}
-    
+
+{% block title %}Checkout | Sitara Furnishings{% endblock %}
+
 {% block content %}
-<main>
-    <div class="container">
-        <form id="order-form" action="{{ url_for('main.place_order') }}" method="POST" class="product-form">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" value="{{ current_user.username }}" required />
+<div class="checkout-container">
+    <div class="checkout-form-container">
+        <h1>Delivery Information</h1>
+        <form id="order-form" action="{{ url_for('main.place_order') }}" method="POST">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" value="{{ current_user.username }}" required />
+            </div>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ current_user.email }}" required />
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" value="{{ current_user.email }}" required />
+            </div>
 
-            <label for="contact">Contact:</label>
-            <input type="tel" id="contact" name="contact" value="{{ current_user.contact }}" required />
+            <div class="form-group">
+                <label for="contact">Phone Number</label>
+                <input type="tel" id="contact" name="contact" value="{{ current_user.contact }}" required />
+            </div>
 
             <input name="grand_total" id="grand_total_input" value="{{ grand_total }}" type="hidden" />
 
-            <label for="address">Address:</label>
-            <input type="text" id="address" name="address" value="{{ current_user.address }}" required />
+            <div class="form-group">
+                <label for="address">Delivery Address</label>
+                <input type="text" id="address" name="address" value="{{ current_user.address }}" required />
+            </div>
 
-            <label for="city">City:</label>
-            <select name="city" id="city" required>
-                <option value="" disabled>Select your city</option>
-                {% for city_option in ["Select your city", "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Ahmedabad", "Chennai", "Coimbatore", "Kolkata", "Pune", "Jaipur", "Lucknow", "Kanpur", "Trichy", "Madurai", "Nagpur", "Indore", "Thane", "Bhopal", "Visakhapatnam", "Patna", "Vadodara", "Ghaziabad", "Ludhiana", "Agra", "Nashik", "Faridabad", "Meerut", "Rajkot"] %}
-                    <option value="{{ city_option }}" {% if city_option == current_user.city %}selected{% endif %}>{{ city_option }}</option>
-                {% endfor %}
-            </select>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item Name</th>
-                        <th>Item Price</th>
-                        <th>Item Quantity</th>
-                        <th>Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                    <tr>
-                        <td>{{ item.product.name }}</td>
-                        <td>₹{{ item.product.price }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>₹{{ item.total_price }}</td>
-                    </tr>
+            <div class="form-group">
+                <label for="city">City</label>
+                <select name="city" id="city" required>
+                    <option value="" disabled>Select your city</option>
+                    {% for city_option in ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Ahmedabad", "Chennai", "Coimbatore", "Kolkata", "Pune", "Jaipur", "Lucknow", "Kanpur", "Trichy", "Madurai", "Nagpur", "Indore", "Thane", "Bhopal", "Visakhapatnam", "Patna", "Vadodara", "Ghaziabad", "Ludhiana", "Agra", "Nashik", "Faridabad", "Meerut", "Rajkot"] %}
+                        <option value="{{ city_option }}" {% if city_option == current_user.city %}selected{% endif %}>{{ city_option }}</option>
                     {% endfor %}
-                </tbody>
-            </table>
-
-            <p>Sub Total: ₹{{ total_price }}</p>
-            <p>Delivery Charges: ₹{{ tax }}</p>
-            <p>Discount: ₹{{ total_discount }}</p>
-            <p>Grand Total Amount: ₹{{ grand_total }}</p>
-
-            <button type="button" id="rzp-button">PAY NOW</button>
+                </select>
+            </div>
         </form>
     </div>
-    </main>
 
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script>
-        const grandTotal = document.getElementById("grand_total_input").value;
-        fetch('/create_order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: grandTotal * 100 })
-        })
-        .then(res => res.json())
-        .then(order => {
-            const options = {
-                key: "rzp_test_U3dMvkynq7cV8g",
-                amount: order.amount,
-                currency: order.currency,
-                name: "SITARA FURNITURES",
-                description: "Test Transaction",
-                order_id: order.id,
-                handler: function (response) {
-                    fetch('/verify_payment', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(response)
-                    })
-                    .then(res => res.json())
-                    .then(data => alert(data.status))
-                    .catch(error => console.error(error));
-                },
-                prefill: {
-                    name: "{{ current_user.username }}",
-                    email: "{{ current_user.email }}",
-                    contact: "{{ current_user.contact }}"
-                },
-                notes: { address: "{{ current_user.address }}" },
-                theme: { color: "#007bff" }
-            };
-            const rzp1 = new Razorpay(options);
-            document.getElementById('rzp-button').onclick = function (e) {
+    <div class="checkout-summary">
+        <h2>Order Summary</h2>
+        <p class="free-delivery">Free delivery on orders over ₹5000</p>
+
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>
+                        <div class="product-name">{{ item.product.name }}</div>
+                        {% if item.product.discount > 0 %}
+                            <span class="discount-badge">{{ item.product.discount }}% OFF</span>
+                        {% endif %}
+                    </td>
+                    <td class="product-price">
+                        {% if item.product.discount > 0 %}
+                            ₹{{ (item.product.price * (1 - item.product.discount / 100)) | round(2) }}
+                            <div class="original-price">₹{{ item.product.price }}</div>
+                        {% else %}
+                            ₹{{ item.product.price }}
+                        {% endif %}
+                    </td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.total_price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="price-summary">
+            <div class="price-row">
+                <span>Subtotal:</span>
+                <span>₹{{ total_price }}</span>
+            </div>
+            <div class="price-row">
+                <span>Discount:</span>
+                <span>-₹{{ total_discount }}</span>
+            </div>
+            <div class="price-row">
+                <span>Delivery:</span>
+                <span>₹{{ tax }}</span>
+            </div>
+            <div class="price-row grand-total">
+                <span>Total:</span>
+                <span>₹{{ grand_total }}</span>
+            </div>
+        </div>
+
+        <button type="button" id="rzp-button" class="luxury-btn">
+            <i class="fas fa-lock mr-2"></i> PAY NOW
+        </button>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    const grandTotal = document.getElementById("grand_total_input").value;
+
+    fetch('/create_order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: grandTotal * 100 })
+    })
+    .then(res => res.json())
+    .then(order => {
+        const options = {
+            key: "rzp_test_U3dMvkynq7cV8g",
+            amount: order.amount,
+            currency: order.currency,
+            name: "SITARA FURNISHINGS",
+            description: "Luxury Furniture Purchase",
+            order_id: order.id,
+            handler: function (response) {
+                document.getElementById('order-form').submit();
+            },
+            prefill: {
+                name: "{{ current_user.username }}",
+                email: "{{ current_user.email }}",
+                contact: "{{ current_user.contact }}"
+            },
+            notes: {
+                address: "{{ current_user.address }}",
+                city: document.getElementById('city').value
+            },
+            theme: {
+                color: "#C0A062"
+            }
+        };
+
+        const rzp1 = new Razorpay(options);
+
+        document.getElementById('rzp-button').onclick = function (e) {
+            // Validate form before opening payment
+            const form = document.getElementById('order-form');
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#b91c1c';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+
+            if (isValid) {
                 rzp1.open();
-                e.preventDefault();
-            };
-        })
-        .catch(error => console.error(error));
-    </script>
-    {% endblock %}
+            } else {
+                alert('Please fill in all required fields');
+            }
+            e.preventDefault();
+        };
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error processing payment. Please try again.');
+    });
+</script>
+{% endblock %}
+</body>
 </html>

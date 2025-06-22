@@ -3,375 +3,583 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard | Sitara Furnishings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-    font-family: 'Roboto', sans-serif;
-    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: #333;
-    position: relative;
-}
-
-/* Overlay to reduce opacity */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-    z-index: -1;
-}
-
-/* Ensuring content appears above the overlay */
-.form-container, .dashboard {
-    position: relative;
-    z-index: 1;
-}
-        /* Centered header */
-        h1 {
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 36px;
-            color: #333;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: bold;
+        :root {
+            --cream: #F7F5F0;
+            --taupe: #E8E1D5;
+            --charcoal: #2A2A2A;
+            --gold: #C0A062;
+            --stone: #D4CDC3;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Dashboard container */
-        .dashboard {
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--cream);
+            color: var(--charcoal);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .admin-header {
+            background: linear-gradient(rgba(42, 42, 42, 0.9), rgba(42, 42, 42, 0.7)),
+                       url('{{ url_for("static", filename="images/admin-pattern.jpg") }}');
+            background-size: cover;
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .admin-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            margin: 0;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .admin-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-top: 0.8rem;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 500;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-header h2:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        /* Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            border: 1px solid var(--taupe);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background: var(--gold);
+            color: white;
+            padding: 1.5rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 1.8rem;
+            text-align: center;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: var(--charcoal);
+        }
+
+        .card-description {
+            color: var(--charcoal);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Visualization Actions */
+        .visualization-actions {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 30px;
-            padding: 40px;
-            max-width: 1000px;
-            margin: 0 auto;
+            gap: 1.5rem;
+            margin: 3rem 0;
         }
 
-        /* Button styles */
-        .dashboard button {
-            background: linear-gradient(145deg, #6a11cb, #2575fc);
-            color: white;
-            border: none;
-            padding: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            text-transform: uppercase;
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid var(--taupe);
+            padding: 2rem 1.5rem;
+            border-radius: 8px;
             text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--charcoal);
         }
 
-        /* Hover effect */
-        .dashboard button:hover {
-            background: linear-gradient(145deg, #2575fc, #6a11cb);
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        .action-btn:hover {
+            background: var(--gold);
+            color: white;
+            transform: translateY(-3px);
         }
 
-        /* Button focus */
-        .dashboard button:focus {
-            outline: none;
+        .action-btn:hover .action-icon {
+            color: white;
         }
 
-        /* Button active state */
-        .dashboard button:active {
-            transform: translateY(1px);
+        .action-icon {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--gold);
+            transition: var(--transition);
+        }
+
+        .action-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-desc {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--taupe);
+            margin-bottom: 3rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        /* Table Section */
+        .table-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--taupe);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 3rem;
+        }
+
+        .table-section h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--charcoal);
+        }
+
+        .table-section table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-section thead {
+            background-color: var(--gold);
+            color: white;
+        }
+
+        .table-section th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 500;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .table-section tbody tr {
+            border-bottom: 1px solid var(--taupe);
+            transition: background 0.2s ease;
+        }
+
+        .table-section tbody tr:nth-child(even) {
+            background-color: var(--cream);
+        }
+
+        .table-section tbody tr:hover {
+            background-color: rgba(192, 160, 98, 0.1);
+        }
+
+        .table-section td {
+            padding: 12px 15px;
+            color: var(--charcoal);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-processing {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+
+        .status-shipped {
+            background-color: #D1ECF1;
+            color: #0C5460;
+        }
+
+        .status-delivered {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--taupe);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--charcoal);
+            opacity: 0.8;
         }
 
         /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
         @media (max-width: 768px) {
-            h1 {
-                font-size: 28px;
+            .admin-header h1 {
+                font-size: 2.2rem;
             }
 
-            .dashboard button {
-                width: 100%;
-                font-size: 16px;
-                padding: 15px;
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
+
+            .visualization-actions {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr 1fr;
             }
         }
 
-        /* Container for Form */
-        .form-container {
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom: 40px;
+        @media (max-width: 576px) {
+            .admin-header {
+                padding: 2rem 0;
+            }
+
+            .visualization-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
         }
-        .button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            margin: 20px 0;
-        }
-        
-        .button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 18px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            text-decoration: none; /* Remove underline */
-        }
-        
-        .button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-            text-decoration: none; /* Remove underline */
-        }
-        /* Main Content Styling */
-.content {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    padding: 20px;
-    gap: 20px; /* Add spacing between elements */
-}
-
-/* Chart Section */
-.chart-container {
-    flex: 1;
-    min-width: 300px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Real-Time Reports Section */
-.analytics {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    padding: 20px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-/* Individual Report Items */
-.analytics div {
-    background: #f9f9f9;
-    color: #333;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #aac4e2;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-/* Heading Styles */
-.analytics h4 {
-    font-size: 16px;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    font-weight: 600;
-    color: #444;
-}
-
-/* Value Styles */
-.analytics p {
-    font-size: 20px;
-    font-weight: bold;
-    margin: 0;
-    color: #222;
-}
-
-/* Hover Effect */
-.analytics div:hover {
-    transform: scale(1.03);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Revenue Table Enhancements */
-.table-section {
-    margin-top: 25px;
-    padding: 20px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.table-section h4 {
-    text-align: center;
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 12px;
-    color: #333;
-}
-
-/* Table Styling */
-.table-section table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Table Header */
-.table-section thead {
-    background-color: #007bff;
-    color: white;
-    text-transform: uppercase;
-}
-
-/* Table Header Cells */
-.table-section th {
-    padding: 10px;
-    text-align: left;
-    font-weight: 600;
-    border-bottom: 2px solid #ddd;
-}
-
-/* Table Rows */
-.table-section tbody tr {
-    border-bottom: 1px solid #eee;
-    transition: background 0.2s ease-in-out;
-}
-
-/* Alternating Row Colors */
-.table-section tbody tr:nth-child(even) {
-    background: #fafafa;
-}
-
-/* Table Cells */
-.table-section td {
-    padding: 10px;
-    color: #444;
-}
-
-/* Hover Effect on Rows */
-.table-section tbody tr:hover {
-    background: #f0f0f0;
-}
-
-/* Small, Outlined Button Styling */
-button {
-    padding: 4px 10px;
-    font-size: 12px;
-    border-radius: 5px;
-    border: 1px solid #666;
-    background: transparent;
-    color: #333;
-    cursor: pointer;
-    transition: background 0.2s ease-in-out, border-color 0.2s ease-in-out;
-}
-
-/* Hover Effect */
-button:hover {
-    background: #eee;
-    border-color: #444;
-}
-
-/* Click Effect */
-button:active {
-    transform: scale(0.95);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .analytics {
-        grid-template-columns: 1fr;
-    }
-
-    .analytics div {
-        padding: 12px;
-    }
-
-    .analytics p {
-        font-size: 18px;
-    }
-
-    .table-section th,
-    .table-section td {
-        padding: 8px;
-        font-size: 14px;
-    }
-
-    button {
-        font-size: 10px;
-        padding: 3px 8px;
-    }
-}
-
     </style>
 </head>
 <body>
     {% extends "home.html" %}
 
-    
-
     {% block content %}
-    <div class="form-container">
-        <div class="button-container">
-            <a href="/visualization/roles_chart" class="button">View Users by Roles</a>
-            <a href="/visualization/sales_by_city" class="button">Sales Based on City</a>
-            <a href="/visualization/revenue_trends" class="button">Revenue Trends</a>
-            <a href="/visualization/delivery_chart" class="button">Delivery Chart</a>
-            <a href="/visualization/inventory_status" class="button">Inventory Status</a>
-            <a href="/visualization/financial_health" class="button">Financial status</a>
-            <a href="/visualization/customer_trends" class="button">Customer Trends</a>
+    <div class="admin-header">
+        <h1>Delivery Analytics</h1>
+        <p>Track and optimize your delivery operations</p>
+    </div>
+
+    <div class="admin-container">
+        <!-- Quick Stats Section -->
+        <div class="quick-stats">
+            <div class="stat-item">
+                <div class="stat-value">1,248</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">₹3.2M</div>
+                <div class="stat-label">Revenue</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">892</div>
+                <div class="stat-label">Active Customers</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">56</div>
+                <div class="stat-label">New Today</div>
+            </div>
         </div>
-        <!-- Main Content -->
-    <div class="content">
+
+        <!-- Main Dashboard Cards -->
+        <div class="section-header">
+            <h2>Business Overview</h2>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-header">Sales Performance</div>
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-value">₹1.4M</div>
+                    <div class="card-description">Last 30 Days Revenue</div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">Customer Growth</div>
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-value">+18%</div>
+                    <div class="card-description">Quarterly Growth Rate</div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">Inventory Status</div>
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="card-value">42</div>
+                    <div class="card-description">Low Stock Items</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualization Actions -->
+        <div class="section-header">
+            <h2>Data Visualizations</h2>
+        </div>
+
+        <div class="visualization-actions">
+            <a href="/visualization/roles_chart" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div class="action-title">User Roles</div>
+                <div class="action-desc">View distribution of user roles</div>
+            </a>
+
+            <a href="/visualization/sales_by_city" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-city"></i>
+                </div>
+                <div class="action-title">Sales by City</div>
+                <div class="action-desc">Geographical sales distribution</div>
+            </a>
+
+            <a href="/visualization/revenue_trends" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="action-title">Revenue Trends</div>
+                <div class="action-desc">Historical revenue analysis</div>
+            </a>
+
+            <a href="/visualization/delivery_chart" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="action-title">Delivery Status</div>
+                <div class="action-desc">Order fulfillment metrics</div>
+            </a>
+
+            <a href="/visualization/inventory_status" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="action-title">Inventory Status</div>
+                <div class="action-desc">Stock levels and alerts</div>
+            </a>
+
+            <a href="/visualization/financial_health" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="action-title">Financial Health</div>
+                <div class="action-desc">Key financial metrics</div>
+            </a>
+
+            <a href="/visualization/customer_trends" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-user-chart"></i>
+                </div>
+                <div class="action-title">Customer Trends</div>
+                <div class="action-desc">Customer behavior analysis</div>
+            </a>
+
+            <a href="/visualization/product_performance" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-couch"></i>
+                </div>
+                <div class="action-title">Product Performance</div>
+                <div class="action-desc">Top selling items analysis</div>
+            </a>
+        </div>
+
         <!-- Chart Section -->
+        <div class="section-header">
+            <h2>Revenue Analysis</h2>
+        </div>
+
         <div class="chart-container">
-            
             <img src="data:image/png;base64,{{ chart_data }}" alt="Revenue Chart">
         </div>
-        
-        
 
-    <!-- Table Section -->
-    <div class="table-section">
-        <h3>Order Details</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.status }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Order Details Section -->
+        <div class="section-header">
+            <h2>Recent Orders</h2>
+        </div>
+
+        <div class="table-section">
+            <h3>Order Details</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+<!--                        <th>Customer</th>-->
+                        <th>Amount</th>
+                        <th>Status</th>
+<!--                        <th>Actions</th>-->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+<!--                        <td>{{ order.customer_name }}</td>-->
+                        <td>₹{{ order.amount }}</td>
+                        <td>
+                            <span class="status-badge status-{{ order.status|lower }}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+<!--                        <td>-->
+<!--                            <button class="view-btn">View</button>-->
+<!--                            <button class="edit-btn">Edit</button>-->
+<!--                        </td>-->
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate elements on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.dashboard-card, .action-btn, .stat-item').forEach(element => {
+                element.style.opacity = 0;
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(element);
+            });
+
+            // Add click handlers for action buttons
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Add any specific click handling here
+                });
+            });
+        });
+    </script>
     {% endblock %}
 </body>
 </html>

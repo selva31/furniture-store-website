@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from .models import Product, Cart, db, Wishlist, OrderedProduct, OrderDetails
 from sqlalchemy.orm import joinedload, subqueryload
 import sqlalchemy
+from flask import session
 from datetime import datetime
 import razorpay
 
@@ -173,22 +174,34 @@ def verify_payment():
             'razorpay_payment_id': razorpay_payment_id,
             'razorpay_signature': razorpay_signature
         })
+
         # Payment is successful, update the order status in your database
         flash("Payment successful!")
+
+        # Send a success email to the user
+        user_email = current_user.email
+        send_success_email(user_email)
+
         return redirect(url_for('main.order_success'))
 
     except razorpay.errors.SignatureVerificationError:
         # Payment verification failed
         flash("Payment verification failed. Please try again.", "danger")
         return redirect(url_for('main.checkout'))
-    
-    #     # Payment is successful, update the order status in your database
-    #     return jsonify({'status': 'Payment successful'})
-    #     return redirect(url_for('main.order_success'))
 
-    # except:
-    #     # Payment verification failed
-    #     return jsonify({'status': 'Payment verification failed'})
+def send_success_email(user_email):
+    """Send the order success email to the user."""
+    if not user_email:
+        print("No email address available for user!")
+        return
+    msg = Message("Order Confirmation",
+                  recipients=[user_email])
+    msg.body = "Thank you for your order! Your payment has been successfully processed."
+    try:
+        mail.send(msg)
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+
 
 @main.route('/place_order', methods=['POST'])
 @login_required
@@ -258,35 +271,60 @@ def place_order():
         return redirect(url_for('main.checkout'))
 
 @main.route('/add_to_cart', methods=['POST'])
-@login_required
 def add_to_cart():
     product_id = request.form.get('product_id')
+
+    if not current_user.is_authenticated:
+        # Store product_id in session to add after login
+        session['pending_cart_product_id'] = product_id
+        next_url = url_for('main.add_to_cart_after_login')  # Redirect here after login
+        return redirect(url_for('auth.login', next=next_url))
+
+    # If already logged in, proceed to add to cart
+    return _add_product_to_cart(product_id)
+
+
+def _add_product_to_cart(product_id):
     product = Product.query.get(product_id)
 
     if not product:
-        flash("Product not found!", "danger")
-        return redirect(request.referrer or url_for('main.home'))
+        flash("Product not found.", "error")
+        return redirect(url_for('main.home'))
 
-    # Check if the product is already in the user's cart
-    existing_cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product.id).first()
-    if existing_cart_item:
-        # Remove the product from the cart
-        db.session.delete(existing_cart_item)
-        db.session.commit()
-        flash("Product removed from cart!", "success")
-    else:
-        # Add the product to the cart
-        cart_item = Cart(
+    cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product.id).first()
+
+    if not cart_item:
+        new_cart_item = Cart(
             user_id=current_user.id,
             product_id=product.id,
             quantity=1,
             total_price=product.price
         )
-        db.session.add(cart_item)
+        db.session.add(new_cart_item)
         db.session.commit()
-        flash("Product added to cart!", "success")
+        flash(f"'{product.name}' added to your cart.", "success")
+    else:
+        flash(f"'{product.name}' is already in your cart.", "info")
 
-    return redirect(request.referrer or url_for('main.home'))
+    return redirect(url_for('main.cart'))
+
+
+@main.route('/add_to_cart_after_login')
+@login_required
+def add_to_cart_after_login():
+    product_id = session.pop('pending_cart_product_id', None)
+
+    if product_id:
+        return _add_product_to_cart(product_id)
+
+    flash("No pending product to add to cart.", "info")
+    return redirect(url_for('main.home'))
+
+
+
+
+
+
 
 @main.route('/update_cart_item/<int:cart_item_id>', methods=['POST'])
 @login_required
@@ -301,11 +339,11 @@ def update_cart_item(cart_item_id):
             return jsonify({'success': False, 'error': 'Invalid request data'}), 400
 
         new_quantity = int(data['quantity'])
-        product = cart_item.product # Get the associated product from cart_item
+        product = cart_item.product
 
         if new_quantity < 1:
             return jsonify({'success': False, 'error': 'Quantity must be at least 1'}), 400
-        if new_quantity > product.quantity: # Check for stock availability
+        if new_quantity > product.quantity:
             return jsonify({'success': False, 'error': f'Only {product.quantity} units in stock'}), 400
 
         cart_item.quantity = new_quantity
@@ -313,13 +351,7 @@ def update_cart_item(cart_item_id):
         db.session.commit()
         return jsonify({'success': True})
 
-    except ValueError as e: # Catch specific errors for more informative messages
-        db.session.rollback()
-        return jsonify({'success': False, 'error': f'Invalid quantity: {e}'}), 400
-    except sqlalchemy.exc.IntegrityError as e: # Handle database errors
-        db.session.rollback()
-        return jsonify({'success': False, 'error': f'Database error: {e}'}), 500
-    except Exception as e:  # Catch any other exception
+    except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': f'An unexpected error occurred: {e}'}), 500
 
@@ -328,7 +360,7 @@ def update_cart_item(cart_item_id):
 def cart():
     cart_items = (Cart.query
                   .filter_by(user_id=current_user.id)
-                  .options(joinedload(Cart.product).joinedload(Product.images)) # Eager load related objects
+                  .options(joinedload(Cart.product).joinedload(Product.images))  # Eager load related objects
                   .all())
 
     # Filter out items where product is None
@@ -340,15 +372,15 @@ def cart():
             product_stock[item.product.id] = item.product.quantity
 
     return render_template('cart.html', cart_items=valid_cart_items, product_stock=product_stock)
-
 @main.route('/remove_from_cart', methods=['POST'])
 @login_required
 def remove_from_cart():
-    cart_item_id = request.form.get('cart_item_id')
-    cart_item = Cart.query.get(cart_item_id)
+    product_id = request.form.get('product_id')
 
-    if not cart_item or cart_item.user_id != current_user.id:
-        flash("Item not found or unauthorized!", "danger")
+    cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+
+    if not cart_item:
+        flash("Item not found in cart!", "danger")
         return redirect(url_for('main.cart'))
 
     db.session.delete(cart_item)
@@ -445,35 +477,115 @@ def search():
 @main.route('/faq')
 def faq():
     return render_template('faq.html')
+from flask import session
 
-@main.route('/buy_now', methods=['POST'])
-@login_required
-def buy_now():
-    product_id = request.form.get('product_id')
-    product = Product.query.get(product_id)
+#
+# @main.route('/buy_now', methods=['GET', 'POST'])
+# @login_required
+# def buy_now():
+#     if request.method == 'POST':
+#         Product_id = request.form.get('Product_id')
+#     else:  # GET after login
+#         Product_id = request.args.get('Product_id')
+#
+#     # if not product_id:
+#     #     flash("No product selected.", "error")
+#     #     return redirect(url_for('main.home'))
+#     #
+#         Product = Product.query.get(Product_id)
+#     # if not product:
+#     #     flash("Product not found.", "error")
+#     #     return redirect(url_for('main.home'))
+#
+#     # Your logic for processing the 'Buy Now' action
+#     flash(f"Proceeding to checkout .", "success")
+#     return redirect(url_for('main.checkout'))  # Redirect to checkout page
 
-    if not product:
-        flash("Product not found!", "danger")
-        return redirect(url_for('main.home'))
 
-    # Clear the user's cart first
-    Cart.query.filter_by(user_id=current_user.id).delete()
+@main.route('/buy_now/<int:product_id>', methods=['GET', 'POST'])
+def buy_now(product_id):
+    if not current_user.is_authenticated:
+        # Store the redirect target and product_id in query parameters
+        return redirect(url_for('auth.login', next='buy_now', product_id=product_id))
 
-    # Add the product to the cart
-    cart_item = Cart(
-        user_id=current_user.id,
-        product_id=product.id,
-        quantity=1,
-        total_price=product.price
-    )
-    db.session.add(cart_item)
-    db.session.commit()
+    # Proceed to checkout logic
+    product = Product.query.get_or_404(product_id)
+    return render_template('checkout.html', product=product)
 
-    return redirect(url_for('main.checkout'))
+#
+# def _toggle_product_in_cart(product_id):
+#     product = Product.query.get(product_id)
+#
+#     if not product:
+#         flash("Product not found.", "error")
+#         return redirect(url_for('main.home'))
+#
+#     cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product.id).first()
+#
+#     if cart_item:
+#         # Product already in cart, so remove it (toggle off)
+#         db.session.delete(cart_item)
+#         db.session.commit()
+#         flash(f"'{product.name}' removed from your cart.", "info")
+#     else:
+#         # Add product to cart (toggle on)
+#         new_cart_item = Cart(
+#             user_id=current_user.id,
+#             product_id=product.id,
+#             quantity=1,
+#             total_price=product.price
+#         )
+#         db.session.add(new_cart_item)
+#         db.session.commit()
+#         flash(f"'{product.name}' added to your cart.", "success")
+#
+#     return redirect(url_for('main.cart'))
 
+#
+# @main.route('/toggle_cart', methods=['POST'])
+# @login_required
+# def toggle_cart():
+#     product_id = request.form.get('product_id')
+#     product = Product.query.get(product_id)
+#
+#     if not product:
+#         flash("Product not found.", "danger")
+#         return redirect(request.referrer or url_for('main.home'))
+#
+#     cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product.id).first()
+#
+#     if cart_item:
+#         # Remove from cart
+#         db.session.delete(cart_item)
+#         db.session.commit()
+#         flash(f"'{product.name}' removed from your cart.", "info")
+#     else:
+#         # Add to cart
+#         new_cart_item = Cart(
+#             user_id=current_user.id,
+#             product_id=product.id,
+#             quantity=1,
+#             total_price=product.price
+#         )
+#         db.session.add(new_cart_item)
+#         db.session.commit()
+#         flash(f"'{product.name}' added to your cart.", "success")
+#
+#     return redirect(request.referrer or url_for('main.cart'))
+#
 # Order success page
 @main.route('/order_success')
 @login_required
 def order_success():
     return render_template('order_success.html')
+
+
+@main.route('/ar-viewer/<int:product_id>')
+def ar_viewer(product_id):
+    product = Product.query.get_or_404(product_id)
+    return render_template('ar-viewer.html', product=product)
+
+
+
+
 

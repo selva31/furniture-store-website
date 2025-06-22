@@ -49,6 +49,7 @@ class Product(db.Model):
     # Change backref name to avoid conflict
     images = db.relationship("ProductImage", backref="product", lazy=True)
     model_file = db.Column(db.String(255), nullable=True)
+    qr_code_image = db.Column(db.String(255), nullable=True)
     ratings = relationship("Rating", back_populates="product")
 
     def __repr__(self):

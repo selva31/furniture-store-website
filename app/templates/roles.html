@@ -3,363 +3,418 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard | Sitara Furnishings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --cream: #F7F5F0;
+            --taupe: #E8E1D5;
+            --charcoal: #2A2A2A;
+            --gold: #C0A062;
+            --stone: #D4CDC3;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
         body {
-    font-family: 'Roboto', sans-serif;
-    background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: #333;
-    position: relative;
-}
-
-/* Overlay to reduce opacity */
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-    z-index: -1;
-}
-
-/* Ensuring content appears above the overlay */
-.form-container, .dashboard {
-    position: relative;
-    z-index: 1;
-}
-        /* Centered header */
-        h1 {
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 36px;
-            color: #333;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: bold;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--cream);
+            color: var(--charcoal);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Dashboard container */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 30px;
-            padding: 40px;
-            max-width: 1000px;
-            margin: 0 auto;
+        .admin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(247, 245, 240, 0.9), rgba(247, 245, 240, 0.95)),
+                       url('{{ url_for("static", filename="images/admin-pattern.jpg") }}');
+            background-size: cover;
+            z-index: -1;
         }
 
-        /* Button styles */
-        .dashboard button {
-            background: linear-gradient(145deg, #6a11cb, #2575fc);
+        .admin-header {
+            background-color: var(--charcoal);
             color: white;
-            border: none;
-            padding: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 10px;
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin: 0;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .admin-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid var(--taupe);
+            padding: 1.8rem 1.2rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: var(--transition);
             cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--charcoal);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .action-btn:hover {
+            background: var(--gold);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn:hover .action-icon {
+            color: white;
+        }
+
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--gold);
+            transition: var(--transition);
+        }
+
+        .action-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-desc {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .dashboard-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-container {
+            flex: 2;
+            min-width: 300px;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--taupe);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-container h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--charcoal);
+            margin-bottom: 1.5rem;
             text-align: center;
         }
 
-        /* Hover effect */
-        .dashboard button:hover {
-            background: linear-gradient(145deg, #2575fc, #6a11cb);
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        .chart-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
         }
 
-        /* Button focus */
-        .dashboard button:focus {
-            outline: none;
+        .analytics-panel {
+            flex: 1;
+            min-width: 300px;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--taupe);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
-        /* Button active state */
-        .dashboard button:active {
-            transform: translateY(1px);
+        .analytics-panel h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--charcoal);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .analytics-panel h3:after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        .metric-card {
+            background: var(--cream);
+            padding: 1.2rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--gold);
+        }
+
+        .metric-title {
+            font-size: 0.9rem;
+            color: var(--charcoal);
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--gold);
+        }
+
+        .data-table {
+            width: 100%;
+            margin-top: 2rem;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background-color: var(--gold);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .data-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--taupe);
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: var(--cream);
+        }
+
+        .data-table tr:hover {
+            background-color: rgba(192, 160, 98, 0.1);
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+
+        .status-completed {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+
+        .status-processing {
+            background-color: #D1ECF1;
+            color: #0C5460;
         }
 
         /* Responsive Design */
+        @media (max-width: 1200px) {
+            .action-buttons {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
         @media (max-width: 768px) {
-            h1 {
-                font-size: 28px;
+            .admin-header h1 {
+                font-size: 2rem;
             }
 
-            .dashboard button {
-                width: 100%;
-                font-size: 16px;
-                padding: 15px;
+            .dashboard-content {
+                flex-direction: column;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr 1fr;
             }
         }
 
-        /* Container for Form */
-        .form-container {
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom: 40px;
+        @media (max-width: 576px) {
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-header {
+                padding: 1.5rem 0;
+            }
         }
-        .button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            margin: 20px 0;
-        }
-        
-        .button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 18px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            text-decoration: none; /* Remove underline */
-        }
-        
-        .button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-            text-decoration: none; /* Remove underline */
-        }
-        /* Main Content Styling */
-.content {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    padding: 20px;
-    gap: 20px; /* Add spacing between elements */
-}
-
-/* Chart Section */
-.chart-container {
-    flex: 1;
-    min-width: 300px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Data Table Styling */
-.data-table {
-    flex: 1;
-    min-width: 300px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-th, td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-/* Real-Time Reports Section */
-.data-container {
-    flex: 1;
-    min-width: 300px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.report-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
-}
-
-.report-item:last-child {
-    border-bottom: none;
-}
-
-.report-item span {
-    font-weight: bold;
-}
-
-/* Headings Styling */
-h1, h2 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-}
-.container {
-    display: flex;
-    width: 90%;
-    max-width: 1200px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-}
-.visualization {
-    flex: 1;
-    padding: 20px;
-}
-
-img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .content {
-        flex-direction: column;
-    }
-
-    .chart-container,
-    .data-table,
-    .data-container {
-        margin-bottom: 20px;
-    }
-}
-/* Analytics Section Styling */
-.analytics {
-    flex: 1;
-    padding: 20px;
-    background: #f9f9f9;
-    border-left: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-/* Analytics Heading */
-.analytics h2 {
-    font-size: 22px;
-    color: #333;
-    margin-bottom: 15px;
-}
-
-/* Analytics Data Styling */
-.analytics .data {
-    font-size: 18px;
-    font-weight: bold;
-    color: #007bff;
-    background: #eef4ff;
-    padding: 12px;
-    border-radius: 8px;
-    display: inline-block;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* List Styling */
-.analytics ul {
-    list-style: none;
-    padding: 0;
-    margin-top: 10px;
-}
-
-.analytics ul li {
-    font-size: 16px;
-    background: #fff;
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
-}
-
-.analytics ul li:hover {
-    transform: scale(1.05);
-    background: #f2f8ff;
-}
-
-/* Responsive Analytics Section */
-@media (max-width: 768px) {
-    .analytics {
-        border-left: none;
-        border-top: 1px solid #ddd;
-        padding: 15px;
-    }
-}
-
     </style>
 </head>
 <body>
     {% extends "home.html" %}
 
-    
-
     {% block content %}
-    <div class="form-container">
-        <div class="button-container">
-            <a href="/visualization/roles_chart" class="button">View Users by Roles</a>
-            <a href="/visualization/sales_by_city" class="button">Sales Based on City</a>
-            <a href="/visualization/revenue_trends" class="button">Revenue Trends</a>
-            <a href="/visualization/delivery_chart" class="button">Delivery Chart</a>
-            <a href="/visualization/inventory_status" class="button">Inventory Status</a>
-            <a href="/visualization/financial_health" class="button">Financial status</a>
-            <a href="/visualization/customer_trends" class="button">Customer Trends</a>
-        </div>
-        <!-- Main Content -->
-    <div class="content">
-        <!-- Chart Section -->
-        <div class="chart-container">
-            <h1>{{title}}</h1>
-            {% if pie_chart_url %}
-                <img src="data:image/png;base64,{{ pie_chart_url }}" >
-            {% else %}
-                <p>No chart available.</p>
-            {% endif %}
+    <div class="admin-overlay"></div>
+
+    <div class="admin-header">
+        <h1>Users Analytics Dashboard</h1>
+        <p>Anlayse Users management</p>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Visualization Action Buttons -->
+        <div class="action-buttons">
+            <a href="/visualization/roles_chart" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div class="action-title">User Roles</div>
+                <div class="action-desc">View distribution of user roles</div>
+            </a>
+
+            <a href="/visualization/sales_by_city" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-city"></i>
+                </div>
+                <div class="action-title">Sales by City</div>
+                <div class="action-desc">Geographical sales distribution</div>
+            </a>
+
+            <a href="/visualization/revenue_trends" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="action-title">Revenue Trends</div>
+                <div class="action-desc">Historical revenue analysis</div>
+            </a>
+
+            <a href="/visualization/delivery_chart" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="action-title">Delivery Status</div>
+                <div class="action-desc">Order fulfillment metrics</div>
+            </a>
+
+            <a href="/visualization/inventory_status" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="action-title">Inventory Status</div>
+                <div class="action-desc">Stock levels and alerts</div>
+            </a>
+
+            <a href="/visualization/financial_health" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="action-title">Financial Health</div>
+                <div class="action-desc">Key financial metrics</div>
+            </a>
+
+            <a href="/visualization/customer_trends" class="action-btn">
+                <div class="action-icon">
+                    <i class="fas fa-user-chart"></i>
+                </div>
+                <div class="action-title">Customer Trends</div>
+                <div class="action-desc">Customer behavior analysis</div>
+            </a>
         </div>
 
-        <!-- Analytics -->
-        <div class="analytics">
-            <h2>{{side_title}}</h2>
-            <div class="data">{{t1}} {{ analytics_data.total_users }}</div>
-            <h3>{{t2}}</h3>
-            <ul>
-                {% for role, count in analytics_data.role_distribution.items() %}
-                <li>{{ role }}: {{ count }}</li>
-                {% endfor %}
-            </ul>
+        <!-- Main Dashboard Content -->
+        <div class="dashboard-content">
+            <div class="chart-container">
+                <h2>{{title}}</h2>
+                {% if pie_chart_url %}
+                    <img src="data:image/png;base64,{{ pie_chart_url }}" alt="Analytics Chart">
+                {% else %}
+                    <p>No chart data available. Please select a visualization.</p>
+                {% endif %}
+            </div>
+
+            <div class="analytics-panel">
+                <h3>{{side_title}}</h3>
+
+                <div class="metric-card">
+                    <div class="metric-title">{{t1}}</div>
+                    <div class="metric-value">{{ analytics_data.total_users }}</div>
+                </div>
+
+                <h4 style="margin: 1.5rem 0 1rem; text-align: center;">{{t2}}</h4>
+
+                <table class="data-table">
+                    {% for role, count in analytics_data.role_distribution.items() %}
+                    <tr>
+                        <td>{{ role }}</td>
+                        <td>{{ count }}</td>
+                        <td>
+                            <span class="status-badge {% if count > 50 %}status-completed{% else %}status-pending{% endif %}">
+                                {{ (count / analytics_data.total_users * 100)|round(1) }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
         </div>
-        
-    
     </div>
+
+    <script>
+        // Simple animation for elements when they come into view
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.action-btn, .chart-container, .analytics-panel').forEach(element => {
+                element.style.opacity = 0;
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(element);
+            });
+        });
+    </script>
     {% endblock %}
 </body>
 </html>

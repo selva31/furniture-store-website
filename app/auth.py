@@ -59,41 +59,47 @@ def register():
 
     return render_template('register.html', form=form)
 
-
-
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+
+    # Always safely try to get next and product_id
+    next_page = request.args.get('next')
+    product_id = request.args.get('product_id')
+
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
-            # Flash success message
-            flash('Login successful!', 'success')  # Ensure the message is flashed here
-            login_user(user)  # Log the user in
-            
-            # Set session variables
+            login_user(user)
             session['role'] = user.role
             session['user_id'] = user.id
             session['username'] = user.username
-            
-            # if the user was redirected from a page to the login page then on successful login redirect the user to that page
-            if request.args.get("next"):
-                return redirect(request.args["next"])
-            
-            # Redirect to the home page
+
+            # Handle redirect after login
+            if next_page:
+                if next_page == 'buy_now' and product_id:
+                    return redirect(url_for('main.buy_now', product_id=product_id))
+                elif next_page == 'add_to_cart' and product_id:
+                    return redirect(url_for('main.add_to_cart', product_id=product_id))
+                else:
+                    return redirect(next_page)
+
             return redirect(url_for('main.home'))
         else:
-            # Flash error message for invalid credentials
             flash('Invalid email or password!', 'danger')
-    else:
-        # Flash error messages for form validation
-        if form.errors:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    flash(f'{field.capitalize()}: {error}', 'danger')
-    
-    # Render the login page with the form
+
     return render_template('login.html', form=form)
+
+@auth.route('/add_to_cart/<int:product_id>', methods=['GET', 'POST'])
+def add_to_cart(product_id):
+    if not current_user.is_authenticated:
+        next_url = url_for('main.add_to_cart', product_id=product_id)
+        return redirect(url_for('auth.login', next=next_url))
+
+    # Your cart logic here...
+    flash("Product added to cart!", "success")
+    return redirect(url_for('main.cart'))
+
 
 
 @auth.route('/profile/<int:id>')
@@ -124,7 +130,7 @@ def update_details(id):
     if not user:
         flash("User not found.", "error")
         return redirect(url_for('main.profile'))  # Redirect to an appropriate route
-    
+
     # Access control: Only the user or an admin can update details
     if current_user.id != id and current_user.role != 'admin':
         abort(403)
@@ -138,9 +144,9 @@ def update_details(id):
         if not username or not email:
             flash("Username and Email are required.", "error")
             return redirect(url_for('auth.update_details', id=id))
-        
-        
-        
+
+
+
         # Try to update the user details
         try:
             # Update user details
@@ -152,7 +158,7 @@ def update_details(id):
 
             # Commit changes to the database
             db.session.commit()
-            
+
             # Flash success message and redirect to profile page
             flash("User details updated successfully.", "success")
             return redirect(url_for('main.profile'))  # Ensure it redirects here, after success
@@ -160,7 +166,7 @@ def update_details(id):
         except Exception as e:
             logger.error(f"Error updating user details for user {id}: {e}")
             db.session.rollback()  # Rollback in case of error
-            
+
             # Flash error message and redirect to the same page to try again
             # flash("An error occurred while updating the details. Please try again.", "error")
             return redirect(url_for('auth.update_details', id=id))
@@ -176,29 +182,29 @@ def confirm_delete(id):
     user = db.session.get(User, id)
     if not user:
         flash("User not found.", "error")
-        return redirect(url_for('auth.login'))  # Redirect to login page if user not found  
-    
+        return redirect(url_for('auth.login'))  # Redirect to login page if user not found
+
     # Access control: Only the user themselves can delete their account
     if current_user.id != id:
         abort(403)
-    
+
     if request.method == 'POST':
         password = request.form.get('password')
-        
+
         # Verify the password
         if not bcrypt.check_password_hash(user.password, password):
             flash("Incorrect password. Account deletion canceled.", "error")
             return redirect(url_for('auth.confirm_delete', id=id))
-        
+
         try:
             # Delete the user from the database
             db.session.delete(user)
             db.session.commit()
-            
+
             # Log out the user
             logout_user()
             session.clear()
-            
+
             flash("Your account has been deleted successfully.", "success")
             return render_template('home.html')
         except Exception as e:
@@ -206,7 +212,7 @@ def confirm_delete(id):
             db.session.rollback()
             flash("An error occurred while deleting your account. Please try again.", "error")
             return redirect(url_for('auth.confirm_delete', id=id))
-    
+
     # Render the confirmation page
     return render_template('confirm_delete.html', user=user)
 
@@ -231,7 +237,7 @@ def send_password_change_email(user):
     s = get_serializer()  # Get the serializer within the app context
     token = s.dumps(user.email, salt='password-reset-salt')
     """Send an email notification after the password has been changed."""
-    msg = Message('Your password has been successfully changed', sender='selvaqueen333@gmail.com', 
+    msg = Message('Your password has been successfully changed', sender='selvaqueen333@gmail.com',
                   recipients=[user.email])
     msg.body = f'''Hello {user.username},
 
@@ -281,3 +287,4 @@ def change_password():
         return redirect(url_for('auth.profile', id=current_user.id))  # Redirect to the profile page
 
     return render_template('change_password.html')
+

@@ -1,87 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Product</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+      :root {
+        --cream: #F7F5F0;
+        --taupe: #E8E1D5;
+        --charcoal: #2A2A2A;
+        --gold: #C0A062;
+        --stone: #D4CDC3;
+        --error: #D32F2F;
+        --success: #388E3C;
+        --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      body {
+        font-family: 'Montserrat', sans-serif;
+        background-color: var(--cream);
+        color: var(--charcoal);
+        line-height: 1.7;
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+      }
+
+      /* Admin Header */
+      .admin-header {
+        width: 100%;
+        height: 30vh;
+        min-height: 250px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 3rem;
+        background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+                    url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .admin-header-content {
+        color: white;
+        padding: 2rem;
+        max-width: 800px;
+      }
+
+      .admin-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.8rem;
+        font-weight: 500;
+        margin: 0 0 1.5rem;
+      }
+
+      /* Form Container */
+      .form-container {
+        max-width: 900px;
+        margin: 0 auto 4rem;
+        padding: 2.5rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 30px rgba(0,0,0,0.08);
+        border: 1px solid var(--taupe);
+      }
+
+      .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        position: relative;
+      }
+
+      .form-header h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+        font-weight: 500;
+        color: var(--charcoal);
+        margin-bottom: 1rem;
+      }
+
+      .form-header h2:after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 2px;
+        background: var(--gold);
+      }
+
+      /* Form Elements */
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.8rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.8rem;
+      }
+
+      .form-group.full-width {
+        grid-column: span 2;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.6rem;
+        font-weight: 500;
+        color: var(--charcoal);
+        font-size: 0.95rem;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        border: 1px solid var(--taupe);
+        border-radius: 4px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background-color: white;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(192, 160, 98, 0.15);
+      }
+
+      textarea.form-control {
+        min-height: 140px;
+        resize: vertical;
+        line-height: 1.6;
+      }
+
+      /* File Upload Styling */
+      .file-upload {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+      }
+
+      .file-upload-btn {
+        width: 100%;
+        padding: 1rem;
+        border: 1px dashed var(--taupe);
+        border-radius: 4px;
+        background-color: rgba(232, 225, 213, 0.15);
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+        color: #666;
+      }
+
+      .file-upload-btn:hover {
+        background-color: rgba(232, 225, 213, 0.3);
+        border-color: var(--gold);
+      }
+
+      .file-upload-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      .file-upload-text {
+        display: block;
+        margin-top: 0.8rem;
+        font-size: 0.85rem;
+        color: #777;
+      }
+
+      /* Current Images */
+      .current-images {
+        margin-top: 1.5rem;
+      }
+
+      .current-images-title {
+        font-weight: 500;
+        margin-bottom: 1rem;
+        color: var(--charcoal);
+      }
+
+      .image-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.2rem;
+        margin-top: 1rem;
+      }
+
+      .image-item {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        transition: var(--transition);
+      }
+
+      .image-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      }
+
+      .image-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .image-actions {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        justify-content: center;
+        padding: 0.5rem;
+      }
+
+      .image-action-btn {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+        transition: var(--transition);
+      }
+
+      .image-action-btn:hover {
+        color: var(--gold);
+      }
+
+      /* Preview Images */
+      .image-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.2rem;
+        margin-top: 1.5rem;
+      }
+
+      .preview-item {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      }
+
+      .preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .remove-image {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: rgba(211, 47, 47, 0.9);
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        cursor: pointer;
+        border: none;
+      }
+
+      /* Submit Button */
+      .submit-btn {
+        display: block;
+        width: 100%;
+        padding: 1.1rem;
+        background-color: var(--gold);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 500;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-top: 2rem;
+      }
+
+      .submit-btn:hover {
+        background-color: #a8864d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(192, 160, 98, 0.3);
+      }
+
+      /* Error Styling */
+      .errors {
+        color: var(--error);
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        list-style-type: none;
+        padding-left: 0;
+      }
+
+      .error-field {
+        border-color: var(--error) !important;
+      }
+
+      .error-message {
+        color: var(--error);
+        font-size: 0.85rem;
+        margin-top: 0.3rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 992px) {
         .form-container {
-  width: 600px; /* Increased width for a larger form */
-  height: 800px;
-  background: linear-gradient(145deg, #ffffff, #e6e6e6); /* Soft gradient background */
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Elevated shadow for a polished look */
-  border: 1px solid #ddd;
-  }
+          max-width: 700px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .form-group.full-width {
+          grid-column: span 1;
+        }
+
+        .admin-header h1 {
+          font-size: 2.2rem;
+        }
+
+        .form-header h2 {
+          font-size: 1.9rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .form-container {
+          padding: 1.8rem;
+          margin: 0 1rem 3rem;
+        }
+
+        .admin-header h1 {
+          font-size: 1.9rem;
+        }
+
+        .form-header h2 {
+          font-size: 1.6rem;
+        }
+
+        .image-item, .preview-item {
+          width: 100px;
+          height: 100px;
+        }
+      }
     </style>
-  </head>
-  {% extends "home.html" %}
-  
-  {% block title %}Update Product{% endblock %}
-  
-  {% block content %}
-<div class="form-container">
-    <h2>Update Product: {{ product.name }}</h2>
-    <form method="POST" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        
-        <div class="form-group">
-            <label for="name">Product Name</label>
-            {{ form.name(class="form-control") }}
+</head>
+<body>
+    {% extends "home.html" %}
+    {% block title %}Update Product{% endblock %}
+
+    {% block content %}
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <h1>Product Management</h1>
+            <p>Update your luxury furnishings collection</p>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <div class="form-header">
+            <h2>Update Product: {{ product.name }}</h2>
         </div>
 
-        <div class="form-group">
-            <label for="price">Price</label>
-            {{ form.price(class="form-control") }}
-        </div>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
 
-        <div class="form-group">
-            <label for="description">Description</label>
-            {{ form.description(class="form-control") }}
-        </div>
+            <div class="form-grid">
+                <!-- Product Name -->
+                <div class="form-group">
+                    <label for="name">Product Name *</label>
+                    {{ form.name(class="form-control" + (" error-field" if form.name.errors else ""), id="name") }}
+                    {% if form.name.errors %}
+                        <ul class="errors">
+                            {% for error in form.name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
 
-        <div class="form-group">
-            <label for="category">Category</label>
-            {{ form.category(class="form-control") }}
-        </div>
+                <!-- Price -->
+                <div class="form-group">
+                    <label for="price">Price (₹) *</label>
+                    {{ form.price(class="form-control" + (" error-field" if form.price.errors else ""), id="price") }}
+                    {% if form.price.errors %}
+                        <ul class="errors">
+                            {% for error in form.price.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
 
-        
+                <!-- Description -->
+                <div class="form-group full-width">
+                    <label for="description">Product Description</label>
+                    {{ form.description(class="form-control", id="description") }}
+                </div>
 
-        <div class="form-group">
-            <label for="colour">Colour</label>
-            {{ form.colour(class="form-control") }}
-        </div>
+                <!-- Category -->
+                <div class="form-group">
+                    <label for="category">Category *</label>
+                    {{ form.category(class="form-control", id="category") }}
+                </div>
 
-    
+                <!-- Colour -->
+                <div class="form-group">
+                    <label for="colour">Color</label>
+                    {{ form.colour(class="form-control", id="colour") }}
+                </div>
 
-        <div class="form-group">
-            <label for="quantity">Quantity</label>
-            {{ form.quantity(class="form-control") }}
-        </div>
+                <!-- Quantity -->
+                <div class="form-group">
+                    <label for="quantity">Stock Quantity *</label>
+                    {{ form.quantity(class="form-control", id="quantity") }}
+                </div>
 
-        <div class="form-group">
-            <label for="manufacturer">Manufacturer</label>
-            {{ form.manufacturer(class="form-control") }}
-        </div>
+                <!-- Manufacturer -->
+                <div class="form-group">
+                    <label for="manufacturer">Manufacturer</label>
+                    {{ form.manufacturer(class="form-control", id="manufacturer") }}
+                </div>
 
-        <div class="form-group">
-            <label for="country_of_origin">Country of Origin</label>
-            {{ form.country_of_origin(class="form-control") }}
-        </div>
+                <!-- Country of Origin -->
+                <div class="form-group">
+                    <label for="country_of_origin">Country of Origin</label>
+                    {{ form.country_of_origin(class="form-control", id="country_of_origin") }}
+                </div>
 
-        <div class="form-group">
-            <label for="discount">Discount</label>
-            {{ form.discount(class="form-control") }}
-        </div>
+                <!-- Discount -->
+                <div class="form-group">
+                    <label for="discount">Discount (%)</label>
+                    {{ form.discount(class="form-control", id="discount", placeholder="0-100") }}
+                </div>
 
-        <div class="form-group">
-            <label for="images">Images</label>
-            {{ form.images(class="form-control", multiple=True) }}
-        </div>
+                <!-- Current Images -->
+                <div class="form-group full-width current-images">
+                    <label class="current-images-title">Current Images</label>
+                    <div class="image-grid">
+                        {% for image in product.images %}
+                        <div class="image-item">
+                            <img src="{{ url_for('static', filename='uploads/' + image.image_url.split('/')[-1]) }}" alt="Product Image">
+                            <div class="image-actions">
+                                <button type="button" class="image-action-btn" onclick="confirmDeleteImage('{{ image.id }}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
 
-        <div class="form-group">
-    <label for="model">3D Model :</label>
-    {{ form.model(class="form-control") }}
-</div>
+                <!-- New Images Upload -->
+                <div class="form-group full-width">
+                    <label for="images">Add New Images</label>
+                    <div class="file-upload">
+                        <div class="file-upload-btn">
+                            <i class="fas fa-cloud-upload-alt" style="margin-right: 8px;"></i>
+                            Click to upload new images
+                            <input type="file" class="file-upload-input" id="images" name="images" multiple accept="image/*">
+                        </div>
+                        <span class="file-upload-text">Maximum 5 additional images (JPEG, PNG). Max 5MB each.</span>
+                    </div>
+                    <div class="image-preview" id="imagePreview"></div>
+                </div>
 
-        <button type="submit" class="btn btn-primary">Update</button>
-    </form>
-</div>
-{% endblock %}
+                <!-- 3D Model -->
+                <div class="form-group full-width">
+                    <label for="model">Update 3D Model (Optional)</label>
+                    {% if product.model_url %}
+                    <div style="margin-bottom: 1rem;">
+                        <span style="font-size: 0.9rem; color: var(--charcoal);">
+                            Current model: {{ product.model_url.split('/')[-1] }}
+                        </span>
+                        <button type="button" class="image-action-btn" onclick="confirmDeleteModel()" style="margin-left: 1rem;">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                    {% endif %}
+                    <div class="file-upload">
+                        <div class="file-upload-btn">
+                            <i class="fas fa-cube" style="margin-right: 8px;"></i>
+                            Upload new 3D Model File
+                            {{ form.model(class="file-upload-input", id="model") }}
+                        </div>
+                        <span class="file-upload-text">Supported formats: .glb, .gltf (Max 15MB)</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-save" style="margin-right: 8px;"></i> Update Product
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Image preview functionality
+        document.getElementById('images').addEventListener('change', function(event) {
+            const previewContainer = document.getElementById('imagePreview');
+            previewContainer.innerHTML = '';
+
+            if (this.files.length > 5) {
+                alert('You can upload maximum 5 additional images');
+                this.value = '';
+                return;
+            }
+
+            for (let i = 0; i < this.files.length; i++) {
+                const file = this.files[i];
+                if (!file.type.match('image.*')) continue;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove-image';
+                    removeBtn.innerHTML = '&times;';
+                    removeBtn.onclick = function() {
+                        previewItem.remove();
+                        // You might want to add logic to remove the file from the input too
+                    };
+
+                    previewItem.appendChild(img);
+                    previewItem.appendChild(removeBtn);
+                    previewContainer.appendChild(previewItem);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Confirm image deletion
+        function confirmDeleteImage(imageId) {
+            if (confirm('Are you sure you want to delete this image?')) {
+                fetch(`/admin/delete_image/${imageId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error deleting image');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error deleting image');
+                });
+            }
+        }
+
+        // Confirm model deletion
+        function confirmDeleteModel() {
+            if (confirm('Are you sure you want to remove the 3D model?')) {
+                fetch(`/admin/delete_model/{{ product.id }}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error removing model');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error removing model');
+                });
+            }
+        }
+
+        // Add error class to fields with errors
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if form.errors %}
+                {% for field in form.errors %}
+                    document.getElementById('{{ field }}').classList.add('error-field');
+                {% endfor %}
+            {% endif %}
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>

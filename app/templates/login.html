@@ -3,105 +3,537 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <title>Login | Sitara Furnishings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* Make the video fill the screen */
-        .video-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1; /* Ensure video stays in the background */
+      :root {
+        --cream: #F7F5F0;
+        --taupe: #E8E1D5;
+        --charcoal: #2A2A2A;
+        --gold: #C0A062;
+        --stone: #D4CDC3;
+        --gold-light: rgba(192, 160, 98, 0.1);
+        --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      body {
+        font-family: 'Montserrat', sans-serif;
+        background-color: var(--cream);
+        color: var(--charcoal);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      /* Video Background */
+      .video-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        opacity: 0.4;
+      }
+
+      /* Main Container */
+      .container {
+        display: flex;
+        width: 100%;
+        max-width: 1200px;
+        margin: 2rem;
+        box-shadow: 0 15px 40px rgba(42, 42, 42, 0.15);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      /* Brand Panel */
+      .brand-panel {
+        flex: 1;
+        background: linear-gradient(135deg, var(--charcoal) 0%, #1a1a1a 100%);
+        color: white;
+        padding: 4rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .brand-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover no-repeat;
+        opacity: 0.2;
+      }
+
+      .brand-logo {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        position: relative;
+        color: var(--gold);
+      }
+
+      .brand-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        position: relative;
+        line-height: 1.3;
+      }
+
+      .brand-text {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+        max-width: 400px;
+      }
+
+      .brand-features {
+        list-style: none;
+        padding: 0;
+        margin: 2rem 0;
+      }
+
+      .brand-features li {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .brand-features li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: var(--gold);
+      }
+
+      /* Form Panel */
+      .form-panel {
+        flex: 1;
+        background: rgba(247, 245, 240, 0.98);
+        padding: 4rem 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .form-header {
+        margin-bottom: 2.5rem;
+      }
+
+      .form-header h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--charcoal);
+        margin-bottom: 0.5rem;
+      }
+
+      .form-header p {
+        color: var(--charcoal);
+        opacity: 0.7;
+        font-size: 0.95rem;
+      }
+
+      /* Form Elements */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--charcoal);
+        font-size: 0.95rem;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        border: 1px solid var(--taupe);
+        border-radius: 4px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background-color: white;
+        box-sizing: border-box;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px var(--gold-light);
+      }
+
+      .password-container {
+        position: relative;
+      }
+
+      .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--charcoal);
+        opacity: 0.5;
+        transition: var(--transition);
+        font-size: 1.1rem;
+      }
+
+      .password-toggle:hover {
+        opacity: 0.8;
+        color: var(--gold);
+      }
+
+      /* Forgot Password Link */
+      .forgot-password {
+        text-align: right;
+        margin-bottom: 1.5rem;
+      }
+
+      .forgot-password a {
+        color: var(--gold);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: var(--transition);
+      }
+
+      .forgot-password a:hover {
+        text-decoration: underline;
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 1rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: center;
+        font-size: 0.95rem;
+        width: 100%;
+      }
+
+      .btn-primary {
+        background: var(--gold);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--charcoal);
+        transform: translateY(-2px);
+      }
+
+      /* Social Login */
+      .social-login {
+        margin: 2rem 0;
+        text-align: center;
+      }
+
+      .social-login p {
+        position: relative;
+        margin-bottom: 1.5rem;
+        color: var(--charcoal);
+        opacity: 0.7;
+        font-size: 0.9rem;
+      }
+
+      .social-login p:before,
+      .social-login p:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 30%;
+        height: 1px;
+        background: var(--taupe);
+      }
+
+      .social-login p:before {
+        left: 0;
+      }
+
+      .social-login p:after {
+        right: 0;
+      }
+
+      .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .social-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--taupe);
+        transition: var(--transition);
+        color: var(--charcoal);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .social-icon:hover {
+        background: var(--taupe);
+        transform: translateY(-3px);
+      }
+
+      /* Form Footer */
+      .form-footer {
+        margin-top: 1.5rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--charcoal);
+        opacity: 0.7;
+      }
+
+      .form-footer a {
+        color: var(--gold);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .form-footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* Error Messages */
+      .error {
+        color: #d32f2f;
+        font-size: 0.8rem;
+        margin-top: 0.3rem;
+        display: block;
+      }
+
+      .flash-messages {
+        margin-bottom: 1.5rem;
+      }
+
+      .alert {
+        padding: 0.8rem 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        border-left: 4px solid transparent;
+      }
+
+      .alert-error {
+        background: rgba(211, 47, 47, 0.1);
+        border-left-color: #d32f2f;
+        color: #d32f2f;
+      }
+
+      .alert-success {
+        background: rgba(56, 142, 60, 0.1);
+        border-left-color: #388e3c;
+        color: #388e3c;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 992px) {
+        .container {
+          flex-direction: column;
         }
 
-        .form-container {
-    position: relative;
-    width: 600px;
-    height: 400px;
-    background: linear-gradient(145deg, rgba(255, 255, 238, 0.5), rgba(230, 230, 230, 0.5)); /* Adjusted opacity in background */
-    padding: 50px;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    border: 1px solid #ddd;
-}
+        .brand-panel {
+          padding: 2.5rem;
+          text-align: center;
+        }
 
-        /* Other styles (form, buttons, etc.) */
+        .form-panel {
+          padding: 3rem 2rem;
+        }
+
+        .brand-text, .brand-features {
+          max-width: 100%;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .container {
+          margin: 1rem;
+        }
+
+        .brand-panel {
+          padding: 2rem 1.5rem;
+        }
+
+        .form-panel {
+          padding: 2.5rem 1.5rem;
+        }
+
+        .brand-title {
+          font-size: 1.8rem;
+        }
+
+        .form-header h2 {
+          font-size: 1.6rem;
+        }
+      }
     </style>
 </head>
 <body>
-    <video class="video-background" autoplay muted loop>
+    <video class="video-background" autoplay muted loop playsinline>
         <source src="{{ url_for('static', filename='videos/Loginvid.mp4') }}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 
-    {% extends "home.html" %}
+    <div class="container">
+        <!-- Brand Panel -->
+        <div class="brand-panel">
+            <div class="brand-logo">SITARA FURNISHINGS</div>
+            <h1 class="brand-title">Welcome Back</h1>
+            <p class="brand-text">Sign in to access your personalized dashboard and continue your design journey with us.</p>
 
-    {% block title %}Admin Dashboard{% endblock %}
-    
-    {% block content %}
-    <div class="form-container">
-        <h2>Login</h2>
-        <form id="loginForm" action="" method="POST"> <!-- Corrected action -->
-            {{ form.hidden_tag() }} <!-- CSRF token if using Flask-WTF -->
-            
-            <div class="form-group">
-                <label for="email">Email:</label>
-                {{ form.email(class="form-control", id="email", required=True) }} <!-- Use Flask-WTF rendering -->
+            <ul class="brand-features">
+                <li>Access your saved designs</li>
+                <li>Track your orders</li>
+                <li>Get personalized recommendations</li>
+                <li>Manage your account</li>
+            </ul>
+        </div>
+
+        <!-- Form Panel -->
+        <div class="form-panel">
+            <div class="form-header">
+                <h2>Login</h2>
+                <p>Please enter your credentials to access your account</p>
             </div>
 
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <div style="position: relative; display: flex; align-items: center;">
-                    {{ form.password(class="form-control", id="password", required=True, style="width: 100%; padding-right: 40px;") }} 
-                    <button type="button" id="togglePassword" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer;">
-                        👁️
-                    </button>
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form id="loginForm" method="POST">
+                {{ form.hidden_tag() }}
+
+                <!-- Email Field -->
+                <div class="form-group">
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control", placeholder="your@email.com") }}
+                    {% for error in form.email.errors %}
+                        <small class="error">{{ error }}</small>
+                    {% endfor %}
                 </div>
-            </div>
 
-            <div class="buttons">
-                <button type="submit">Login</button>
-                <button type="reset">Reset</button>
-                <button type="button" class="forgot-password" onclick="location.href='{{ url_for('password.forgot_password') }}'">
-                    Forgot Password
-                </button>
-            </div>
+                <!-- Password Field -->
+                <div class="form-group">
+                    {{ form.password.label }}
+                    <div class="password-container">
+                        {{ form.password(class="form-control", placeholder="Enter your password", id="password") }}
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                    {% for error in form.password.errors %}
+                        <small class="error">{{ error }}</small>
+                    {% endfor %}
+                </div>
 
-            <p>If you are not registered, <a href="{{ url_for('auth.register') }}">Register</a></p>
-        </form>
+                <!-- Forgot Password Link -->
+                <div class="forgot-password">
+                    <a href="{{ url_for('password.forgot_password') }}">Forgot Password?</a>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Sign In</button>
+
+                <!-- Social Login -->
+                <div class="social-login">
+                    <p>Or sign in with</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon">G</a>
+                        <a href="#" class="social-icon">f</a>
+                        <a href="#" class="social-icon">in</a>
+                    </div>
+                </div>
+
+                <!-- Form Footer -->
+                <div class="form-footer">
+                    Don't have an account? <a href="{{ url_for('auth.register') }}">Create one</a>
+                </div>
+            </form>
+        </div>
     </div>
 
+    <script>
+        // Toggle password visibility
+        const togglePassword = document.getElementById("togglePassword");
+        const passwordInput = document.getElementById("password");
 
+        togglePassword.addEventListener("click", function() {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                togglePassword.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>`;
+            } else {
+                passwordInput.type = "password";
+                togglePassword.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>`;
+            }
+        });
 
-<script>
-    document.getElementById("togglePassword").addEventListener("click", function () {
-        let passwordInput = document.getElementById("password");
-        if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            this.innerText = "🔒"; // Change icon to lock when visible
-        } else {
-            passwordInput.type = "password";
-            this.innerText = "👁️"; // Change icon to eye when hidden
-        }
-    });
-</script>
+        // Form validation
+        document.getElementById("loginForm").addEventListener("submit", function(e) {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
 
+            if (!email || !password) {
+                e.preventDefault();
+                alert("Please fill in all required fields");
+            }
+        });
 
-
-
-
-
-
-
-
-
-
-
-
-    {% endblock %}
+        // Add focus styles programmatically for better accessibility
+        const inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.querySelector('label').style.opacity = '1';
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.querySelector('label').style.opacity = '0.8';
+            });
+        });
+    </script>
 </body>
-
 </html>

@@ -3,418 +3,529 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Cart</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='cart.css') }}">
+    <title>My Cart | Sitara Furnishings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Global Styles */
-/* body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: #f8f9fa;
-    margin: 0;
-    padding: 0;
-    color: #333;
-}
+        :root {
+            --cream: #F7F5F0;
+            --taupe: #E8E1D5;
+            --charcoal: #2A2A2A;
+            --gold: #C0A062;
+            --stone: #D4CDC3;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
 
-h1, h2, h3 {
-    color: #212529;
-}
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--cream);
+            color: var(--charcoal);
+            margin: 0;
+            padding: 0;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
 
-main {
-    padding: 40px 5%;
-}
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 500;
+        }
 
-/* Cart Page Layout */
-.cart-page {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
 
-.product-header, .product {
-    display: grid;
-    grid-template-columns: 150px 1fr 150px 150px 150px;
-    gap: 20px;
-    align-items: center;
-    background-color: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
+        .empty-cart {
+            text-align: center;
+            padding: 4rem 2rem;
+            background-color: white;
+            border-radius: 12px;
+            border: 1px solid var(--taupe);
+            box-shadow: var(--shadow-sm);
+            margin: 2rem 0;
+        }
 
-.product-header {
-    font-weight: bold;
-    background-color: #e9ecef;
-    border-radius: 12px;
-}
+        .empty-cart h2 {
+            font-size: 1.8rem;
+            color: var(--charcoal);
+            margin-bottom: 1.5rem;
+        }
 
-.product img {
-    width: 120px;
-    height: 120px;
-    border-radius: 8px;
-    object-fit: cover;
-}
+        .luxury-btn {
+            display: inline-block;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid var(--charcoal);
+            background: transparent;
+            color: var(--charcoal);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
 
-.low-stock {
-    color: #d9534f;
-    font-weight: bold;
-}
+        .luxury-btn:hover {
+            background: var(--charcoal);
+            color: white;
+        }
 
-/* Buttons and Links */
-button, .buy-button, .remove-btn {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 12px 24px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: background-color 0.3s;
-}
+        .luxury-btn.accent {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: white;
+        }
 
-button:hover, .buy-button:hover, .remove-btn:hover {
-    background-color: #0056b3;
-}
+        .luxury-btn.accent:hover {
+            background: transparent;
+            color: var(--gold);
+        }
 
-.remove-btn {
-    background-color: #dc3545;
-}
+        .cart-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
 
-.remove-btn:hover {
-    background-color: #c82333;
-}
+        @media (max-width: 768px) {
+            .cart-container {
+                grid-template-columns: 1fr;
+            }
+        }
 
-/* Cart Summary Section */
-.cart-summary {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
+        .cart-items {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--taupe);
+            box-shadow: var(--shadow-sm);
+        }
 
-.invoice-details {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #e0e0e0;
-}
+        .cart-header {
+            display: grid;
+            grid-template-columns: 100px 2fr 1fr 1fr 1fr;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--taupe);
+            font-weight: 600;
+            color: var(--charcoal);
+        }
 
-.invoice-details:last-child {
-    border-bottom: none;
-    font-weight: bold;
-}
+        .cart-item {
+            display: grid;
+            grid-template-columns: 100px 2fr 1fr 1fr 1fr;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--taupe);
+            align-items: center;
+        }
 
-/* Responsive Design */
-@media (max-width: 900px) {
-    .product-header, .product {
-        grid-template-columns: 100px 1fr 80px 100px 100px;
-    }
-}
+        .cart-item:last-child {
+            border-bottom: none;
+        }
 
-@media (max-width: 600px) {
-    .product-header, .product {
-        grid-template-columns: 80px 1fr;
-        gap: 10px;
-        text-align: left;
-    }
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 8px;
+            background-color: var(--cream);
+            padding: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
 
-    .product img {
-        width: 80px;
-        height: 80px;
-    }
+        .product-image:hover {
+            transform: scale(1.05);
+        }
 
-    .cart-summary {
-        padding: 20px;
-    }
-}
+        .product-name {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
 
-/* Subtle Animations */
-button, .buy-button, .remove-btn {
-    transform: scale(1);
-    transition: transform 0.2s;
-}
+        .product-price {
+            color: var(--gold);
+            font-weight: 500;
+        }
 
-button:hover, .buy-button:hover, .remove-btn:hover {
-    transform: scale(1.05);
-}
+        .quantity-select {
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid var(--taupe);
+            background-color: white;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+        }
 
-/* Accessibility */
-button:focus, .buy-button:focus, .remove-btn:focus {
-    outline: 2px solid #0056b3;
-    outline-offset: 2px;
-}
+        .subtotal {
+            font-weight: 500;
+            color: var(--charcoal);
+        }
 
-/* Additional Enhancements */
-#buythis {
-    display: inline-block;
-    margin-top: 20px;
-    text-decoration: none;
-    color: white;
-}
+        .remove-btn {
+            background-color: transparent;
+            color: #b91c1c;
+            border: 1px solid #b91c1c;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
 
-h2 {
-    text-align: center;
-}
-    </style> */
+        .remove-btn:hover {
+            background-color: #b91c1c;
+            color: white;
+        }
+
+        .low-stock {
+            color: #b91c1c;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        .cart-summary {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--taupe);
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .cart-summary h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--charcoal);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--taupe);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            background-color: var(--charcoal);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .checkout-btn:hover {
+            background-color: transparent;
+            color: var(--gold);
+            border: 1px solid var(--gold);
+        }
+
+        .free-delivery {
+            color: var(--gold);
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .discount-badge {
+            background-color: var(--gold);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .cart-header {
+                display: none;
+            }
+
+            .cart-item {
+                grid-template-columns: 80px 1fr;
+                grid-template-rows: auto auto auto auto;
+                gap: 1rem;
+            }
+
+            .product-info {
+                grid-column: 2;
+            }
+
+            .product-price {
+                grid-row: 2;
+                grid-column: 1;
+            }
+
+            .quantity-selector {
+                grid-row: 3;
+                grid-column: 1 / span 2;
+            }
+
+            .subtotal {
+                grid-row: 4;
+                grid-column: 1;
+            }
+
+            .remove-btn {
+                grid-row: 4;
+                grid-column: 2;
+                justify-self: end;
+            }
+        }
+    </style>
 </head>
 <body>
 {% extends "home.html" %}
 
-{% block title %}My Cart{% endblock %}
+{% block title %}My Cart | Sitara Furnishings{% endblock %}
 
 {% block content %}
 <main>
     {% if not cart_items %}
-        <h2 style="text-align: center; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;margin-bottom: 20px;">
-            Your Cart is Empty......Add items from our New Collections
-        </h2>
-        <a href="/">
-            <button style="display: inline-block; padding: 10px 20px; background-color: #4285F4; color: white; text-decoration: none; border: none; border-radius: 5px; cursor: pointer; font-family: sans-serif; transition: background-color 0.3s ease, margin 0.3s ease; margin-left: 20px; :hover {background-color: #2962FF; margin-top: 15px; margin-bottom: 25px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);}"  >Back to Home</button>
-        </a>
-    {% else %}
-    <div class="cart-page">
-        <h1 style="text-align: center; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; margin-bottom: 20px;">Your Cart products are..</h1>
-
-        <div class="product-header">
-            <div>Image</div>
-            <div>Name</div>
-            <!-- <div>Brand</div> -->
-            <div>Price</div>
-            <div>Quantity</div>
-            <div>Sub Total</div>
-            <!-- <div>Discount</div> -->
+        <div class="empty-cart">
+            <h2>Your Cart is Empty</h2>
+            <p style="color: var(--charcoal); margin-bottom: 2rem;">Discover our curated collection of timeless pieces</p>
+            <a href="/" class="luxury-btn accent">Continue Shopping</a>
         </div>
+    {% else %}
+        <h1 style="font-size: 2rem; color: var(--charcoal); margin-bottom: 1.5rem; text-align: center;">Your Shopping Cart</h1>
 
-        <div class="products">
-            {% for item in cart_items %}
-            <div class="product">
-                {% if item.product.images %}
-                {% if item.product.images|length > 0 %}
-                    <img src="{{ url_for('static', filename=item.product.images[0].image_url) }}" alt="{{ item.product.name }}" class="product-image" data-product-id="{{ item.product.id }}">
-                {% else %}
-                    <img src="{{ url_for('static', filename='default_image.jpg') }}" alt="{{ item.product.name }}" class="product-image" data-product-id="{{ item.product.id }}">
-                {% endif %}
-            {% else %}
-                <img src="{{ url_for('static', filename='default_image.jpg') }}" alt="{{ item.product.name }}" class="product-image" data-product-id="{{ item.product.id }}">
-            {% endif %}
-                <h2>{{ item.product.name }}</h2>
-                <!-- <p>{{ item.product.manufacturer }}</p> -->
-                <p>₹<span class="product-price">{{ item.product.price }}</span></p>
-                <div>
-                    <label for="quantity-{{ item.id }}">Quantity:</label>
-                    <select id="quantity-{{ item.id }}" class="quantity-dropdown" data-price="{{ item.product.price }}" discount1="{{item.product.discount}}" data-cart-item-id="{{ item.id }}" data-stock="{{ product_stock[item.product.id] }}">
-                        {% for i in range(1, product_stock[item.product.id] + 1) %}
-                            <option value="{{ i }}" {% if i == item.quantity %}selected{% endif %}>{{ i }}</option>
-                        {% endfor %}
-                    </select>
-                    {% if product_stock[item.product.id] <= 5 %}
-                        <span class="low-stock">Low Stock!</span>
-                    {% endif %}
+        <div class="cart-container">
+            <div class="cart-items">
+                <div class="cart-header">
+                    <div>Product</div>
+                    <div>Details</div>
+                    <div>Price</div>
+                    <div>Quantity</div>
+                    <div>Subtotal</div>
                 </div>
-                <p>₹<span class="subtotal">{{ item.total_price }}</span></p>
-                <p><span style="display: none;" class="temp">{{item.total_price * (item.product.discount / 100) * item.quantity }}</span></p>
-                <div class="bbuttons">
+
+                {% for item in cart_items %}
+                <div class="cart-item">
+                    {% if item.product.images and item.product.images|length > 0 %}
+                        <img src="{{ url_for('static', filename='uploads/' + item.product.images[0].image_url.split('/')[-1]) }}"
+                             alt="{{ item.product.name }}" class="product-image" data-product-id="{{ item.product.id }}">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='default_image.jpg') }}" alt="{{ item.product.name }}" class="product-image" data-product-id="{{ item.product.id }}">
+                    {% endif %}
+
+                    <div class="product-info">
+                        <div class="product-name">{{ item.product.name }}</div>
+                        {% if item.product.discount > 0 %}
+                            <span class="discount-badge">{{ item.product.discount }}% OFF</span>
+                        {% endif %}
+                        {% if product_stock[item.product.id] <= 5 %}
+                            <div class="low-stock">Only {{ product_stock[item.product.id] }} left in stock!</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="product-price">
+                        {% if item.product.discount > 0 %}
+                            ₹{{ (item.product.price * (1 - item.product.discount / 100)) | round(2) }}
+                            <div style="text-decoration: line-through; color: var(--stone); font-size: 0.8rem;">
+                                ₹{{ item.product.price }}
+                            </div>
+                        {% else %}
+                            ₹{{ item.product.price }}
+                        {% endif %}
+                    </div>
+
+                    <div class="quantity-selector">
+                        <select id="quantity-{{ item.id }}" class="quantity-select"
+                                data-price="{{ item.product.price }}"
+                                discount1="{{item.product.discount}}"
+                                data-cart-item-id="{{ item.id }}"
+                                data-stock="{{ product_stock[item.product.id] }}">
+                            {% for i in range(1, product_stock[item.product.id] + 1) %}
+                                <option value="{{ i }}" {% if i == item.quantity %}selected{% endif %}>{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="subtotal">₹<span class="subtotal-value">{{ item.total_price }}</span></div>
+                    <div style="display: none;" class="discount-value">{{item.total_price * (item.product.discount / 100) * item.quantity }}</div>
+
                     <form action="/remove_from_cart" method="POST" style="display: inline;">
                         <input type="hidden" name="cart_item_id" value="{{ item.id }}">
-                        <button type="submit" class="remove-btn">Remove from Cart</button>
+                        <button type="submit" class="remove-btn">
+                            <i class="fas fa-trash-alt mr-1"></i> Remove
+                        </button>
                     </form>
-                    
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
 
-        <div class="cart-summary" style="margin-top: 20px;">
-            <h2>Free delivery all over India..!</h2>
-            <div class="invoice">
-                <h3>Invoice</h3>
-                <div class="invoice-details">
+            <div class="cart-summary">
+                <h2>Order Summary</h2>
+                <div class="free-delivery">Free Delivery on orders over ₹5000</div>
+
+                <div class="summary-item">
                     <span>Subtotal:</span>
                     <span>₹<span id="invoice-subtotal">0</span></span>
-                </div> 
-                 <div class="invoice-details">
-                    <span>Total Discount:</span>
+                </div>
+                <div class="summary-item">
+                    <span>Discount:</span>
                     <span>-₹<span id="d-message">0</span></span>
                 </div>
-                <div class="invoice-details">
-                    <span>Delivery Charges:</span>
+                <div class="summary-item">
+                    <span>Delivery:</span>
                     <span>₹<span id="invoice-tax">0</span></span>
                 </div>
-                <div></div>
-                <div class="invoice-details">
-                    <span>Grand Total:</span>
+                <div class="summary-item">
+                    <span>Total:</span>
                     <span>₹<span id="invoice-grand-total">0</span></span>
                 </div>
-                <!-- <div class="coupon-section" style="margin-bottom: 20px;">
-                    <input type="text" id="coupon-code" placeholder="Enter Coupon Code" style="width: 70%; padding: 5px; margin-top: 10px;">
-                    <button id="apply-coupon" class="appl">Apply</button>
-                    <p id="coupon-message" style="color: green; margin-top: 10px; display: none;">Coupon applied successfully!</p>
-                </div> -->
-                <a href="{{ url_for('main.checkout') }}" id = "buythis">
-                    <button class="buy-button"> Place Order</button>
-                </a>
 
-                <form id="checkout-form" action="{{ url_for('main.checkout') }}" method="POST" style="display: none;">
-                    <!-- <input type="hidden" name="subtotal" id="checkout-subtotal"> -->
-                    <!-- <input type="hidden" name="discount" id="checkout-discount"> -->
+                <form id="checkout-form" action="{{ url_for('main.checkout') }}" method="POST">
                     <input type="hidden" name="grand_total" id="checkout-grand-total">
-                    <!-- You can add other hidden fields if needed -->
+                    <button type="submit" class="checkout-btn">
+                        <i class="fas fa-lock mr-2"></i> Proceed to Checkout
+                    </button>
                 </form>
-
             </div>
         </div>
-    </div>
     {% endif %}
 </main>
 
 <script>
-const quantityDropdowns = document.querySelectorAll('.quantity-dropdown');
-const invoiceSubtotal = document.getElementById('invoice-subtotal');
-const invoiceTax = document.getElementById('invoice-tax');
-const invoiceGrandTotal = document.getElementById('invoice-grand-total');
-// const applyCouponButton = document.getElementById('apply-coupon');
-const couponCodeInput = document.getElementById('coupon-code');
-const couponMessage = document.getElementById('coupon-message');
-const dm = document.getElementById('d-message');
-let discount = 0;
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize quantity dropdown event listeners
+    const quantityDropdowns = document.querySelectorAll('.quantity-select');
+    const invoiceSubtotal = document.getElementById('invoice-subtotal');
+    const invoiceTax = document.getElementById('invoice-tax');
+    const invoiceGrandTotal = document.getElementById('invoice-grand-total');
+    const discountMessage = document.getElementById('d-message');
 
+    // Update cart total when page loads
+    updateCartTotal();
 
-document.getElementById('buythis').addEventListener('click', function (e) {
-    e.preventDefault();
-    const grandTotal = document.getElementById('invoice-grand-total').textContent;
+    // Add event listeners to quantity dropdowns
+    quantityDropdowns.forEach(dropdown => {
+        dropdown.addEventListener('change', function(event) {
+            const discount = parseFloat(event.target.getAttribute('discount1'));
+            const quantity = parseInt(event.target.value);
+            const price = parseFloat(event.target.getAttribute('data-price'));
+            const cartItemId = event.target.getAttribute('data-cart-item-id');
+            const stock = parseInt(event.target.getAttribute('data-stock'));
+            const productElement = event.target.closest('.cart-item');
+            const subtotalElement = productElement.querySelector('.subtotal-value');
+            const discountElement = productElement.querySelector('.discount-value');
 
-
-    document.getElementById('checkout-grand-total').value = grandTotal;
-    console.log("Done", grandTotal)
-    document.getElementById('checkout-form').submit();
-})
-
-
-quantityDropdowns.forEach(dropdown => {
-    dropdown.addEventListener('change', event => {
-        // let d = parseFloat(document.getElementById("temp").textContent);
-        const d = parseFloat(event.target.getAttribute('discount1'));
-        console.log("hello",d);
-        const quantity = parseInt(event.target.value);
-        const price = parseFloat(event.target.getAttribute('data-price'));
-        const cartItemId = event.target.getAttribute('data-cart-item-id'); // Get cart item ID from data attribute
-        const stock = parseInt(event.target.getAttribute('data-stock')); // Get stock from data attribute
-        const productElement = event.target.closest('.product');
-        const subtotalElement = productElement.querySelector('.subtotal');
-        const discountElemnt = productElement.querySelector('.temp');
-
-        if(quantity > stock){
-            alert(`Only ${stock} units are available`);
-            event.target.value = stock; //Reset dropdown to max stock
-            return;
-        }
-
-        const newdiscount = ((price * (d / 100)) * quantity);
-        // disc
-        const newSubtotal = quantity * price;
-        console.log(newdiscount, newSubtotal-newdiscount)
-        // dm.innerText = newdiscount.toFixed(2); 
-        //     console.log(dm)
-        discountElemnt.textContent = newdiscount.toFixed(2);
-        subtotalElement.textContent = newSubtotal.toFixed(2);
-
-
-        fetch(`/update_cart_item/${cartItemId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ quantity: quantity }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateCartTotal();
-            } else {
-                console.error("Failed to update cart item:", data.error);
-                // Optionally revert quantity to previous value.  Could store this value before the fetch call.
-                alert(data.error); //Display server error message
+            // Validate quantity against stock
+            if(quantity > stock) {
+                alert(`Only ${stock} units are available`);
+                event.target.value = stock;
+                return;
             }
-        })
-        .catch(error => {
-            console.error("Error updating cart item:", error);
-            alert("Network error. Please try again.");
+
+            // Calculate new values
+            const newDiscount = ((price * (discount / 100)) * quantity);
+            const newSubtotal = quantity * price;
+
+            // Update DOM elements
+            discountElement.textContent = newDiscount.toFixed(2);
+            subtotalElement.textContent = newSubtotal.toFixed(2);
+
+            // Send update to server
+            fetch(`/update_cart_item/${cartItemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ quantity: quantity }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error("Failed to update cart item:", data.error);
+                    alert(data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error updating cart item:", error);
+                alert("Network error. Please try again.");
+            });
+
+            // Update cart totals
+            updateCartTotal();
         });
     });
-});
 
-// applyCouponButton.addEventListener('click', () => {
-//     const couponCode = couponCodeInput.value.trim();
-
-//     if (couponCode === 'DISCOUNT10') {
-//         discount = 0.1; 
-//         couponMessage.style.display = 'block';
-//         couponMessage.textContent = 'Coupon applied successfully!';
-//         couponMessage.style.color = 'green';
-//     } else if (couponCode === 'DISCOUNT50') {
-//         discount = 0.5; 
-//         couponMessage.style.display = 'block';
-//         couponMessage.textContent = 'Coupon applied successfully!';
-//         couponMessage.style.color = 'green';
-//     } else {
-//         discount = 0; 
-//         couponMessage.style.display = 'block';
-//         couponMessage.style.color = 'red';
-//         couponMessage.textContent = 'Invalid coupon code.';
-//     }
-//     updateCartTotal();
-// });
-
-function updateCartTotal() {
-    // var d = parseFloat(document.getElementById("temp").textContent);
-    // console.log(d)
-    let total = 0;
-    let dis = 0;
-    document.querySelectorAll('.subtotal').forEach(subtotalElement => {
-        total += parseFloat(subtotalElement.textContent);
-    });
-    document.querySelectorAll('.temp').forEach(discountElemnt => {
-        dis += parseFloat(discountElemnt.textContent);
+    // Add click event to product images
+    document.querySelectorAll('.product-image').forEach(image => {
+        image.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            window.location.href = `/product/${productId}`;
+        });
     });
 
-    console.log(dis);
+    // Function to update cart totals
+    function updateCartTotal() {
+        let subtotal = 0;
+        let totalDiscount = 0;
 
-    let tax;
-    // dm.textContent = (total * discount).toFixed(2);
+        // Calculate subtotal and total discount
+        document.querySelectorAll('.subtotal-value').forEach(element => {
+            subtotal += parseFloat(element.textContent);
+        });
 
-    if (total > 3000 || total <= 0) {
-        tax = 0;
-    } else if (total > 2000 && total <= 3000) {
-        tax = 400;
-    } else if (total > 1000 && total <= 2000) {
-        tax = 200;
-    } else if (total > 500 && total <= 1000) {
-        tax = 100;
-    } else {
-        tax = 50;
+        document.querySelectorAll('.discount-value').forEach(element => {
+            totalDiscount += parseFloat(element.textContent);
+        });
+
+        // Calculate delivery cost
+        let delivery = 0;
+        if (subtotal > 5000 || subtotal <= 0) {
+            delivery = 0;
+        } else if (subtotal > 3000 && subtotal <= 5000) {
+            delivery = 400;
+        } else if (subtotal > 2000 && subtotal <= 3000) {
+            delivery = 200;
+        } else if (subtotal > 1000 && subtotal <= 2000) {
+            delivery = 100;
+        } else {
+            delivery = 50;
+        }
+
+        // Calculate grand total
+        const grandTotal = subtotal + delivery - totalDiscount;
+
+        // Update DOM
+        invoiceSubtotal.textContent = subtotal.toFixed(2);
+        invoiceTax.textContent = delivery.toFixed(2);
+        discountMessage.textContent = totalDiscount.toFixed(2);
+        invoiceGrandTotal.textContent = grandTotal.toFixed(2);
+
+        // Update hidden form field
+        document.getElementById('checkout-grand-total').value = grandTotal.toFixed(2);
     }
-    // dm.innerText = dis.toFixed(2);
-    let gt = total + tax - dis;
-    let disc = gt * discount
-    gt -= disc
-
-    const grandTotal = gt
-
-    dm.innerText = (dis+disc).toFixed(2)
-
-    invoiceSubtotal.textContent = total.toFixed(2);
-    invoiceTax.textContent = tax.toFixed(2);
-    invoiceGrandTotal.textContent = grandTotal.toFixed(2);
-}
-
-updateCartTotal();
-
-document.querySelectorAll('.product-image').forEach(image => {
-    image.addEventListener('click', function() {
-        const productId = this.getAttribute('data-product-id');
-        window.location.href = `/product/${productId}`;
-    });
 });
-
 </script>
 {% endblock %}
 </body>

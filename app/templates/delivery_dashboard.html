@@ -1,133 +1,437 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #F7F5F0;
+            --taupe: #E8E1D5;
+            --charcoal: #2A2A2A;
+            --gold: #C0A062;
+            --stone: #D4CDC3;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="{{ url_for('static',filename='delivery_dashboard.css') }}">
-        <title>Delivery Person Dashboard</title>
-        <style>
-            body {
-        font-family: 'Roboto', sans-serif;
-        background-image: url('{{ url_for("static", filename="videos/admin image.jpg") }}');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        color: #333;
-        position: relative;
-    }
-    
-    /* Overlay to reduce opacity */
-    body::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.9); /* Adjust transparency here */
-        z-index: -1;
-    }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--cream);
+            color: var(--charcoal);
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Delivery Header */
+        .delivery-header {
+            width: 100%;
+            height: 40vh;
+            min-height: 350px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 4rem;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+                        url('{{ url_for("static", filename="videos/admin image.jpg") }}');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .delivery-header-content {
+            color: white;
+            padding: 2rem;
+            max-width: 800px;
+        }
+
+        .delivery-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 500;
+            margin: 0 0 1.5rem;
+        }
+
+        .delivery-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Dashboard Container */
+        .delivery-container {
+            max-width: 1200px;
+            margin: 0 auto 4rem;
+            padding: 0 2rem;
+        }
+
+        /* Status Filter */
+        .status-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+        }
+
+        .status-btn {
+            padding: 0.8rem 1.8rem;
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--charcoal);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            border-radius: 50px;
+        }
+
+        .status-btn:hover, .status-btn.selected {
+            background: var(--gold);
+            color: white;
+        }
+
+        /* Orders Table */
+        .orders-table-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .orders-table th {
+            background-color: var(--taupe);
+            color: var(--charcoal);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 500;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .orders-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--taupe);
+            vertical-align: middle;
+        }
+
+        .orders-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .orders-table tr:hover {
+            background-color: rgba(192, 160, 98, 0.1);
+        }
+
+        /* Order Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+
+        .status-processing {
+            background-color: #CCE5FF;
+            color: #004085;
+        }
+
+        .status-shipped {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+
+        .status-delivered {
+            background-color: #D1ECF1;
+            color: #0C5460;
+        }
+
+        .status-cancelled {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--gold);
+            background: var(--gold);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+
+        .action-btn:hover {
+            background: transparent;
+            color: var(--gold);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Map Preview */
+        .map-preview {
+            width: 150px;
+            height: 100px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .map-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .delivery-header {
+                height: 30vh;
+                min-height: 300px;
+            }
+
+            .delivery-header h1 {
+                font-size: 2rem;
+            }
+
+            .orders-table {
+                display: block;
+            }
+
+            .orders-table th, .orders-table td {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .status-filter {
+                gap: 0.5rem;
+            }
+
+            .status-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .delivery-header {
+                height: 25vh;
+            }
+
+            .delivery-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .orders-table-container {
+                padding: 1rem;
+            }
+        }
     </style>
-    </head>
-
-    {% extends 'home.html' %}
+</head>
+<body>
+    {% extends "home.html" %}
     {% block content %}
-    <div class="dashboard-container">
-        <div class="header" style="border: 2px solid #ccc; border-radius: 8px; padding: 10px;">Delivery Dashboard</div>
+    <!-- Delivery Header -->
+    <div class="delivery-header">
+        <div class="delivery-header-content">
+            <h1>Delivery Dashboard</h1>
+            <p>Manage and track your delivery assignments efficiently</p>
+        </div>
+    </div>
 
-        <div class="order-status-selector">
-            Select Order Status :
+    <!-- Delivery Container -->
+    <div class="delivery-container">
+        <!-- Status Filter -->
+        <div class="status-filter">
             {% for order_status in order_status_options %}
-            <button class="status-filter-button" id="{{order_status}}"
-                onclick="filter_by_order_status('{{order_status}}');">
+            <button class="status-btn {% if loop.first %}selected{% endif %}"
+                    id="{{order_status}}"
+                    onclick="filter_by_order_status('{{order_status}}')">
                 {{order_status}}
             </button>
             {% endfor %}
         </div>
-        <div id="orders-table">
-        </div>
 
+        <!-- Orders Table -->
+        <div class="orders-table-container">
+            <div id="orders-table">
+                <!-- Table will be loaded dynamically via JavaScript -->
+                <p class="loading-text">Loading orders...</p>
+            </div>
+        </div>
     </div>
 
     <script>
         let selected_status_filter = "{{order_status_options[0]}}";
-        window.onload(refresh_selected_status_filter());
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refresh_selected_status_filter();
+        });
+
         function filter_by_order_status(new_status_filter) {
             const orders_table_url = new URL("{{ url_for('delivery_person.filtered_orders_table') }}", window.location.origin);
             orders_table_url.searchParams.append("order_status", new_status_filter);
-            fetch(orders_table_url, { method: "GET" }).then(
-                (response) => {
-                    if (response.ok) {
-                        const old_selected_status_button = document.getElementById(selected_status_filter);
-                        old_selected_status_button.classList.remove("selected-status");
 
-                        const new_selected_status_button = document.getElementById(new_status_filter);
-                        new_selected_status_button.classList.add("selected-status");
+            fetch(orders_table_url, { method: "GET" })
+                .then((response) => {
+                    if (response.ok) {
+                        // Update button states
+                        document.querySelectorAll('.status-btn').forEach(btn => {
+                            btn.classList.remove('selected');
+                        });
+                        document.getElementById(new_status_filter).classList.add('selected');
                         selected_status_filter = new_status_filter;
 
-                        const orders_table_div = document.getElementById("orders-table");
-                        response.text().then(
-                            (orders_table) => {
-                                orders_table_div.innerHTML = orders_table;
-                            }
-                        );
+                        // Update table content
+                        response.text().then((orders_table) => {
+                            document.getElementById('orders-table').innerHTML = orders_table;
+                        });
                     } else {
-                        alert("Unable to get orders table.")
+                        alert("Unable to load orders. Please try again.");
                     }
-                }
-            );
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred while loading orders.");
+                });
         }
+
         function refresh_selected_status_filter() {
             filter_by_order_status(selected_status_filter);
         }
+
         function updateStatus(orderId, new_status) {
+            if (!confirm(`Are you sure you want to change this order's status to ${new_status}?`)) {
+                return;
+            }
+
             fetch('{{ url_for("delivery_person.update_status") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ order_id: orderId, status: new_status }),
+                body: JSON.stringify({
+                    order_id: orderId,
+                    status: new_status
+                }),
             })
-                .then(response => {
-                    return response.json(); // Parse the JSON response
-                })
-                .then(data => {
-                    if (data.message) {
-                        // alert(data.message);
-                        // refresh the current table after a status change
-                        refresh_selected_status_filter();
-                    } else if (data.error) {
-                        alert(data.error);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    // Show success notification
+                    showNotification(`Status updated to ${new_status}`, 'success');
+                    refresh_selected_status_filter();
+                } else if (data.error) {
+                    showNotification(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Failed to update status', 'error');
+            });
         }
+
         function assign_order(order_id) {
+            if (!confirm("Are you sure you want to assign this order to yourself?")) {
+                return;
+            }
+
             fetch("{{ url_for('delivery_person.assign_order') }}", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ order_id }),
-            }).then(
-                (response) => {
+            })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('Order assigned successfully', 'success');
                     refresh_selected_status_filter();
-                    if (!response.ok) {
-                        response.text().then(
-                            (message) => { alert(message) }
-                        );
-                    }
+                } else {
+                    response.text().then(message => {
+                        showNotification(message || 'Failed to assign order', 'error');
+                    });
                 }
-            );
-
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Failed to assign order', 'error');
+            });
         }
+
+        // Notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // Add some temporary CSS for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 4px;
+                color: white;
+                font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                transform: translateX(0);
+                transition: all 0.3s ease;
+            }
+            .notification.success {
+                background-color: #28a745;
+            }
+            .notification.error {
+                background-color: #dc3545;
+            }
+            .notification.fade-out {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 
     {% endblock %}
-
+</body>
 </html>
